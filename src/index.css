@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html {
+    scroll-behavior: smooth;
+  }
+
+html {
+  direction: rtl;
+}
+@font-face {
+  font-family: 'Almarai';
+  src: url('./assets/Fonts/Almarai-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Almarai', sans-serif;
+}
+/* globals.css or inside a CSS module */
+.clip-hexagon {
+  clip-path: polygon(
+    50% 0%,
+    93% 25%,
+    93% 75%,
+    50% 100%,
+    7% 75%,
+    7% 25%
+  );
+}
