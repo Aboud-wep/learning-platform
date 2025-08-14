@@ -21,7 +21,6 @@ import ViewProfile from "../Pages/Profile/ViewProfile";
 import LessonEnded from "../Component/LessonEnded";
 import NoHeartsPage from "../Component/NoHeartsPage";
 import RewardedMotivationFreezes from "../Component/RewardedMotivationFreezes";
-import Leaderboard from "../Pages/Home/Leaderboard";
 
 const MainRoutes = () => (
   <Routes>
@@ -39,7 +38,6 @@ const MainRoutes = () => (
         <Route path="*" element={<Navigate to="/home" replace />} />
 
         <Route path="user-profile/:id" element={<ViewProfile />} />
-        <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="no-hearts" element={<NoHeartsPage />} />
         <Route path="home" element={<Home />} />
         <Route path="profile" element={<Profile />} />

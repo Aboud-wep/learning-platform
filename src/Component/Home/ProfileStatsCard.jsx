@@ -13,11 +13,9 @@ import { useAchievements } from "./AchievementContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import achievementImg from "../../assets/Images/achievement.png";
-import { useNavigate } from "react-router-dom";
 
 const ProfileStatsCard = ({ profile, mySubjects }) => {
   const { achievements } = useAchievements();
-  const navigate = useNavigate();
   return (
     <Box sx={{ width: "324px" }}>
       <Box
@@ -35,7 +33,7 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               sx={{
                 backgroundColor: "#71D127",
                 borderRadius: "20px",
-                // p: 2,
+                p: 2,
 
                 textAlign: "center",
                 width: 95,
@@ -47,24 +45,10 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               }}
             >
               <Typography fontSize="15px">موادي</Typography>
-              {mySubjects ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography>
-                    <span className="text-[40px]">
-                      {mySubjects?.length || 0}
-                    </span>
-                  </Typography>
-                  <Typography>مادة</Typography>
-                </Box>
-              ) : (
-                <Typography fontSize="12px">Loading...</Typography>
-              )}
+              <Typography mt={1} color="gray">
+                <span className="font-40px"> {mySubjects?.length || 0} </span>{" "}
+                مادة
+              </Typography>
             </Box>
           </Grid>
 
@@ -73,7 +57,7 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               sx={{
                 backgroundColor: "#F4A32C",
                 borderRadius: "20px",
-                // p: 2,
+                p: 2,
 
                 textAlign: "center",
                 width: 95,
@@ -86,22 +70,13 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
             >
               <Typography fontSize="15px">الحماسة</Typography>
               {profile ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography fontSize="12px">
-                    <span className="text-[40px]">
-                      {profile.highest_streak}
-                    </span>
-                  </Typography>
-                  <Typography fontSize="12px">يوم</Typography>
-                </Box>
+                <Typography fontSize="12px" mt={1}>
+                  {profile.highest_streak} يوم
+                </Typography>
               ) : (
-                <Typography fontSize="12px">Loading...</Typography>
+                <Typography fontSize="12px" color="gray">
+                  Loading...
+                </Typography>
               )}
             </Box>
           </Grid>
@@ -111,6 +86,8 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               sx={{
                 backgroundColor: "#205DC7",
                 borderRadius: "20px",
+                p: 1,
+
                 textAlign: "center",
                 width: 95,
                 height: 95,
@@ -122,20 +99,13 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
             >
               <Typography fontSize="15px">نقاط الخبرة</Typography>
               {profile ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography fontSize="12px">
-                    <span className="text-[40px]">{profile.xp}</span>
-                  </Typography>
-                  <Typography fontSize="12px">xp</Typography>
-                </Box>
+                <Typography fontSize="12px" mt={1}>
+                  {profile.xp} xp
+                </Typography>
               ) : (
-                <Typography fontSize="12px">Loading...</Typography>
+                <Typography fontSize="12px" color="gray">
+                  Loading...
+                </Typography>
               )}
             </Box>
           </Grid>
@@ -197,7 +167,6 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
                   </Box>
                 ))}
               <Button
-                onClick={() => navigate("/leaderboard")}
                 sx={{
                   fontSize: "20px",
                   fontWeight: "bold",
@@ -217,7 +186,7 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
         {/* Achievements List */}
 
         <Box sx={{ mt: 3 }}>
-          {achievements ? (
+          {achievements? (
             <Box
               sx={{
                 backgroundColor: "#fff",
@@ -249,7 +218,12 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
 
                     {/* Right: Achievement Details */}
                     <Box flex={1}>
-                      <Typography fontSize="14px" mb={1} textAlign={"center"}>
+                      <Typography
+                        fontSize="14px"
+                        color="gray"
+                        mb={1}
+                        textAlign={"center"}
+                      >
                         {item.achievement.description}
                       </Typography>
                       <Box sx={{ position: "relative" }}>
@@ -299,7 +273,9 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               </Button>
             </Box>
           ) : (
-            <Typography fontSize="14px">لا توجد إنجازات حالياً.</Typography>
+            <Typography fontSize="14px" color="gray">
+              لا توجد إنجازات حالياً.
+            </Typography>
           )}
         </Box>
       </Box>

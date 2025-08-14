@@ -56,9 +56,13 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
     const firstItem = stage?.items?.find((item) => !item.lesson?.is_passed);
     if (firstItem) {
       try {
+<<<<<<< HEAD
         console.log("testttt")
         const result = await startStageItem(firstItem.id);
         console.log("Test",result)
+=======
+        const result = await startStageItem(firstItem.id);
+>>>>>>> 7082714 (Initial commit)
         if (result?.question?.id) {
           navigate(`/questions/${result.question.id}`, { state: result });
         }
