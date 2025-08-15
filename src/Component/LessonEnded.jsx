@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
-import NoHeartsImg from "../assets/Icons/NoHearts.png";
+import XPRewards from "../assets/Icons/XPRewards.png";
 const LessonEnded = () => {
   const { rewards } = useQuestion();
   const location = useLocation();
@@ -39,14 +39,25 @@ const LessonEnded = () => {
           borderRadius: "8px",
           display: "inline-block",
           fontWeight: "900",
+          marginBottom:"43px"
         }}
       >
         أحســــــــــنت !
       </p>
 
       <div className="text-center mb-8">
-        {rewards?.xp > 0 && <p>نقاط الخبرة المكتسبة: {rewards.xp}</p>}
-        {rewards?.coins > 0 && <p>العملات المكتسبة: {rewards.coins}</p>}
+        {/* {rewards?.xp > 0 &&  */}
+        <div className="flex items-center justify-center text-[#205DC7] text-[32px] bolder">
+          PX&nbsp; <p>{rewards.xp || "12"}+</p>
+          <img
+            src={XPRewards}
+            alt="XPRewards"
+            className="mr-[13px]"
+          />
+        </div>
+
+        {/* {rewards?.coins > 0 &&  */}
+        <p>العملات المكتسبة: {rewards.coins || "30"}</p>
       </div>
 
       {/* Button container aligned to the left */}

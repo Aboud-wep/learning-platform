@@ -31,6 +31,7 @@ const MySubjectCard = ({ subject }) => {
         alignItems: "center",
         px:"15px",
         borderRadius: "20px",
+        marginBottom:"20px",
       }}
     >
       {/* Right Image */}
