@@ -12,7 +12,7 @@ const AddAdmin = () => {
   const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const baseUrl = "http://localhost:8000";
+    const baseUrl = "https://beshrbaloush.pythonanywhere.com/";
     const token = localStorage.getItem("accessToken");
 
     try {

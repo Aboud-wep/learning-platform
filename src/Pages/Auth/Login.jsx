@@ -45,7 +45,7 @@ const Login = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:8000/api/v1/users/auth/dashboard/login-google",
+        "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard/login-google",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
