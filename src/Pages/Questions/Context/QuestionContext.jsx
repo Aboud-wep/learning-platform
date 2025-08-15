@@ -36,9 +36,10 @@ export const QuestionProvider = ({ children }) => {
     setLoading(true);
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      // Optionally, navigate to login or show a message
-      return <Navigate to="/login" replace />;
+      navigate("/login", { replace: true });
+      return;
     }
+
     try {
       const res = await axiosInstance.post(
         "subjects/lessons/website/start-item",
