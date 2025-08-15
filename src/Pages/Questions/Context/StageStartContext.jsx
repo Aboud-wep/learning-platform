@@ -21,13 +21,10 @@ export const StageStartProvider = ({ children }) => {
         { stage_item_id }
       );
       setCurrentQuestion(res.data.data.question); // <-- update here
-
+      console.log("ressss", res);
       return res.data.data;
     } catch (error) {
-      console.error(
-        "Error starting stage itemmmmmm:",
-        error.response?.data || error
-      );
+      console.log(error);
       throw error;
     } finally {
       setIsLoading(false);
