@@ -46,13 +46,13 @@ const FillBlankQuestion = ({
           style={{
             display: "inline-block",
             position: "relative",
-            minWidth: "100px",
-            height: "40px",
+            minWidth: "120px",
+            minHeight: "90px",
             verticalAlign: "bottom",
             textAlign: "center",
             fontWeight: "bold",
             fontSize: "20px",
-            lineHeight: "40px",
+            lineHeight: "90px",
             cursor: blanks[blankIndex] && !showResult ? "pointer" : "default",
           }}
           onClick={() =>
@@ -64,26 +64,27 @@ const FillBlankQuestion = ({
               userSelect: "none",
               pointerEvents: "none",
               color: "#000",
-              letterSpacing: "3px",
-              lineHeight: "normal",
+              lineHeight: "40px",
               display: "inline-block",
               verticalAlign: "bottom",
             }}
           >
-            _______
+            _____________
           </span>
 
           <AnimatePresence>
             {blanks[blankIndex] && (
               <motion.div
                 layoutId={`option-${blanks[blankIndex]}`}
-                transition={{ type: "spring", stiffness: 1, damping: 30 }}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.5, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 50, damping: 10 }}
                 style={{
                   position: "absolute",
-                  top: "50%",
-                  left: "50%",
+                  top: "5%",
+                  left: "18%",
                   transform: "translate(-50%, -50%)",
-                  whiteSpace: "nowrap",
                   pointerEvents: "auto",
                 }}
               >
@@ -124,7 +125,7 @@ const FillBlankQuestion = ({
           return (
             <motion.div
               key={opt.id}
-              // NO layoutId here — so original button stays put
+              layoutId={`option-${opt.text}`}
               whileTap={{ scale: 0.9 }}
               animate={{ opacity: isDisabled ? 0.5 : 1 }}
               transition={{ duration: 0.2 }}

@@ -109,17 +109,15 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
       const leftIndex = side === "left" ? index : selected.index;
       const rightIndex = side === "right" ? index : selected.index;
 
-      // clear selection immediately so blue highlight won't override red
       setSelected(null);
-
       setWrongPairs([[leftIndex, rightIndex]]);
-      setTimeout(() => {
-        setWrongPairs([]);
-      }, 800);
+      setTimeout(() => setWrongPairs([]), 800);
     } else {
+      // ✅ Keep the green highlight until next question
       setMatchedPairs(structured_answer);
-      setSelected(null); // also clear selection after correct match
+      setSelected(null); // you can clear only selection
     }
+
     // if (Object.keys(structured_answer).length === options.left.length) {
     //   // ✅ All matched — mark as finished
     //   handleSubmit(); // or setShowResult(true) if you manage state here
@@ -130,12 +128,12 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
 
     setSelected(null);
 
-    if (
-      Object.keys(structured_answer).length === options.left.length &&
-      response?.next_question
-    ) {
-      setCurrentQuestion(response.next_question);
-    }
+    // if (
+    //   Object.keys(structured_answer).length === options.left.length &&
+    //   response?.next_question
+    // ) {
+    //   setCurrentQuestion(response.next_question);
+    // }
   };
   // Shared button style helper
   const getItemClass = ({ isMatched, wrong, isSelected }) => {

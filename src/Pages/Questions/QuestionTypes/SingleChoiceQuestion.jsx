@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png";
-import MChoice_false from "../../../assets/Icons/MChoice_false.png";
-import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png";
-import MChoice_Blue from "../../../assets/Icons/MChoice_Blue.png";
+import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png"; // default correct
+import MChoice_false from "../../../assets/Icons/MChoice_false.png"; // wrong/red
+import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png"; // missed correct
+import MChoice_Blue from "../../../assets/Icons/MChoice_Blue.png"; // blue selected
 
 export default function SingleChoiceQuestion({
   question,
@@ -13,44 +13,45 @@ export default function SingleChoiceQuestion({
   const [lockedSelection, setLockedSelection] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  // Lock selection before submit
-  useEffect(() => {
-    if (!showResult) {
-      setLockedSelection(selectedOption);
-    }
-  }, [selectedOption, showResult]);
-
-  // Show feedback after submission
+  // Lock the selection only at submission
   useEffect(() => {
     if (showResult) {
-      const timeout = setTimeout(() => setShowFeedback(true), 50);
-      return () => clearTimeout(timeout);
-    } else {
+      setLockedSelection(selectedOption);
+      setShowFeedback(true);
+    }
+  }, [showResult, selectedOption]);
+
+  // Reset on retry
+  useEffect(() => {
+    if (!showResult) {
       setShowFeedback(false);
+      setLockedSelection(null);
     }
   }, [showResult]);
 
   const getIconForOption = (option) => {
     const isSelected = lockedSelection === option.id;
+    const isLiveSelected = selectedOption === option.id;
     const isCorrect = option.is_correct;
 
     if (!showResult) {
-      return isSelected ? MChoice_Blue : null;
+      return isLiveSelected ? MChoice_Blue : null; // blue before submit
     }
 
-    if (isCorrect) return MChoiceTrue;
-    if (isSelected && !isCorrect) return MChoice_false;
-    if (!isSelected && isCorrect) return MChoice_Correction;
-
+    // After submission
+    if (isCorrect) return MChoiceTrue; // correct
+    if (isSelected && !isCorrect) return MChoice_false; // wrong selection
+    if (!isSelected && isCorrect) return MChoice_Correction; // missed correct
     return null;
   };
 
   const getBorderColor = (option) => {
     const isSelected = lockedSelection === option.id;
+    const isLiveSelected = selectedOption === option.id;
     const isCorrect = option.is_correct;
 
     if (!showResult) {
-      return isSelected ? "#205DC7" : "#BFBFBF";
+      return isLiveSelected ? "#205DC7" : "#BFBFBF"; // blue or gray before submit
     }
 
     if (isCorrect) return "green";
@@ -59,9 +60,9 @@ export default function SingleChoiceQuestion({
   };
 
   const getBgClass = (option) => {
-    const isSelected = lockedSelection === option.id;
+    const isLiveSelected = selectedOption === option.id;
     if (!showResult) {
-      return isSelected ? "bg-blue-50" : "bg-white hover:bg-gray-100";
+      return isLiveSelected ? "bg-blue-50" : "bg-white hover:bg-gray-100";
     }
     return "bg-white";
   };
@@ -78,7 +79,9 @@ export default function SingleChoiceQuestion({
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-right mb-[20px]">{question.text || ""}</h2>
+      <h2 className="text-xl font-bold text-right mb-[20px]">
+        {question.text || ""}
+      </h2>
 
       <div className="space-y-[10px] text-right mb-[60px]">
         {question.options?.map((option) => {

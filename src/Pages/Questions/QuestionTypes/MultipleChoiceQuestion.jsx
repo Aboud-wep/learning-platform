@@ -10,17 +10,20 @@ export default function MultipleChoiceQuestion({
   onToggle,
   question,
   showResult,
-  
 }) {
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
 
   // Lock in selection before submit
   useEffect(() => {
-    if (!showResult) {
+    if (showResult) {
+      // Lock the selection at the moment of submission
       setLockedSelection(selectedOptions);
+      setShowFeedback(true); // trigger animation for icons
+    } else {
+      setShowFeedback(false);
     }
-  }, [selectedOptions, showResult]);
+  }, [showResult, selectedOptions]);
 
   // Trigger feedback animation after submission
   useEffect(() => {
@@ -33,35 +36,30 @@ export default function MultipleChoiceQuestion({
   }, [showResult]);
 
   const getIconForOption = (option) => {
-    const isSelected = lockedSelection.includes(option.id);
-    const isCorrect = option.is_correct; // ✅ Use option-specific correctness
+    const isSelected = selectedOptions.includes(option.id); // live selection for pre-submit
+    const isLockedSelected = lockedSelection.includes(option.id); // locked selection for post-submit
+    const isCorrect = option.is_correct;
 
     if (!showResult) {
-      return isSelected ? MChoice_Blue : null;
+      return isSelected ? MChoice_Blue : null; // blue effect before submit
     }
 
-    // ✅ Correct → green tick
-    if (isCorrect) return MChoiceTrue;
-
-    // ❌ Selected but wrong → red X
-    if (isSelected && !isCorrect) return MChoice_false;
-
-    // ℹ Missed correct answer
-    if (!isSelected && isCorrect) return MChoice_Correction;
-
+    // After submission
+    if (isCorrect) return MChoiceTrue; // correct answer
+    if (isLockedSelected && !isCorrect) return MChoice_false; // wrong selection
+    if (!isLockedSelected && isCorrect) return MChoice_Correction; // missed correct
     return null;
   };
 
   const getBorderColor = (option) => {
-    const isSelected = lockedSelection.includes(option.id);
+    const isSelected = selectedOptions.includes(option.id);
+    const isLockedSelected = lockedSelection.includes(option.id);
     const isCorrect = option.is_correct;
 
-    if (!showResult) {
-      return isSelected ? "#205DC7" : "#BFBFBF";
-    }
+    if (!showResult) return isSelected ? "#205DC7" : "#BFBFBF"; // pre-submit blue
 
-    if (isCorrect) return "green";
-    if (isSelected && !isCorrect) return "red";
+    if (isCorrect) return "green"; // correct
+    if (isLockedSelected && !isCorrect) return "red"; // wrong selection
     return "#BFBFBF";
   };
 

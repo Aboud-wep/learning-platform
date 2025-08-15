@@ -15,7 +15,7 @@ const TrueFalseQuestion = ({
   options,
   selectedOption,
   onSelect,
-  isCorrect, // boolean from parent indicating if the chosen answer was correct
+  isCorrect, // boolean indicating if the chosen answer was correct
   question,
 }) => {
   if (!options?.length) return null;
@@ -23,7 +23,7 @@ const TrueFalseQuestion = ({
   const [lockedSelection, setLockedSelection] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
-  // Lock in the selection once chosen
+  // Lock selection once chosen
   useEffect(() => {
     if (selectedOption) {
       setLockedSelection(selectedOption);
@@ -45,50 +45,65 @@ const TrueFalseQuestion = ({
     const text = option.text.trim().toLowerCase();
 
     if (isCorrect === null || isCorrect === undefined) {
-      // Before submit
       if (text === "true" || text === "صح") {
         return isSelected ? TrueBlueIcon : TrueIcon;
       }
       return isSelected ? FalseBlueIcon : FalseIcon;
     }
 
-    // After submit: only selected option shows
+    // After submit: only selected option shows color
     if (isSelected && isCorrect) {
       return text === "true" || text === "صح" ? TrueGreenIcon : FalseGreenIcon;
     }
     if (isSelected && !isCorrect) {
       return text === "true" || text === "صح" ? TrueRedIcon : FalseRedIcon;
     }
-    return null; // Hide other option
+    return null; // hide other option
   };
 
   const getTextColor = (option) => {
     const isSelected = (lockedSelection ?? selectedOption) === option.id;
     if (isCorrect === null || isCorrect === undefined) {
-      return isSelected ? "#205DC7" : "#000"; // Blue if selected before submit
+      return isSelected ? "#205DC7" : "#000";
     }
-    if (isSelected && isCorrect) return "#4CAF50"; // Green
-    if (isSelected && !isCorrect) return "#F44336"; // Red
-    return "transparent"; // Hide text for unselected option
+    if (isSelected && isCorrect) return "#4CAF50"; // green
+    if (isSelected && !isCorrect) return "#F44336"; // red
+    return "transparent"; // hide other option text
   };
 
-  // Which options to show
-  const displayedOptions =
-    isCorrect !== null && isCorrect !== undefined
-      ? options.filter((opt) => opt.id === (lockedSelection ?? selectedOption))
-      : options;
+  // Decide which options to display
+  // Keep all options visible, just animate them
+  const displayedOptions = options; // no filtering
 
-  // Shared animation style
-  const getAnimationStyle = () => {
-    const beforeSubmit = isCorrect === null || isCorrect === undefined;
+  // Smooth movement animation
+  const getAnimationStyle = (option, index) => {
+    const isSelected = (lockedSelection ?? selectedOption) === option.id;
+
+    if (isCorrect === null || isCorrect === undefined) {
+      return {
+        opacity: 1,
+        transform: "translateY(0) scale(1)",
+        transition: "transform 0.4s ease, opacity 0.4s ease",
+      };
+    }
+
+    if (isSelected) {
+      return {
+        opacity: 1,
+        transform: showFeedback
+          ? "translateY(-20px) scale(1.05)" // slide up
+          : "translateY(0) scale(1)",
+        transition: "transform 0.6s ease, opacity 0.6s ease",
+      };
+    }
+
+    // unselected slide down and fade
     return {
-      opacity: beforeSubmit ? 1 : showFeedback ? 1 : 0,
-      transform: beforeSubmit
-        ? "scale(1)"
-        : showFeedback
-        ? "scale(1)"
-        : "scale(0.8)",
-      transition: "opacity 0.4s ease, transform 0.4s ease",
+      opacity: 0.3,
+      transform: showFeedback
+        ? `translateY(20px) scale(0.95)` // slide down
+        : "translateY(0) scale(1)",
+      transition: "transform 0.6s ease, opacity 0.6s ease",
     };
   };
 
@@ -98,13 +113,15 @@ const TrueFalseQuestion = ({
         {question.text}
       </h2>
 
-      <div className="flex gap-[194px] justify-center text-right">
+      <div className="flex justify-center gap-[194px] text-right transition-all duration-700 ease-in-out">
         {displayedOptions.map((option) => {
           const IconSrc = getIconForOption(option);
-          const textColor = getTextColor(option);
-          const animationStyle = getAnimationStyle();
-
           if (!IconSrc) return null;
+
+          const textColor = getTextColor(option);
+          const animationStyle = getAnimationStyle(option);
+
+          const isSelected = (lockedSelection ?? selectedOption) === option.id;
 
           return (
             <Button
@@ -124,7 +141,8 @@ const TrueFalseQuestion = ({
                 justifyContent: "center",
                 minWidth: 80,
                 marginBottom: "85px",
-                "&:hover": { backgroundColor: "transparent" },
+                transition: "all 0.7s ease-in-out",
+                order: isCorrect && isSelected ? 0 : 1, // selected moves to center
               }}
             >
               <img
@@ -142,7 +160,7 @@ const TrueFalseQuestion = ({
                 sx={{
                   mt: 1,
                   fontWeight: "bold",
-                  fontSize:"25px",
+                  fontSize: "25px",
                   color: textColor,
                   ...animationStyle,
                 }}

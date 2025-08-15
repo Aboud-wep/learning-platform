@@ -149,7 +149,7 @@ const QuestionPage = () => {
       // Reset answers
       setSelectedOption(null);
       setSelectedOptions([]);
-      setBlankAnswers(["", "", ""]);
+      // setBlankAnswers(["", "", ""]);
       setMatchingAnswers([
         { left: "لاعب ١", right: "" },
         { left: "لاعب ٢", right: "" },
@@ -298,15 +298,26 @@ const QuestionPage = () => {
                 )}
 
                 <Box>
-                  {!showResult && (
-                    <button
-                      onClick={handleSubmit}
-                      className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
-                      disabled={loading}
-                    >
-                      تأكيد الجواب
-                    </button>
-                  )}
+                  {/* Show parent submit button only if it's NOT a matching question */}
+                  {currentQuestion.type !== "matching"
+                    ? !showResult && (
+                        <button
+                          onClick={handleSubmit}
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                          disabled={loading}
+                        >
+                          تأكيد الجواب
+                        </button>
+                      )
+                    : // Matching question: showResult toggled on click without calling handleSubmit
+                      !showResult && (
+                        <button
+                          onClick={() => setShowResult(true)} // only show the result
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                        >
+                          تأكيد الجواب
+                        </button>
+                      )}
                 </Box>
 
                 <Box
@@ -317,7 +328,7 @@ const QuestionPage = () => {
                     width: showResult ? "100%" : "auto",
                   }}
                 >
-                  {showResult && (
+                  {showResult && currentQuestion.type !== "matching" && (
                     <Box className="text-right flex items-center gap-4">
                       <img
                         src={isCorrect ? CorrectIcon : WrongIcon}

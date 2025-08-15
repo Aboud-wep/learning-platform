@@ -44,6 +44,7 @@ const Login = () => {
     }
 
     try {
+      
       const res = await fetch(
         "http://localhost:8000/api/v1/users/auth/dashboard/login-google",
         {
@@ -69,7 +70,7 @@ const Login = () => {
         navigate(from, { replace: true });
       }
     } catch (err) {
-      setError(err.message || "Google login failed");
+      setError("mesiiiiiiiii",err.message || "Google login failed");
     }
   };
 
