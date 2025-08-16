@@ -28,7 +28,7 @@ const LangBar: React.FC<LangBarProps> = ({ currentLang, onLangChange }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/v1/users/auth/dashboard/logout",
+        "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard/logout",
         { refresh: refreshToken },
         {
           headers: {

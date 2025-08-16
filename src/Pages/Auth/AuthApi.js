@@ -1,6 +1,6 @@
 import axiosInstance from "../../lip/axios";
 
-const BASE_URL = "http://127.0.0.1:8000/api/v1/users/auth/dashboard";
+const BASE_URL = "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard";
 
 export const registerUser = async (formData) => {
   try {
