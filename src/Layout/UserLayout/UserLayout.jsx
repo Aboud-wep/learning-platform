@@ -9,6 +9,10 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
+import Logo from "../../assets/Icons/logo.png";
+import Coin from "../../assets/Icons/coin.png";
+import Fire from "../../assets/Icons/fire.png";
+import Heart from "../../assets/Icons/heart.png";
 import ListItemButton from "@mui/material/ListItemButton";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -42,7 +46,6 @@ const UserLayout = () => {
     if (!token) {
       // Optionally, navigate to login or show a message
       return <Navigate to="/login" replace />;
-      
     }
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -77,11 +80,7 @@ const UserLayout = () => {
           p: 2,
         }}
       >
-        <img
-          src="/src/assets/Icons/logo.png"
-          alt="Logo"
-          style={{ height: 40 }}
-        />
+        <img src={Logo} alt="Logo" style={{ height: 40 }} />
         <Typography fontSize="24px" fontWeight="bold">
           تعلمنا
         </Typography>
@@ -203,7 +202,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography>{profile.coins}</Typography>
-                <img src="/src/assets/Icons/coin.png" alt="coin" />
+                <img src={Coin} alt="coin" />
               </Box>
 
               <Box
@@ -218,7 +217,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography>{profile.highest_streak}</Typography>
-                <img src="/src/assets/Icons/fire.png" alt="fire" />
+                <img src={Fire} alt="fire" />
               </Box>
               <Box
                 sx={{
@@ -232,7 +231,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography>{profile.hearts}</Typography>
-                <img src="/src/assets/Icons/heart.png" alt="heart" />
+                <img src={Heart} alt="heart" />
               </Box>
             </Box>
           )}
