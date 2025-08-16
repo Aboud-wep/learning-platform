@@ -1,14 +1,15 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Layout from '../Layout/Layout';
-import Home from '../Pages/Home/Home';
-import AddAdmin from '../Pages/Auth/Admin/AddAdmin';
+import { Routes, Route, Navigate } from "react-router-dom";
+
+import Home from "../Pages/Home/Home";
+
+import UserLayout from "../Layout/UserLayout/UserLayout";
 
 const PublicRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      <Route path="/" element={<UserLayout />}>
         <Route path="/home" element={<Home />} />
-        {/* <Route path="/add-admin" element={<AddAdmin />} /> */}
+
         <Route index element={<Navigate to="/home" replace />} />
       </Route>
     </Routes>
