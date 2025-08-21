@@ -8,60 +8,55 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  ListItemButton,
+  BottomNavigation,
+  BottomNavigationAction,
+  Avatar,
 } from "@mui/material";
+import {
+  Home as HomeIcon,
+  MenuBook as MenuBookIcon,
+  EmojiEvents as EmojiEventsIcon,
+  SportsKabaddi as SportsKabaddiIcon,
+  Person as PersonIcon,
+  Settings as SettingsIcon,
+  Logout as LogoutIcon,
+} from "@mui/icons-material";
+import { Outlet, useNavigate, Navigate } from "react-router-dom";
 import Logo from "../../assets/Icons/logo.png";
 import Coin from "../../assets/Icons/coin.png";
 import Fire from "../../assets/Icons/fire.png";
 import Heart from "../../assets/Icons/heart.png";
-import ListItemButton from "@mui/material/ListItemButton";
-import HomeIcon from "@mui/icons-material/Home";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import SportsKabaddiIcon from "@mui/icons-material/SportsKabaddi";
-import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { Outlet, useNavigate } from "react-router-dom";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import WhatshotIcon from "@mui/icons-material/Whatshot";
 import { useHome } from "../../Pages/Home/Context/HomeContext";
-import axios from "axios";
 import axiosInstance from "../../lip/axios";
-import { Navigate } from "react-router-dom";
+
 const drawerWidth = 229;
 
 const UserLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [pageTitle, setPageTitle] = useState(""); // 👈 title state
+  const [pageTitle, setPageTitle] = useState("");
   const navigate = useNavigate();
-  const { profile } = useHome();
+  const { profile, updateProfileStats } = useHome(); // useHome reactive
+  const [bottomNav, setBottomNav] = useState(0);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   const handleLogout = async () => {
     const token = localStorage.getItem("accessToken");
-    if (!token) {
-      // Optionally, navigate to login or show a message
-      return <Navigate to="/login" replace />;
-    }
-    try {
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
+    if (!token) return <Navigate to="/login" replace />;
 
-      if (refreshToken && accessToken) {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken && token) {
         await axiosInstance.post(
           "users/auth/dashboard/logout",
           { refresh: refreshToken },
-          { headers: { Authorization: `Bearer ${accessToken}` } }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       }
     } catch (err) {
-      console.error("❌ Logout failed:", err.response?.data || err.message);
+      console.error("Logout failed:", err.response?.data || err.message);
     } finally {
-      // Always clear tokens and navigate on logout attempt
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userRole");
@@ -105,7 +100,7 @@ const UserLayout = () => {
           </ListItemIcon>
           <ListItemText primary="المسابقات" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/challenges")}>
+        <ListItemButton onClick={() => navigate("/Achievements")}>
           <ListItemIcon>
             <SportsKabaddiIcon />
           </ListItemIcon>
@@ -137,6 +132,7 @@ const UserLayout = () => {
   return (
     <Box className="flex" dir="rtl">
       <Box component="nav" className="flex-shrink-0">
+        {/* Mobile Drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -150,10 +146,11 @@ const UserLayout = () => {
           {drawer}
         </Drawer>
 
+        {/* Permanent Drawer */}
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
+            display: { xs: "none", md: "block" },
             "& .MuiDrawer-paper": { width: drawerWidth },
           }}
           open
@@ -168,28 +165,74 @@ const UserLayout = () => {
           flex: 1,
           bgcolor: "#EEF0F4",
           minHeight: "100vh",
-          ml: { sm: `${drawerWidth}px` },
+          ml: { md: `${drawerWidth}px`, xs: 0 },
         }}
       >
-        {/* ✅ Topbar */}
+        {/* Topbar */}
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between", // spread items to edges
-            alignItems: "center", // vertical alignment
+            justifyContent: "space-between",
+            alignItems: "center",
             py: 2,
-            px: 3,
+            px: 1,
             color: "#343F4E",
           }}
         >
-          {/* Title on the right */}
-          <Typography fontSize="32px" fontWeight="bold">
+          
+          <Typography
+            fontSize="32px"
+            fontWeight="bold"
+            sx={{ display: { xs: "none", md: "block" } }}
+          >
             {pageTitle}
           </Typography>
 
-          {/* Top bar stats on the left */}
+          
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: { xs: "flex", md: "none" },
+                alignItems: "center",
+                gap: { xs: 0.5, sm: 1 }, // tighter spacing on smaller screens
+              }}
+            >
+              <img
+                src={Logo}
+                alt="Logo"
+                style={{
+                  height: "auto",
+                  maxHeight: "32px", // default
+                }}
+              />
+              <Typography
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "16px", sm: "24px", md: "24px" }, // responsive text size
+                }}
+              >
+                تعلمنا
+              </Typography>
+            </Box>
+          </Box>
+
+          
           {profile && (
-            <Box sx={{ display: "flex", gap: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 1,
+                alignItems: "center",
+              }}
+            >
+              
               <Box
                 sx={{
                   display: "flex",
@@ -197,14 +240,22 @@ const UserLayout = () => {
                   gap: 1,
                   bgcolor: "white",
                   borderRadius: "50px",
-                  px: "20px",
+                  px: { xs: "10px", sm: "20px" },
                   py: "5px",
                 }}
               >
-                <Typography>{profile.coins}</Typography>
-                <img src={Coin} alt="coin" />
+                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                  {profile.coins}
+                </Typography>
+                <Box
+                  component="img"
+                  src={Coin}
+                  alt="coin"
+                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                />
               </Box>
 
+              
               <Box
                 sx={{
                   display: "flex",
@@ -212,13 +263,22 @@ const UserLayout = () => {
                   gap: 1,
                   bgcolor: "white",
                   borderRadius: "50px",
-                  px: "20px",
+                  px: { xs: "10px", sm: "20px" },
                   py: "5px",
                 }}
               >
-                <Typography>{profile.highest_streak}</Typography>
-                <img src={Fire} alt="fire" />
+                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                  {profile.highest_streak}
+                </Typography>
+                <Box
+                  component="img"
+                  src={Fire}
+                  alt="fire"
+                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                />
               </Box>
+
+              
               <Box
                 sx={{
                   display: "flex",
@@ -226,21 +286,168 @@ const UserLayout = () => {
                   gap: 1,
                   bgcolor: "white",
                   borderRadius: "50px",
-                  px: "20px",
+                  px: { xs: "10px", sm: "20px" },
                   py: "5px",
                 }}
               >
-                <Typography>{profile.hearts}</Typography>
-                <img src={Heart} alt="heart" />
+                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                  {profile.hearts}
+                </Typography>
+                <Box
+                  component="img"
+                  src={Heart}
+                  alt="heart"
+                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                />
+              </Box>
+              
+              <Box
+                onClick={() => navigate("/profile")}
+                sx={{ cursor: "pointer" }} // 👈 makes it clear it’s clickable
+              >
+                {profile.avatar ? (
+                  <Box
+                    component="img"
+                    src={profile.avatar}
+                    alt="avatar"
+                    sx={{
+                      width: { xs: 28, sm: 36, md: 44 },
+                      height: { xs: 28, sm: 36, md: 44 },
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <Avatar
+                    sx={{
+                      width: { xs: 28, sm: 36, md: 44 },
+                      height: { xs: 28, sm: 36, md: 44 },
+                      bgcolor: "#1976d2",
+                      fontSize: { xs: "12px", sm: "14px" },
+                    }}
+                  >
+                    {profile.first_name
+                      ? profile.first_name.charAt(0).toUpperCase()
+                      : "U"}
+                  </Avatar>
+                )}
               </Box>
             </Box>
           )}
         </Box>
 
         <Divider />
-
-        {/* Pass title setter to children */}
-        <Outlet context={{ setPageTitle }} />
+        <Box
+          component="main"
+          sx={{
+            flex: 1,
+            pb: { xs: "56px", sm: "64px", md: "72px" }, // reserve space for bottom nav
+          }}
+        >
+          <Outlet context={{ setPageTitle }} />
+        </Box>
+      </Box>
+      {/* Bottom Navigation for Mobile / iPad */}
+      <Box
+        sx={{
+          display: { xs: "block", sm: "block", md: "none" },
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: "white",
+          zIndex: 1000,
+          borderTop: "1px solid #ddd",
+        }}
+      >
+        <BottomNavigation
+          showLabels
+          value={bottomNav}
+          onChange={(event, newValue) => {
+            setBottomNav(newValue);
+            switch (newValue) {
+              case 0:
+                navigate("/home");
+                break;
+              case 1:
+                navigate("/subjects");
+                break;
+              case 2:
+                navigate("/competitions");
+                break;
+              case 3:
+                navigate("/Achievements");
+                break;
+              case 4:
+                navigate("/profile");
+                break;
+              default:
+                break;
+            }
+          }}
+          sx={{
+            height: { xs: 56, sm: 64, md: 72 }, // nav bar height responsive
+          }}
+        >
+          <BottomNavigationAction
+            label="الرئيسية"
+            icon={<HomeIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
+            sx={{
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: { xs: "10px", sm: "12px", md: "14px" }, // label responsive
+              },
+              minWidth: { xs: 50, sm: 70 }, // shrink buttons on mobile
+            }}
+          />
+          <BottomNavigationAction
+            label="المواد"
+            icon={
+              <MenuBookIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
+            }
+            sx={{
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+              },
+              minWidth: { xs: 50, sm: 70 },
+            }}
+          />
+          <BottomNavigationAction
+            label="المسابقات"
+            icon={
+              <EmojiEventsIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
+            }
+            sx={{
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+              },
+              minWidth: { xs: 50, sm: 70 },
+            }}
+          />
+          <BottomNavigationAction
+            label="التحديات"
+            icon={
+              <SportsKabaddiIcon
+                sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
+              />
+            }
+            sx={{
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+              },
+              minWidth: { xs: 50, sm: 70 },
+            }}
+          />
+          <BottomNavigationAction
+            label="الملف"
+            icon={<PersonIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
+            sx={{
+              "& .MuiBottomNavigationAction-label": {
+                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+              },
+              minWidth: { xs: 50, sm: 70 },
+            }}
+          />
+        </BottomNavigation>
       </Box>
     </Box>
   );

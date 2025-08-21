@@ -7,7 +7,7 @@ import axiosInstance from "../../lip/axios";
 const ViewProfile = () => {
   const { id } = useParams();
   const [userProfile, setUserProfile] = useState(null);
-  const token = localStorage.getItem("token"); // unified storage key
+  const token = localStorage.getItem("accessToken"); // unified storage key
 
   useEffect(() => {
     if (!token) {

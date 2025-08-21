@@ -185,7 +185,14 @@ const Profile = () => {
             />
 
             {recommended.slice(0, 3).map((user, index) => (
-              <Box key={index} display="flex" alignItems="center" gap={1}>
+              <Box
+                key={index}
+                display="flex"
+                alignItems="center"
+                gap={1}
+                sx={{ cursor: "pointer" }}
+                onClick={() => handleViewProfile(user.id)} // 👈 Use id here
+              >
                 <Avatar src={user.avatar || ""} />
                 <Box>
                   <Typography fontWeight="bold">

@@ -30,7 +30,7 @@ const OtherSubjectCard = ({ subject }) => {
 
       // Extract ID safely from API response
       const subjectId = response?.data?.data?.subject?.id;
-        console.log("Mesiiiiiiiiiiiii",subjectId)
+      console.log("Mesiiiiiiiiiiiii", subjectId);
       if (subjectId) {
         navigate(`/levels-map/${subjectId}`, { replace: true });
       } else {
@@ -49,7 +49,9 @@ const OtherSubjectCard = ({ subject }) => {
         display: "flex",
         flexDirection: "column",
         padding: "15px",
-        width: "209px",
+        width: { xs: "100%", sm: "209px" }, // full width on mobile
+        maxWidth: "209px",
+        boxSizing: "border-box",
       }}
     >
       <CardMedia
@@ -57,9 +59,10 @@ const OtherSubjectCard = ({ subject }) => {
         image={subject.image}
         alt={subject.name}
         sx={{
-          width: "179px",
-          height: "115px",
+          width: "100%", // fill card width
+          height: { xs: "auto", sm: "115px" }, // auto height on mobile
           borderRadius: "20px",
+          objectFit: "cover",
         }}
       />
 
@@ -72,6 +75,7 @@ const OtherSubjectCard = ({ subject }) => {
         >
           {subject.name}
         </Typography>
+
         <Typography
           fontSize={"15px"}
           color="text.secondary"

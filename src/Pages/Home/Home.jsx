@@ -1,17 +1,13 @@
 import { Box, Typography, CircularProgress, Grid, Button } from "@mui/material";
 import { useHome } from "./Context/HomeContext";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-import { useNavigate } from "react-router-dom";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 
-// Components
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
-
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import WelcomeBanner from "../../Component/Subject/WelcomeBanner";
 import LastSubjectCard from "../../Component/Subject/LastSubjectCard";
@@ -30,40 +26,24 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  // Create a map from subject ID to user progress for quick lookup
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
     return acc;
   }, {});
 
-  // Split subjects into "mySubjects" and "otherSubjects"
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
   const otherSubjects = subjects.filter((s) => !userProgressMap[s.id]);
 
-  // Get the last updated subject from mySubjects
   const lastSubject = mySubjects.length
     ? [...mySubjects].sort(
-        (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       )[0]
     : null;
 
   useEffect(() => {
     setPageTitle("الرئيسية");
   }, [setPageTitle]);
-
-  // Combined loading and error states
-  // if (homeLoading || subjectsLoading) {
-  //   return (
-  //     <Box sx={{ p: 3, textAlign: "center" }}>
-  //       <CircularProgress />
-  //       <Typography sx={{ mt: 1 }}>
-  //         {homeLoading
-  //           ? "جاري تحميل البيانات الشخصية..."
-  //           : "جاري تحميل المواد..."}
-  //       </Typography>
-  //     </Box>
-  //   );
-  // }
 
   if (homeError || subjectsError) {
     return (
@@ -79,19 +59,25 @@ const Home = () => {
     <Box
       sx={{
         display: "flex",
-        justifyContent: "center", // Center left and right boxes horizontally
-        alignItems: "flex-start", // Align from top
-        my: "30px",
-        gap: "20px", // optional: spacing between left and right
+        justifyContent: "center",
+        alignItems: "flex-start",
+        my: { xs: 2, sm: 3, md: 4 }, // responsive vertical margin
+        gap: { xs: 2, sm: 3, md: 4 }, // responsive gap
+        flexWrap: { xs: "wrap", md: "nowrap" },
+        width: "100%",
+        px: { xs: 1.5, sm: 3, md: 4 }, // responsive padding
       }}
     >
       {/* Left Side Content */}
       <Box
         sx={{
-          width: "667px",
+          flexGrow: 1,
+          minWidth: { xs: "100%", md: "400px" },
+          maxWidth: { md: "700px", lg: "800px" },
           display: "flex",
           flexDirection: "column",
-          alignItems: "center", // Center children horizontally
+          alignItems: "center",
+          gap: { xs: 2, sm: 3 }, // spacing between sections
         }}
       >
         {showWelcome && (
@@ -100,10 +86,16 @@ const Home = () => {
             onClose={() => setShowWelcome(false)}
           />
         )}
+
         <Box width="100%">
-          <Typography fontSize="24px" fontWeight="bold">
+          <Typography
+            fontSize={{ xs: "18px", sm: "20px", md: "24px" }}
+            fontWeight="bold"
+            mb={2}
+          >
             مؤخرا
           </Typography>
+
           {lastSubject && (
             <LastSubjectCard
               subject={lastSubject}
@@ -112,21 +104,27 @@ const Home = () => {
               }
             />
           )}
+
+          {/* My Subjects */}
           <Box
             sx={{
               textAlign: "center",
               display: "flex",
               justifyContent: "space-between",
-              pb: "15px",
+              pb: { xs: 1.5, sm: 2 },
+              mt: { xs: 2, sm: 3 },
             }}
           >
-            <Typography fontSize="24px" fontWeight="bold">
+            <Typography
+              fontSize={{ xs: "18px", sm: "20px", md: "24px" }}
+              fontWeight="bold"
+            >
               موادي
             </Typography>
             <Button
               onClick={() => navigate("/subjects/my-subjects")}
               sx={{
-                fontSize: "24px",
+                fontSize: { xs: "16px", sm: "18px", md: "20px" },
                 fontWeight: "bold",
                 color: "#205DC7",
                 textTransform: "none",
@@ -139,7 +137,9 @@ const Home = () => {
           </Box>
 
           {mySubjects.length === 0 ? (
-            <Typography>لم تبدأ أي مادة بعد.</Typography>
+            <Typography fontSize={{ xs: "14px", sm: "15px" }}>
+              لم تبدأ أي مادة بعد.
+            </Typography>
           ) : (
             mySubjects.slice(0, 2).map((subject) => (
               <MySubjectCard
@@ -153,21 +153,26 @@ const Home = () => {
             ))
           )}
 
+          {/* Other Subjects */}
           <Box
             sx={{
               textAlign: "center",
               display: "flex",
               justifyContent: "space-between",
-              pb: "15px",
+              pb: { xs: 1.5, sm: 2 },
+              mt: { xs: 2, sm: 3 },
             }}
           >
-            <Typography fontSize="24px" fontWeight="bold">
+            <Typography
+              fontSize={{ xs: "18px", sm: "20px", md: "24px" }}
+              fontWeight="bold"
+            >
               مواد أخرى
             </Typography>
             <Button
               onClick={() => navigate("/subjects/other-subjects")}
               sx={{
-                fontSize: "24px",
+                fontSize: { xs: "16px", sm: "18px", md: "20px" },
                 fontWeight: "bold",
                 color: "#205DC7",
                 textTransform: "none",
@@ -178,7 +183,8 @@ const Home = () => {
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>
-          <Grid container spacing={2} justifyContent="center">
+
+          <Grid container spacing={{ xs: 1.5, sm: 2 }} justifyContent="center">
             {otherSubjects.map((subject) => (
               <Grid item xs={12} sm={6} md={4} key={subject.id}>
                 <OtherSubjectCard
@@ -191,10 +197,15 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* Right Side Stats & Buttons */}
+      {/* Right Side Stats */}
+      {/* Right Side Stats */}
       <Box
         sx={{
-          width: "324px",
+          flexShrink: 0,
+          flexBasis: { xs: "100%", md: "30%" }, // take 100% on mobile, 30% on desktop
+          maxWidth: { md: "350px" }, // limit max width on large screens
+          minWidth: { md: "260px" }, // prevent collapsing too much
+          mt: { xs: 3, md: 0 }, // stack below on mobile
         }}
       >
         <ProfileStatsCard profile={profile} mySubjects={mySubjects} />

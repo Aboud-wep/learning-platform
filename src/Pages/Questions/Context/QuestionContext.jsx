@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import instance from "../../../lip/axios";
 import axiosInstance from "../../../lip/axios";
 import axios from "axios";
@@ -26,6 +32,14 @@ export const QuestionProvider = ({ children }) => {
     coins: null,
     motivationFreezes: null,
   });
+  const [lastAnswerResult, setLastAnswerResult] = useState(null);
+
+  const [progress, setProgress] = useState({
+    totalQuestions: 0,
+    completed: 0,
+    correctAnswers: 0,
+    percentage: 0,
+  });
   const navigate = useNavigate(); // put this inside your context/provider component
   const goToNext = () => {
     setResult(null);
@@ -41,17 +55,35 @@ export const QuestionProvider = ({ children }) => {
     }
 
     try {
+      console.log("📡 Sending request with stage_item_id:", stage_item_id);
       const res = await axiosInstance.post(
         "subjects/lessons/website/start-item",
         { stage_item_id }
       );
-      const data = res.data.data;
+      console.log("✅ Full API response:", res);
+
+      const data = res.data?.data;
+      if (!data) {
+        console.error("⚠️ No data in response:", res);
+        return;
+      }
+
+      setProgress((prev) => ({
+        ...prev,
+        totalQuestions: data.question_count || 0,
+        completed: 0,
+        correctAnswers: 0,
+        percentage: 0,
+      }));
+
+      console.log("Lesson started - total questions:", data.question_count);
+
       setCurrentQuestion(data.question);
       setLessonLogId(data.lesson_log_id);
       setQuestionGroupId(data.question_group_id);
-      setAnswerId(null); // ✅ Reset on new stage item
+      setAnswerId(null);
     } catch (err) {
-      console.error("Failed to start stage item:", err);
+      console.error("❌ Failed to start stage item:", err.response || err);
     } finally {
       setLoading(false);
     }
@@ -66,7 +98,6 @@ export const QuestionProvider = ({ children }) => {
     setVideoDialogOpen(false);
     setVideoUrl(null);
   };
-  // ← include inside the submitAnswer definition (or top-level context)
 
   const submitAnswer = async ({
     question,
@@ -114,7 +145,31 @@ export const QuestionProvider = ({ children }) => {
       );
       const data = res.data.data;
       const meta = res.data.meta;
+      setLastAnswerResult(data.is_correct);
 
+      setProgress((prev) => {
+        const completed = prev.completed + 1;
+        const correctAnswers = data.is_correct
+          ? prev.correctAnswers + 1
+          : prev.correctAnswers;
+        const totalQuestions = prev.totalQuestions || 0;
+
+        const percentage =
+          totalQuestions > 0
+            ? Math.round((correctAnswers / totalQuestions) * 100)
+            : 0;
+
+        const newProgress = {
+          totalQuestions,
+          completed,
+          correctAnswers,
+          percentage,
+        };
+
+        console.log("Progress updated in QuestionPage:", newProgress);
+
+        return newProgress;
+      });
       // ✅ Always log first
       console.log("Metaaaaa", meta);
       console.log("Dataaaaa", data);
@@ -198,7 +253,10 @@ export const QuestionProvider = ({ children }) => {
         openVideoDialog,
         closeVideoDialog,
         lessonComplete,
+        progress,
+        setProgress,
         rewards,
+        lastAnswerResult,
       }}
     >
       {children}

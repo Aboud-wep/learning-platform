@@ -26,7 +26,6 @@ const ChooseUsername = () => {
     setError("");
 
     const tempToken = localStorage.getItem("tempToken");
-
     if (!tempToken) {
       setError("رمز التسجيل المؤقت غير موجود.");
       setLoading(false);
@@ -39,26 +38,20 @@ const ChooseUsername = () => {
       setLoading(false);
       return;
     }
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      // Optionally, navigate to login or show a message
-      return <Navigate to="/login" replace />;
-      
-    }
+
     try {
       const res = await axiosInstance.post(
         "users/auth/dashboard/set-username",
         { username: trimmedUsername },
         {
           headers: {
-            Authorization: `Bearer ${tempToken}`,
+            Authorization: `Bearer ${tempToken}`, // ✅ fixed with backticks
             "Content-Type": "application/json",
           },
         }
       );
 
       const { access, refresh } = res.data.data;
-
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.removeItem("tempToken");

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Card, Box } from "@mui/material";
+import { Card, Box, Typography } from "@mui/material";
 import bgImage from "../../assets/Images/Question_BG.png";
 import { useQuestion } from "./Context/QuestionContext";
 import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
@@ -14,6 +14,11 @@ import { useNavigate } from "react-router-dom";
 import CorrectIcon from "../../assets/Icons/Correct_Answer.png";
 import WrongIcon from "../../assets/Icons/Wrong_Answer.png";
 import NoHeartsPopup from "../../Component/NoHeartsPage";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import ProgressIndicator from "../../Component/ProgressIndicator";
+import CircularProgressIndicator from "../../Component/CircularProgressIndicator";
+import QuestionProgress from "../../Component/QuestionProgress";
+import StageProgressCircle from "../../Component/StageProgressCircle";
 
 const QuestionPage = () => {
   const location = useLocation();
@@ -37,6 +42,7 @@ const QuestionPage = () => {
     lessonComplete,
     hearts,
     rewards,
+    progress,
   } = useQuestion();
   // const [nextQuestionId, setNextQuestionId] = useState(null);
   // const [nextQuestionData, setNextQuestionData] = useState(null);
@@ -72,6 +78,21 @@ const QuestionPage = () => {
       setQuestionGroupId(location.state.question_group_id);
     }
   }, [id, startStageItem, location.state]);
+
+  useEffect(() => {
+    if (!progress) return;
+
+    const safeTotal = progress.totalQuestions || 0;
+    const safeCorrect = progress.correctAnswers || 0;
+    const percentage =
+      safeTotal > 0 ? Math.round((safeCorrect / safeTotal) * 100) : 0;
+
+    console.log("Progress updated in QuestionPage:", {
+      correct: safeCorrect,
+      total: safeTotal,
+      percentage,
+    });
+  }, [progress]);
 
   const handleFillChange = (index, value) => {
     const updated = [...blankAnswers];
@@ -279,55 +300,38 @@ const QuestionPage = () => {
         <Box className=" w-full max-w-[1010px] opacity-90 ">
           <Box elevation={3} className="bg-white/90 rounded-[40px]">
             <Box sx={{ paddingX: "114px", paddingTop: "50px" }}>
-              <h4 className=" text-right mb-3 text-[#205DC7]">
+              <h4 className="text-right mb-3 text-[#205DC7]">
                 {questionTypeNames[currentQuestion.type] ||
                   currentQuestion.type}
               </h4>
-              {currentQuestion && <>{renderQuestionByType()}</>}
-
-              {/* Action Buttons */}
-              <Box className="pb-[40px] flex justify-end gap-4 items-center">
-                {/* Video button */}
-                {currentQuestion?.video_url && (
-                  <button
-                    onClick={() => openVideoDialog(currentQuestion.video_url)}
-                    className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] mr-4"
-                  >
-                    عرض الفيديو
-                  </button>
-                )}
-
-                <Box>
-                  {/* Show parent submit button only if it's NOT a matching question */}
-                  {currentQuestion.type !== "matching"
-                    ? !showResult && (
-                        <button
-                          onClick={handleSubmit}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
-                          disabled={loading}
-                        >
-                          تأكيد الجواب
-                        </button>
-                      )
-                    : // Matching question: showResult toggled on click without calling handleSubmit
-                      !showResult && (
-                        <button
-                          onClick={() => setShowResult(true)} // only show the result
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
-                        >
-                          تأكيد الجواب
-                        </button>
-                      )}
-                </Box>
-
+              <Box sx={{ border: "2px solid red", p: 2 }}>
+                <Typography>Progress Test</Typography>
                 <Box
                   sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: showResult ? "100%" : "auto",
+                    width: "100%",
+                    textAlign: "center",
+                    my: 3,
+                    p: 2,
+                    backgroundColor: "rgba(255,255,255,0.7)",
+                    borderRadius: 2,
                   }}
                 >
+                  <StageProgressCircle />
+                </Box>
+              </Box>
+              {currentQuestion && <>{renderQuestionByType()}</>}
+
+              <Box className="pb-[40px] flex justify-between items-center">
+                <Box className="flex items-center gap-4">
+                  {currentQuestion?.video_url && (
+                    <button
+                      onClick={() => openVideoDialog(currentQuestion.video_url)}
+                      className="bg-white text-[#343F4E] py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                    >
+                      شاهد مقطع تعليمي <PlayArrowIcon />
+                    </button>
+                  )}
+
                   {showResult && currentQuestion.type !== "matching" && (
                     <Box className="text-right flex items-center gap-4">
                       <img
@@ -356,6 +360,28 @@ const QuestionPage = () => {
                       </div>
                     </Box>
                   )}
+                </Box>
+
+                <Box className="flex items-center gap-3">
+                  {currentQuestion.type !== "matching"
+                    ? !showResult && (
+                        <button
+                          onClick={handleSubmit}
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                          disabled={loading}
+                        >
+                          تأكيد الجواب
+                        </button>
+                      )
+                    : !showResult && (
+                        <button
+                          onClick={() => setShowResult(true)}
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                        >
+                          تأكيد الجواب
+                        </button>
+                      )}
+
                   {showResult && (
                     <button
                       onClick={handleNext}
@@ -370,7 +396,6 @@ const QuestionPage = () => {
           </Box>
         </Box>
 
-        {/* Video dialog */}
         <QuestionVideoDialog />
       </Box>
     </>

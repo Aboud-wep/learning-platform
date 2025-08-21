@@ -11,6 +11,7 @@ import { StageStartProvider } from "./Pages/Questions/Context/StageStartContext"
 import { ProfileProvider } from "./Pages/Profile/Context/ProfileContext";
 import { HomeProvider } from "./Pages/Home/Context/HomeContext";
 import { SubjectsProvider } from "./Pages/Subjects/Context/SubjectsContext";
+import { WeeklyCompetitionProvider } from "./Pages/Competitions/Context/WeeklyCompetitionContext";
 
 const App = () => {
   useAuth();
@@ -18,21 +19,23 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <QuestionProvider>
-          <StageSummaryProvider>
-            <AchievementProvider>
-              <StageStartProvider>
-                <ProfileProvider>
-                  <HomeProvider>
-                    <SubjectsProvider>
-                      <MainRoutes />
-                    </SubjectsProvider>
-                  </HomeProvider>
-                </ProfileProvider>
-              </StageStartProvider>
-            </AchievementProvider>
-          </StageSummaryProvider>
-        </QuestionProvider>
+        <HomeProvider>
+          <QuestionProvider>
+            <WeeklyCompetitionProvider>
+              <StageSummaryProvider>
+                <AchievementProvider>
+                  <StageStartProvider>
+                    <ProfileProvider>
+                      <SubjectsProvider>
+                        <MainRoutes />
+                      </SubjectsProvider>
+                    </ProfileProvider>
+                  </StageStartProvider>
+                </AchievementProvider>
+              </StageSummaryProvider>
+            </WeeklyCompetitionProvider>
+          </QuestionProvider>
+        </HomeProvider>
       </AuthProvider>
     </Router>
   );

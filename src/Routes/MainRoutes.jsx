@@ -7,8 +7,6 @@ import Register from "../Pages/Auth/Register";
 import UserLayout from "../Layout/UserLayout/UserLayout";
 import SubjectsPage from "../Pages/Subjects/SubjectsPage";
 import CompetitionsPage from "../Pages/Competitions/CompetitionsPage";
-import ChallengesPage from "../Pages/Challenges/ChallengesPage";
-import ChooseUsername from "../Pages/Auth/ChooseUsername";
 import Profile from "../Pages/Profile/Profile";
 import Settings from "../Pages/Settings/Settings";
 import Home from "../Pages/Home/Home";
@@ -22,6 +20,7 @@ import LessonEnded from "../Component/LessonEnded";
 import NoHeartsPage from "../Component/NoHeartsPage";
 import RewardedMotivationFreezes from "../Component/RewardedMotivationFreezes";
 import Leaderboard from "../Pages/Home/Leaderboard";
+import AchievementsPage from "../Pages/Achievements/AchievementsPage";
 
 const MainRoutes = () => (
   <Routes>
@@ -30,14 +29,16 @@ const MainRoutes = () => (
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/lesson-ended" element={<LessonEnded />} />
-    <Route path="/rewarded-motivation-freezes" element={<RewardedMotivationFreezes />} />
+    <Route
+      path="/rewarded-motivation-freezes"
+      element={<RewardedMotivationFreezes />}
+    />
     {/* Protected Routes */}
     <Route element={<ProtectedRoutes />}>
       <Route path="/questions/:questionId" element={<QuestionPage />} />
       <Route path="no-hearts" element={<NoHeartsPage />} />
       <Route element={<UserLayout />}>
         <Route path="*" element={<Navigate to="/home" replace />} />
-
         <Route path="user-profile/:id" element={<ViewProfile />} />
         <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="no-hearts" element={<NoHeartsPage />} />
@@ -48,7 +49,7 @@ const MainRoutes = () => (
         <Route path="subjects/my-subjects" element={<MySubjects />} />
         <Route path="subjects/other-subjects" element={<OtherSubjects />} />
         <Route path="competitions" element={<CompetitionsPage />} />
-        <Route path="challenges" element={<ChallengesPage />} />
+        <Route path="Achievements" element={<AchievementsPage />} />
         <Route path="levels-map/:subjectId" element={<LevelsMapWrapper />} />
       </Route>
     </Route>

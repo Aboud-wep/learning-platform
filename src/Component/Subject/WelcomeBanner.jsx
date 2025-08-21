@@ -8,26 +8,28 @@ const WelcomeBanner = ({ name, onClose }) => {
       sx={{
         background: "linear-gradient(to left, #31A9D6, #205CC7)",
         color: "white",
-        p: 2,
+        p: { xs: 2, sm: 3 }, // responsive padding
         borderRadius: "20px",
         position: "relative",
         mb: 3,
         width: "100%",
-        height:"168px",
+        minHeight: "140px",
+        maxHeight: "200px",
         display: "flex",
+        flexDirection: { xs: "column", sm: "row" }, // stack on mobile
         justifyContent: "space-between",
         alignItems: "center",
       }}
     >
-      <Box sx={{ height:"99px" }}>
-        <Typography fontSize="24px" fontWeight="bold">
+      <Box sx={{ height: "auto" }}>
+        <Typography fontSize={{ xs: "20px", sm: "24px" }} fontWeight="bold">
           مرحبا يا {name} 👋
         </Typography>
-        <br/>
-        <Typography fontSize="24px">
+        <Typography fontSize={{ xs: "18px", sm: "24px" }}>
           نتمنى لك يوماً دراسياً موفقاً!
         </Typography>
       </Box>
+
       <IconButton
         onClick={onClose}
         size="small"

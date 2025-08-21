@@ -11,7 +11,7 @@ const LastSubjectCard = ({ subject }) => {
   const isCompleted =
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -19,87 +19,94 @@ const navigate = useNavigate();
         borderRadius: "20px",
         p: "30px",
         display: "flex",
-
-        gap: "45px",
+        flexDirection: { xs: "column", lg: "row" }, // stack on small, row on bigger
+        alignItems: { xs: "center", md: "flex-start" }, // center on mobile
+        gap: "30px",
         width: "100%",
         my: "30px",
       }}
     >
-      {/* Bigger Image */}
-      <Avatar
-        variant="rounded"
+      {/* Responsive Image */}
+      <Box
+        component="img"
         src={subject?.image}
         alt={subject?.name}
-        sx={{ width: "294px", height: "191px", borderRadius: "20px" }}
+        sx={{
+          width: { xs: "100%", lg: "294px" },
+          height: "auto",
+          maxHeight: { xs: 200, sm: 191 },
+          borderRadius: "20px",
+          objectFit: "cover",
+        }}
       />
-      <Box>
+
+      <Box flex={1} sx={{ width: "100%" }}>
         {/* Subject Info */}
-        <Box flex={1}>
-          <Typography fontSize="24px" fontWeight="bold" mb={0.5} color="#205DC7">
-            {subject?.name}
-          </Typography>
+        <Typography fontSize="24px" fontWeight="bold" mb={0.5} color="#205DC7">
+          {subject?.name}
+        </Typography>
 
-          <Typography
+        <Typography
+          sx={{
+            color: isCompleted ? "#036108" : "#FF4346",
+            border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+            borderRadius: "8px",
+            padding: "5px",
+            display: "inline-block",
+            fontSize: "14px",
+            my: "15px",
+          }}
+          gutterBottom
+        >
+          {isCompleted ? "مكتمل" : "قيد التقدم"}
+        </Typography>
+
+        {/* Progress bar */}
+        <Box sx={{ position: "relative", width: "100%", maxWidth: "400px" }}>
+          <LinearProgress
+            variant="determinate"
+            value={subject.completion_percentage || 0}
             sx={{
-              color: isCompleted ? "#036108" : "#FF4346",
-              border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
-              borderRadius: "8px",
-              padding: "5px",
-              display: "inline-block",
-              fontSize: "14px",
-              my: "15px",
+              height: 24,
+              borderRadius: "12px",
+              backgroundColor: "#eee",
             }}
-            gutterBottom
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: "50%",
+              transform: "translateX(-50%)",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "14px",
+              fontWeight: "bold",
+              color: "#000",
+            }}
           >
-            {isCompleted ? "مكتمل" : "قيد التقدم"}
+            {subject.completion_percentage || 0}%
           </Typography>
-
-          <Box sx={{ position: "relative" }}>
-            <LinearProgress
-              variant="determinate"
-              value={subject.completion_percentage || 0}
-              sx={{
-                height: 24,
-                borderRadius: "12px",
-                backgroundColor: "#eee",
-                width: "262px",
-              }}
-            />
-            <Typography
-              variant="caption"
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: "50%",
-                transform: "translateX(-50%)",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-                fontWeight: "bold",
-                color: "#000",
-              }}
-            >
-              {subject.completion_percentage || 0}%
-            </Typography>
-            
-          </Box>
-          <Button
-              sx={{
-                mt:"28px",
-                py: "9px",
-                pl: "16px",
-                borderRadius: "100px",
-              }}
-              variant="contained"
-              size="small"
-              onClick={() => navigate(`/levels-map/${subject.id}`)}
-            >
-              أكمل التعلم
-              <ArrowBackIcon fontSize="small" sx={{ mx: "14px" }} />
-            </Button>
         </Box>
+
+        {/* Button */}
+        <Button
+          sx={{
+            mt: "28px",
+            py: "9px",
+            pl: "16px",
+            borderRadius: "100px",
+          }}
+          variant="contained"
+          size="small"
+          onClick={() => navigate(`/levels-map/${subject.id}`)}
+        >
+          أكمل التعلم
+          <ArrowBackIcon fontSize="small" sx={{ mx: "14px" }} />
+        </Button>
       </Box>
     </Box>
   );
