@@ -6,6 +6,7 @@ import {
   Typography,
   Paper,
   LinearProgress,
+  Button,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -15,7 +16,9 @@ import { useProfile } from "./Context/ProfileContext";
 import { fontSize, padding } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import RecommendedFriendsDialog from "../../Component/RecommendedFriends/RecommendedFriendsDialog"; // المسار حسب مشروعك
-
+import { useAchievements } from "../../Component/Home/AchievementContext";
+import achievementImg from "../../assets/Images/achievement.png";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 // داخل دالة Profile Component
 
 const Profile = () => {
@@ -27,7 +30,7 @@ const Profile = () => {
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
   const navigate = useNavigate();
-
+  const { achievements } = useAchievements();
   const handleViewProfile = (userId) => {
     navigate(`/user-profile/${userId}`);
   };
@@ -39,10 +42,12 @@ const Profile = () => {
   return (
     <Box sx={{ display: "flex", mt: "30px" }}>
       <Box mx={"20px"} width={"710px"}>
-        {/* User Info */}
         <Box textAlign="center" mb={4}>
-          <Avatar sx={{ width: 300, height: 300, mx: "auto", mb: "10px" }}>
-            <PersonIcon sx={{ fontSize: 60 }} />
+          <Avatar
+            src={profile.avatar || ""}
+            sx={{ width: 300, height: 300, mx: "auto", mb: "10px" }}
+          >
+            {!profile.avatar && <PersonIcon sx={{ fontSize: 60 }} />}
           </Avatar>
           <Typography variant="h5" fontWeight="bold" fontSize="48px">
             {profile.first_name} {profile.last_name}
@@ -52,7 +57,6 @@ const Profile = () => {
           </Typography>
         </Box>
 
-        {/* Stats */}
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item>
             <Box sx={boxStyle("#4CAF50")}>
@@ -87,6 +91,157 @@ const Profile = () => {
             </Box>
           </Grid>
         </Grid>
+        <Box>
+          <Box
+            sx={{
+              flex: 1,
+              width: "100%",
+              // maxWidth: "750px",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "20px", sm: "24px" },
+                  color: "#2D2D2D",
+                }}
+              >
+                التحديات
+              </Typography>
+              <Button
+                onClick={() => navigate("/achievements")}
+                sx={{
+                  fontSize: { xs: "16px", sm: "18px", md: "20px" },
+                  fontWeight: "bold",
+                  color: "#205DC7",
+                  textTransform: "none",
+                  gap: "6px",
+                }}
+              >
+                عرض المزيد
+                <ArrowBackIcon fontSize="small" />
+              </Button>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                borderRadius: "20px",
+              }}
+            >
+              {achievements.map((item, index) => (
+                <Box key={item.achievement.id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      backgroundColor: "#fff",
+                      borderRadius: "20px",
+                      p: { xs: 0, md: 2.5 },
+                    }}
+                  >
+                    <Avatar
+                      // variant="rounded"
+                      src={achievementImg}
+                      alt="Achievement"
+                      sx={{
+                        width: { xs: 93, md: "auto" },
+                        height: { xs: 138, md: 93 },
+                        backgroundColor: "#F0F7FF",
+                        borderRadius: "12px",
+                        m: 1,
+                      }}
+                    />
+
+                    <Box
+                      sx={{
+                        flex: 1,
+                        py: { xs: 2.5, md: 0 },
+                        pr: { xs: 2.5, md: 0 },
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "16px",
+                          color: "#2D2D2D",
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.achievement.name}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "16px",
+                          color: "#2D2D2D",
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.achievement.description}
+                      </Typography>
+
+                      <Box sx={{ position: "relative", mt: 2 }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={item.completion_percentage}
+                          sx={{
+                            height: { xs: 14, sm: 24 },
+                            borderRadius: "8px",
+                            backgroundColor: "#F0F0F0",
+                            "& .MuiLinearProgress-bar": {
+                              borderRadius: "8px",
+                              backgroundColor: "#81AB00",
+                            },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            color: "#fff",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                          }}
+                        >
+                          {item.completion_percentage === 100 ? (
+                            <Typography
+                              sx={{ fontSize: { xs: "10px", md: "16px" } }}
+                            >
+                              مكتمل
+                            </Typography>
+                          ) : (
+                            item.completion_percentage
+                          )}
+                          {!item.completion_percentage === 100 ? "%" : ""}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
       </Box>
       <Box width={"320px"}>
         <Grid item xs={12} md={4}>
@@ -191,7 +346,7 @@ const Profile = () => {
                 alignItems="center"
                 gap={1}
                 sx={{ cursor: "pointer" }}
-                onClick={() => handleViewProfile(user.id)} // 👈 Use id here
+                onClick={() => handleViewProfile(user.user_id)} // ✅ fixed here
               >
                 <Avatar src={user.avatar || ""} />
                 <Box>

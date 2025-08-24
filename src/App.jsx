@@ -12,7 +12,7 @@ import { ProfileProvider } from "./Pages/Profile/Context/ProfileContext";
 import { HomeProvider } from "./Pages/Home/Context/HomeContext";
 import { SubjectsProvider } from "./Pages/Subjects/Context/SubjectsContext";
 import { WeeklyCompetitionProvider } from "./Pages/Competitions/Context/WeeklyCompetitionContext";
-
+import { FriendsProvider } from "./Pages/Profile/Context/FriendsContext";
 const App = () => {
   useAuth();
 
@@ -26,9 +26,11 @@ const App = () => {
                 <AchievementProvider>
                   <StageStartProvider>
                     <ProfileProvider>
-                      <SubjectsProvider>
-                        <MainRoutes />
-                      </SubjectsProvider>
+                      <FriendsProvider>
+                        <SubjectsProvider>
+                          <MainRoutes />
+                        </SubjectsProvider>
+                      </FriendsProvider>
                     </ProfileProvider>
                   </StageStartProvider>
                 </AchievementProvider>

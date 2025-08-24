@@ -49,7 +49,7 @@ const MainRoutes = () => (
         <Route path="subjects/my-subjects" element={<MySubjects />} />
         <Route path="subjects/other-subjects" element={<OtherSubjects />} />
         <Route path="competitions" element={<CompetitionsPage />} />
-        <Route path="Achievements" element={<AchievementsPage />} />
+        <Route path="achievements" element={<AchievementsPage />} />
         <Route path="levels-map/:subjectId" element={<LevelsMapWrapper />} />
       </Route>
     </Route>

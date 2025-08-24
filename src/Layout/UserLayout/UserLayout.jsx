@@ -100,7 +100,7 @@ const UserLayout = () => {
           </ListItemIcon>
           <ListItemText primary="المسابقات" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/Achievements")}>
+        <ListItemButton onClick={() => navigate("/achievements")}>
           <ListItemIcon>
             <SportsKabaddiIcon />
           </ListItemIcon>
@@ -376,7 +376,7 @@ const UserLayout = () => {
                 navigate("/competitions");
                 break;
               case 3:
-                navigate("/Achievements");
+                navigate("/achievements");
                 break;
               case 4:
                 navigate("/profile");

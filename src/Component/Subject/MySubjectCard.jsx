@@ -23,17 +23,18 @@ const MySubjectCard = ({ subject }) => {
     allItems.every((item) => item?.lesson?.is_passed === true);
 
   return (
-    <Card
+    <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", lg: "row" }, // stack on mobile
+        flexDirection: { xs: "column", sm: "row" }, // stack on mobile
         alignItems: { xs: "flex-start", sm: "center" },
         height: "auto", // let it grow naturally
         overflow: "hidden",
-        px: "15px",
+        // px: "15px",
         borderRadius: "20px",
         mb: "20px",
-        gap: { xs: 2, sm: 0 }, // spacing when stacked
+        backgroundColor:"#FFFFFF",
+        // gap: { xs: 2, sm: 0 }, // spacing when stacked
       }}
     >
       {/* Image + Content */}
@@ -43,8 +44,11 @@ const MySubjectCard = ({ subject }) => {
           display: "flex",
           alignItems: "center",
           gap: "15px",
-          flexDirection: { xs: "column", sm: "row" }, // image on top for mobile
+          // flexDirection: { xs: "column", sm: "row" }, // image on top for mobile
           width: "100%",
+          paddingLeft: "20px",
+          paddingTop: "20px",
+          paddingBottom: { xs: "0px", sm: "20px" },
         }}
       >
         <CardMedia
@@ -52,9 +56,10 @@ const MySubjectCard = ({ subject }) => {
           image={subject.image}
           alt={subject.name}
           sx={{
-            width: { xs: "100%", sm: 137 }, // full width on mobile, fixed on larger
+            width: "134px",
+            // width: { xs: "100%", sm: 137 }, // full width on mobile, fixed on larger
             height: "auto", // let height scale automatically
-            maxHeight: { xs: 200, sm: 101 }, // optional cap
+            // maxHeight: { xs: 200, sm: 101 }, // optional cap
             objectFit: "cover",
             borderRadius: 2,
           }}
@@ -83,7 +88,14 @@ const MySubjectCard = ({ subject }) => {
           </Typography>
 
           {/* Progress Bar */}
-          <Box sx={{ position: "relative", width: "100%", maxWidth: "300px" }}>
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              maxWidth: "300px",
+              paddingRight: "10px",
+            }}
+          >
             <LinearProgress
               variant="determinate"
               value={subject.completion_percentage || 0}
@@ -114,21 +126,21 @@ const MySubjectCard = ({ subject }) => {
       {/* Button */}
       <Button
         sx={{
-          mt: { xs: 2, sm: 0 }, // below content on mobile
-          ml: { xs: 0, sm: "22px" },
-          py: "9px",
-          pl: "16px",
+          m: { xs: 1, sm: 2 },
+          py: "6px",
+          px: "24px", // 👈 force horizontal padding
+          minWidth: "134px", // 👈 set a minimum width
           borderRadius: "100px",
-          alignSelf: { xs: "stretch", sm: "center" }, // full width button on mobile
+          alignSelf: { xs: "stretch", sm: "center" },
         }}
         variant="contained"
         size="small"
+        endIcon={<ArrowBackIcon fontSize="small" />}
         onClick={() => navigate(`/levels-map/${subject.id}`)}
       >
         أكمل التعلم
-        <ArrowBackIcon fontSize="small" sx={{ mx: "14px" }} />
       </Button>
-    </Card>
+    </Box>
   );
 };
 

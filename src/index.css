@@ -10,7 +10,7 @@ html {
 }
 @font-face {
   font-family: "Almarai";
-  src: url("./assets/Fonts/Almarai-Bold.ttf") format("truetype");
+  src: url("./assets/Fonts/Almarai-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
