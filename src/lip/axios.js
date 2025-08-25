@@ -2,7 +2,7 @@ import axios from "axios";
 import refreshAccessToken from "./refreshAccessToken"; // your refresh logic
 
 const axiosInstance = axios.create({
-  baseURL: "https://we-educated-platform.netlify.app/",
+  baseURL: "https://beshrbaloush.pythonanywhere.com/",
   headers: { "Content-Type": "application/json" },
 });
 

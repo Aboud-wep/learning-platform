@@ -1,6 +1,6 @@
 import axiosInstance from "../../lip/axios";
 
-const BASE_URL = "https://we-educated-platform.netlify.app/users/auth/dashboard";
+const BASE_URL = "https://beshrbaloush.pythonanywhere.com/users/auth/dashboard";
 
 export const registerUser = async (formData) => {
   try {

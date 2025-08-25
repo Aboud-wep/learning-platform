@@ -8,7 +8,7 @@ const refreshAccessToken = async () => {
   try {
     console.log("step4");
     const response = await axios.post(
-      "https://we-educated-platform.netlify.app/users/auth/dashboard/refresh",
+      "https://beshrbaloush.pythonanywhere.com/users/auth/dashboard/refresh",
       { refresh: refreshToken }
     );
 console.log("RAmiiiiiiiiii",response.data)
