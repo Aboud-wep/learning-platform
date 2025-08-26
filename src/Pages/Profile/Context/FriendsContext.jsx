@@ -29,7 +29,7 @@ export const FriendsProvider = ({ children }) => {
         }
       );
 
-      setSuccess(res.data.meta?.message || "تمت إضافة الصديق بنجاح");
+      // setSuccess(res.data.meta?.message || "تمت إضافة الصديق بنجاح");
       return res.data;
     } catch (err) {
       console.error("Error adding friend:", err);

@@ -4,9 +4,7 @@ import {
   Typography,
   Button,
   Grid,
-  Card,
   CardMedia,
-  LinearProgress,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
@@ -48,6 +46,21 @@ const MySubjects = () => {
       return currentDate > latestDate ? current : latest;
     }, null);
   }, [mySubjects]);
+
+  // --- add this after computing lastUpdatedSubject ---
+  const isCompleted = useMemo(() => {
+    if (!lastUpdatedSubject) return false;
+
+    const allItems =
+      lastUpdatedSubject?.levels?.flatMap((level) =>
+        level?.stages?.flatMap((stage) => stage?.items || [])
+      ) || [];
+
+    return (
+      allItems.length > 0 &&
+      allItems.every((item) => item?.lesson?.is_passed === true)
+    );
+  }, [lastUpdatedSubject]);
 
   return (
     <Box
@@ -103,28 +116,62 @@ const MySubjects = () => {
       {isDesktop && lastUpdatedSubject && (
         <Box
           sx={{
-            width: { md: 300 },
+            width: { md: 324 },
             position: "sticky",
             top: 20,
             height: "fit-content",
           }}
         >
-          <Typography variant="h6" fontWeight="bold" mb={2}>
-            آخر مادة تم تحديثها
-          </Typography>
-
-          <Box sx={{ borderRadius: "12px", overflow: "hidden", padding:"20px", backgroundColor:"#FFFFFF" }}>
+          <Box
+            sx={{
+              borderRadius: "20px",
+              overflow: "hidden",
+              padding: "20px",
+              backgroundColor: "#FFFFFF",
+            }}
+          >
             {/* Subject Image */}
             <CardMedia
               component="img"
-              height="140"
               image={lastUpdatedSubject.image || "/placeholder-image.jpg"}
               alt={lastUpdatedSubject.name}
-              sx={{ objectFit: "cover" }}
+              sx={{
+                objectFit: "cover",
+                width: "284px",
+                height: "235px",
+                borderRadius: "20px",
+              }}
             />
 
+            
             {/* Subject Content */}
-            <Box sx={{ p: 2 }}>
+            <Box
+              sx={{
+                p: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center", // ✅ center horizontally
+                textAlign: "center", // ✅ center text
+              }}
+            >
+              {/* Progress Section */}
+              <Box>
+                <Typography
+                  sx={{
+                    color: isCompleted ? "#036108" : "#FF4346",
+                    border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+                    borderRadius: "8px",
+                    px: "10px",
+                    py: "3px",
+                    display: "inline-block",
+                    fontSize: "14px",
+                    my: "8px",
+                  }}
+                  gutterBottom
+                >
+                  {isCompleted ? "مكتمل" : "قيد التقدم"}
+                </Typography>
+              </Box>
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 {lastUpdatedSubject.name}
               </Typography>
@@ -134,37 +181,6 @@ const MySubjects = () => {
                   ? `${lastUpdatedSubject.description.substring(0, 100)}...`
                   : lastUpdatedSubject.description}
               </Typography>
-
-              {/* Progress Section */}
-              <Box sx={{ mb: 2 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 1,
-                  }}
-                >
-                  <Typography variant="body2">التقدم</Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {userProgressMap[lastUpdatedSubject.id]
-                      ?.completion_percentage || 0}
-                    %
-                  </Typography>
-                </Box>
-
-                <LinearProgress
-                  variant="determinate"
-                  value={
-                    userProgressMap[lastUpdatedSubject.id]
-                      ?.completion_percentage || 0
-                  }
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                  }}
-                />
-              </Box>
-
               {/* Continue Button */}
               <Button
                 fullWidth

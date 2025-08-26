@@ -37,7 +37,10 @@ export const WeeklyCompetitionProvider = ({ children }) => {
 
   // 👇 whenever profile is loaded, auto-fetch its competition
   useEffect(() => {
-    if (profile?.weekly_competition?.id) {
+    const hasTokens =
+      localStorage.getItem("accessToken") &&
+      localStorage.getItem("refreshToken");
+    if (hasTokens && profile?.weekly_competition?.id) {
       fetchCompetition(profile.weekly_competition.id);
     }
   }, [profile, fetchCompetition]);

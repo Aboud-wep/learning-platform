@@ -1,32 +1,33 @@
-// src/Pages/Achievements/AchievementsPage.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useHome } from "../Home/Context/HomeContext";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import {
   Avatar,
   Box,
-  Divider,
   LinearProgress,
   Typography,
-  IconButton,
+  Button,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import achievementImg from "../../assets/Images/achievement.png";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useLocation, useOutletContext } from "react-router-dom";
+import axios from "axios";
+import axiosInstance from "../../lip/axios";
 
 const AchievementsPage = () => {
-  const { profile } = useHome();
+  const { profile, setProfile } = useHome();
   const { subjects, userProgress } = useSubjects();
   const { achievements } = useAchievements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const location = useLocation();
-const hideAchievements = location.pathname === "/achievements";
+  const hideAchievements = location.pathname === "/achievements";
   const { setPageTitle } = useOutletContext();
+
+  const [loadingId, setLoadingId] = useState(null);
 
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
@@ -38,6 +39,33 @@ const hideAchievements = location.pathname === "/achievements";
   }, [setPageTitle]);
 
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
+
+  // ✅ Claim reward API call
+  const claimReward = async (achievementId) => {
+    try {
+      setLoadingId(achievementId);
+
+      const response = await axiosInstance.put(
+        `titles/achievements/website/Achievement/${achievementId}`
+      );
+
+      if (response.data.meta.success) {
+        const updatedProfile = response.data.data.updated_profile;
+
+        // Update profile in context
+        setProfile((prev) => ({
+          ...prev,
+          ...updatedProfile,
+        }));
+
+        alert("🎉 تم استلام الجائزة بنجاح!");
+      }
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   if (!achievements.length) {
     return (
@@ -79,14 +107,7 @@ const hideAchievements = location.pathname === "/achievements";
       }}
     >
       {/* Achievements Section */}
-      <Box
-        sx={{
-          flex: 1,
-          width: "100%",
-          // maxWidth: "750px",
-          justifyContent: "center",
-        }}
-      >
+      <Box sx={{ flex: 1, width: "100%" }}>
         <Box
           sx={{
             display: "flex",
@@ -115,7 +136,7 @@ const hideAchievements = location.pathname === "/achievements";
             borderRadius: "20px",
           }}
         >
-          {achievements.map((item, index) => (
+          {achievements.map((item) => (
             <Box key={item.achievement.id}>
               <Box
                 sx={{
@@ -128,7 +149,6 @@ const hideAchievements = location.pathname === "/achievements";
                 }}
               >
                 <Avatar
-                  // variant="rounded"
                   src={achievementImg}
                   alt="Achievement"
                   sx={{
@@ -136,7 +156,7 @@ const hideAchievements = location.pathname === "/achievements";
                     height: { xs: 138, md: 93 },
                     backgroundColor: "#F0F7FF",
                     borderRadius: "12px",
-                    m:1
+                    m: 1,
                   }}
                 />
 
@@ -158,6 +178,7 @@ const hideAchievements = location.pathname === "/achievements";
                   >
                     {item.achievement.name}
                   </Typography>
+
                   <Typography
                     variant="body1"
                     sx={{
@@ -170,6 +191,7 @@ const hideAchievements = location.pathname === "/achievements";
                     {item.achievement.description}
                   </Typography>
 
+                  {/* Progress bar */}
                   <Box sx={{ position: "relative", mt: 2 }}>
                     <LinearProgress
                       variant="determinate"
@@ -184,6 +206,7 @@ const hideAchievements = location.pathname === "/achievements";
                         },
                       }}
                     />
+
                     <Typography
                       variant="caption"
                       sx={{
@@ -197,20 +220,29 @@ const hideAchievements = location.pathname === "/achievements";
                         textShadow: "0 0 2px rgba(0,0,0,0.3)",
                       }}
                     >
-                      {item.completion_percentage === 100 ? (
-                        <Typography
-                          sx={{ fontSize: { xs: "10px", md: "16px" } }}
-                        >
-                          مكتمل
-                        </Typography>
-                      ) : (
-                        item.completion_percentage
-                      )}
-                      {!item.completion_percentage === 100 ? "%" : ""}
+                      {item.completion_percentage === 100
+                        ? "مكتمل"
+                        : `${item.completion_percentage}%`}
                     </Typography>
                   </Box>
+
+                  {/* Claim button */}
+                  {item.completion_percentage === 100 && (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                      onClick={() => claimReward(item.achievement.id)}
+                      disabled={loadingId === item.achievement.id}
+                    >
+                      {loadingId === item.achievement.id
+                        ? "جاري الاستلام..."
+                        : "احصل على جائزتك"}
+                    </Button>
+                  )}
                 </Box>
-              </Box> 
+              </Box>
             </Box>
           ))}
         </Box>
@@ -218,7 +250,7 @@ const hideAchievements = location.pathname === "/achievements";
 
       {/* Profile Stats Section - Hidden on mobile */}
       {!isMobile && (
-        <Box sx={{}}>
+        <Box>
           <ProfileStatsCard
             profile={profile}
             mySubjects={mySubjects}

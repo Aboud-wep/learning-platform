@@ -3,15 +3,16 @@ import axios from "axios";
 const refreshAccessToken = async () => {
   console.log("step2");
   const refreshToken = localStorage.getItem("refreshToken");
+  console.log("DEBUG refreshAccessToken -> refreshToken:", refreshToken);
   if (!refreshToken) throw new Error("No refresh token found");
   console.log("step3");
   try {
     console.log("step4");
     const response = await axios.post(
-      "https://beshrbaloush.pythonanywhere.com/users/auth/dashboard/refresh",
+      "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard/refresh",
       { refresh: refreshToken }
     );
-console.log("RAmiiiiiiiiii",response.data)
+    console.log("RAmiiiiiiiiii", response.data);
     const { access, refresh: newRefreshToken, expires_in } = response.data.data;
 
     localStorage.setItem("accessToken", access);
