@@ -70,7 +70,7 @@ const HexPlayButton = ({ stage }) => {
             </defs>
 
             {/* Dynamic progress fill */}
-            <rect
+            {/* <rect
               x="0"
               y={100 - progress} // Progress fill from bottom
               width="100"
@@ -78,21 +78,28 @@ const HexPlayButton = ({ stage }) => {
               fill="#397DF3"
               clipPath={`url(#hexFill-${stage.id})`}
               opacity="0.4"
-            />
-
-            {/* Your original polygon border */}
+            /> */}
+          <defs>
+            <linearGradient id="hexStrokeGradient" x1="100%" y1="0%" x2="0%" y2="0%">
+            <stop offset={`${progress}%`} stopColor="#397DF3" />
+            <stop offset={`${progress}%`} stopColor="white" />
+            </linearGradient>
+          </defs>
+           {/* Your original polygon border */}
             <polygon
               points="30,30 70,30 95,58 73,84 27,84 5,58"
-              fill="#0000001A"
-              stroke="#397DF3"
-              strokeWidth="2"
+              // fill="#0000001A"
+              fill="none"
+
+              stroke="url(#hexStrokeGradient)"
+              strokeWidth="4"
               strokeLinejoin="round"
             />
 
             {/* Progress text */}
             <text
               x="50%"
-              y="65%"
+              y="80%"
               textAnchor="middle"
               fill="white"
               fontSize="10"

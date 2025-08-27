@@ -34,6 +34,9 @@ const LevelsMap = () => {
     ) {
       navigate("/subjects");
     }
+    console.log("VD")
+    console.log(stagesStatus);
+    console.log(levelsData)
   }, [mySubjects, subjectId, navigate, loadingg]);
 
   if (loading) {

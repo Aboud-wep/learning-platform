@@ -1,4 +1,4 @@
-import React from "react";
+import React , { useState} from "react";
 import {
   Card,
   CardContent,
@@ -10,9 +10,13 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import PlacementModal from "../PlacementModal";
+
 const MySubjectCard = ({ subject }) => {
   const navigate = useNavigate();
 
+  const [isPlacementedTestModalOpen, setIsPlacementedTestModalOpen] = useState(false);
+  const [subjectId, setSubjectId] = useState(null);
   const allItems =
     subject?.levels?.flatMap((level) =>
       level?.stages?.flatMap((stage) => stage?.items || [])
@@ -21,6 +25,8 @@ const MySubjectCard = ({ subject }) => {
   const isCompleted =
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
+
+
 
   return (
     <Card
@@ -123,11 +129,20 @@ const MySubjectCard = ({ subject }) => {
         }}
         variant="contained"
         size="small"
-        onClick={() => navigate(`/levels-map/${subject.id}`)}
+        onClick={() =>{
+          setIsPlacementedTestModalOpen(true);
+          setSubjectId(subject.id);
+        }}
       >
         أكمل التعلم
         <ArrowBackIcon fontSize="small" sx={{ mx: "14px" }} />
       </Button>
+
+      <PlacementModal
+        open={isPlacementedTestModalOpen}
+        onClose={() => setIsPlacementedTestModalOpen(false)}
+        subjectId={subjectId}
+      />
     </Card>
   );
 };

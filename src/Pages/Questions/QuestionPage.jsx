@@ -19,10 +19,13 @@ import ProgressIndicator from "../../Component/ProgressIndicator";
 import CircularProgressIndicator from "../../Component/CircularProgressIndicator";
 import QuestionProgress from "../../Component/QuestionProgress";
 import StageProgressCircle from "../../Component/StageProgressCircle";
-
-const QuestionPage = () => {
+import CircularCounter from '../../Component/CircularCounter';
+const QuestionPage = ({type}) => {
   const location = useLocation();
   const { id } = useParams();
+  console.log("iddd",id);
+  const [pageNumber,setPageNumber]= useState(1);
+  const [questionCount , setQuestionCount] = useState(1);
   const {
     currentQuestion,
     openVideoDialog,
@@ -43,11 +46,16 @@ const QuestionPage = () => {
     hearts,
     rewards,
     progress,
+    setProgress
   } = useQuestion();
+  console.log("vDkv", progress)
+  console.log(location);
+  console.log(type)
   // const [nextQuestionId, setNextQuestionId] = useState(null);
   // const [nextQuestionData, setNextQuestionData] = useState(null);
 
   const navigate = useNavigate();
+
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -120,6 +128,7 @@ const QuestionPage = () => {
       question_group_id: questionGroupId,
       lesson_log_id: lessonLogId,
       question_type: currentQuestion.type,
+      type:type
     };
 
     if (answerId) {
@@ -160,12 +169,16 @@ const QuestionPage = () => {
       // Only run this if there are hearts
       setIsCorrect(res?.is_correct);
       setShowResult(true);
+      setQuestionCount(res.question_count);
 
       if (res?.next_question) {
         setNextQuestionId(res.next_question.id);
         setNextQuestionData(res.next_question);
         setQuestionGroupId(res.next_question.question_group_id);
       }
+      setProgress({
+        number:res.data.data.question_number+1
+      })
 
       // Reset answers
       setSelectedOption(null);
@@ -178,9 +191,11 @@ const QuestionPage = () => {
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
+    console.log("VKD")
   };
 
   const handleNext = () => {
+    setPageNumber(pageNumber+1);
     if (lessonComplete) {
       const hasXPOrCoins =
         (rewards.xp && rewards.xp > 0) || (rewards.coins && rewards.coins > 0);
@@ -288,7 +303,9 @@ const QuestionPage = () => {
     fill_blank: "املأ الفراغات الآتية",
     matching: "صل العبارات",
   };
-
+  console.log("V")
+  console.log(pageNumber,progress.totalQuestions)
+  console.log((pageNumber-1)/progress.totalQuestions);
   return (
     <>
       <Box
@@ -298,6 +315,14 @@ const QuestionPage = () => {
         }}
       >
         <Box className=" w-full max-w-[1010px] opacity-90 ">
+          <div className="">
+            <CircularCounter 
+              number={pageNumber}
+              color={'blue'}
+              percentage={( pageNumber == 1 ? 0 : (pageNumber-1)/questionCount) * 100}
+            >
+            </CircularCounter>
+          </div>
           <Box elevation={3} className="bg-white/90 rounded-[40px]">
             <Box sx={{ paddingX: "114px", paddingTop: "50px" }}>
               <h4 className="text-right mb-3 text-[#205DC7]">

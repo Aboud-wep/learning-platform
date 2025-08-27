@@ -39,6 +39,7 @@ export const QuestionProvider = ({ children }) => {
     completed: 0,
     correctAnswers: 0,
     percentage: 0,
+    number:1
   });
   const navigate = useNavigate(); // put this inside your context/provider component
   const goToNext = () => {
@@ -74,6 +75,7 @@ export const QuestionProvider = ({ children }) => {
         completed: 0,
         correctAnswers: 0,
         percentage: 0,
+        number: data.question_number||1
       }));
 
       console.log("Lesson started - total questions:", data.question_count);
@@ -106,9 +108,10 @@ export const QuestionProvider = ({ children }) => {
     structured_answer,
     selected_options,
     question_type,
+    type
   }) => {
     setLoading(true);
-
+    console.log('submit type',type)
     try {
       let transformedStructuredAnswer = structured_answer;
 
@@ -164,6 +167,7 @@ export const QuestionProvider = ({ children }) => {
           completed,
           correctAnswers,
           percentage,
+          number:res.data.data.question_number
         };
 
         console.log("Progress updated in QuestionPage:", newProgress);

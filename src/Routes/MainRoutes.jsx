@@ -26,7 +26,7 @@ const MainRoutes = () => (
   <Routes>
     {/* Public Routes */}
     <Route path="/" element={<PublicRoutes />} />
-    <Route path="/login" element={<Login />} />
+    <Route path="/login" element={  <Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/lesson-ended" element={<LessonEnded />} />
     <Route
@@ -35,7 +35,9 @@ const MainRoutes = () => (
     />
     {/* Protected Routes */}
     <Route element={<ProtectedRoutes />}>
-      <Route path="/questions/:questionId" element={<QuestionPage />} />
+      <Route path="/questions/:questionId" element={<QuestionPage type={'lesson'} />} />
+      <Route path="/test/:questionId" element={<QuestionPage type={'test'} />} />
+
       <Route path="no-hearts" element={<NoHeartsPage />} />
       <Route element={<UserLayout />}>
         <Route path="*" element={<Navigate to="/home" replace />} />
