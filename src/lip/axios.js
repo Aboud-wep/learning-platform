@@ -2,7 +2,7 @@ import axios from "axios";
 import refreshAccessToken from "./refreshAccessToken"; // your refresh logic
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8000/api/v1/",
+  baseURL: "https://beshrbaloush.pythonanywhere.com/api/v1/",
   headers: { "Content-Type": "application/json" },
 });
 
@@ -11,7 +11,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;  // fix template literal here
+      config.headers.Authorization = `Bearer ${token}`; // fix template literal here
     }
     return config;
   },
@@ -37,12 +37,11 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log(error)
+    console.log(error);
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url.endsWith("/users/auth/dashboard/refresh")
-
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {

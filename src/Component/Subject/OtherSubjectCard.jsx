@@ -42,16 +42,17 @@ const OtherSubjectCard = ({ subject }) => {
   };
 
   return (
-    <Card
+    <Box
       sx={{
         borderRadius: "20px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
         padding: "15px",
-        width: { xs: "100%", sm: "209px" }, // full width on mobile
+        width: { xs: "195px", sm: "209px" }, // full width on mobile
         maxWidth: "209px",
         boxSizing: "border-box",
+        backgroundColor:"#ffffff"
       }}
     >
       <CardMedia
@@ -59,14 +60,14 @@ const OtherSubjectCard = ({ subject }) => {
         image={subject.image}
         alt={subject.name}
         sx={{
-          width: "100%", // fill card width
-          height: { xs: "auto", sm: "115px" }, // auto height on mobile
+          width: { xs: "175px", sm: "100%" }, // fill card width
+          height: { xs: "115px", sm: "100%" }, // auto height on mobile
           borderRadius: "20px",
           objectFit: "cover",
         }}
       />
 
-      <Box sx={{ textAlign: "center", mt: 2, flexGrow: 1 }}>
+      <Box sx={{ textAlign: "center",  flexGrow: 1 }}>
         <Typography
           fontSize={"20px"}
           fontWeight="bold"
@@ -94,11 +95,11 @@ const OtherSubjectCard = ({ subject }) => {
         variant="contained"
         color="primary"
         onClick={handleJoin}
-        sx={{ mt: "auto" }}
+        sx={{ mt: "auto",borderRadius:"1000px" }}
       >
         ابدأ التعلم
       </Button>
-    </Card>
+    </Box>
   );
 };
 

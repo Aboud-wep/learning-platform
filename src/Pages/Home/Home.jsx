@@ -197,9 +197,7 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* Right Side Stats */}
-      {/* Right Side Stats */}
-      <Box
+      {/* <Box
         sx={{
           flexShrink: 0,
           flexBasis: { xs: "100%", md: "30%" }, // take 100% on mobile, 30% on desktop
@@ -209,7 +207,7 @@ const Home = () => {
         }}
       >
         <ProfileStatsCard profile={profile} mySubjects={mySubjects} />
-      </Box>
+      </Box> */}
     </Box>
   );
 };

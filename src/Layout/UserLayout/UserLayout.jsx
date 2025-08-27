@@ -100,7 +100,7 @@ const UserLayout = () => {
           </ListItemIcon>
           <ListItemText primary="المسابقات" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/Achievements")}>
+        <ListItemButton onClick={() => navigate("/achievements")}>
           <ListItemIcon>
             <SportsKabaddiIcon />
           </ListItemIcon>
@@ -179,16 +179,14 @@ const UserLayout = () => {
             color: "#343F4E",
           }}
         >
-          
           <Typography
             fontSize="32px"
             fontWeight="bold"
-            sx={{ display: { xs: "none", md: "block" } }}
+            sx={{ display: { xs: "none", md: "block", marginLeft: "20px" } }}
           >
             {pageTitle}
           </Typography>
 
-          
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
@@ -222,7 +220,6 @@ const UserLayout = () => {
             </Box>
           </Box>
 
-          
           {profile && (
             <Box
               sx={{
@@ -232,7 +229,6 @@ const UserLayout = () => {
                 alignItems: "center",
               }}
             >
-              
               <Box
                 sx={{
                   display: "flex",
@@ -255,7 +251,6 @@ const UserLayout = () => {
                 />
               </Box>
 
-              
               <Box
                 sx={{
                   display: "flex",
@@ -278,7 +273,6 @@ const UserLayout = () => {
                 />
               </Box>
 
-              
               <Box
                 sx={{
                   display: "flex",
@@ -300,7 +294,7 @@ const UserLayout = () => {
                   sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
                 />
               </Box>
-              
+
               <Box
                 onClick={() => navigate("/profile")}
                 sx={{ cursor: "pointer" }} // 👈 makes it clear it’s clickable
@@ -376,7 +370,7 @@ const UserLayout = () => {
                 navigate("/competitions");
                 break;
               case 3:
-                navigate("/Achievements");
+                navigate("/achievements");
                 break;
               case 4:
                 navigate("/profile");

@@ -19,9 +19,8 @@ const RecommendedFriendsDialog = ({ open, onClose }) => {
   const navigate = useNavigate();
 
   const handleViewProfile = (userId) => {
-    const token = localStorage.getItem("token"); // adjust if you store it differently
-    onClose(); // close dialog before navigating
-    navigate(`/user-profile/${userId}?token=${token}`);
+    onClose();
+    navigate(`/user-profile/${userId}`);
   };
 
   return (
@@ -55,13 +54,13 @@ const RecommendedFriendsDialog = ({ open, onClose }) => {
           (search.trim() === "" ? recommended.slice(0, 5) : searchResults).map(
             (user) => (
               <Box
-                key={user.id || user.username}
+                key={user.user_id || user.username}
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
                 mb={2}
                 sx={{ cursor: "pointer" }}
-                onClick={() => handleViewProfile(user.id)}
+                onClick={() => handleViewProfile(user.user_id)}
               >
                 <Box display="flex" alignItems="center" gap={2}>
                   <Avatar src={user.avatar || ""} />

@@ -14,7 +14,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import achievementImg from "../../assets/Images/achievement.png";
 import { useNavigate } from "react-router-dom";
 
-const ProfileStatsCard = ({ profile, mySubjects }) => {
+const ProfileStatsCard = ({
+  profile,
+  mySubjects,
+  showAchievements,
+  showWeeklyCompetition,
+}) => {
   const { achievements } = useAchievements();
   const navigate = useNavigate();
 
@@ -138,86 +143,97 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
       </Grid>
 
       {/* Weekly Competition */}
-      {profile?.weekly_competition?.profiles?.length > 0 && (
-        <Box
-          sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2, mb: 3 }}
-        >
-          <Typography
-            fontWeight="bold"
-            fontSize={{ xs: "18px", sm: "24px" }}
-            mb={2}
+      {!showWeeklyCompetition &&
+        [
+          ...(profile?.weekly_competition?.progress_zone || []),
+          ...(profile?.weekly_competition?.zone || []),
+          ...(profile?.weekly_competition?.retreat_zone || []),
+        ].length > 0 && (
+          <Box
+            sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2, mb: 3 }}
           >
-            قائمة المتقدمين
-          </Typography>
-          {profile.weekly_competition.profiles
-            .slice()
-            .sort((a, b) => b.xp_per_week - a.xp_per_week)
-            .map((player, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  mb: 1.5,
-                  px: 1,
-                }}
-              >
-                <Typography
-                  sx={{ width: 20, fontSize: { xs: "12px", sm: "14px" } }}
-                >
-                  {index + 1}
-                </Typography>
-                <Avatar
-                  src={player.avatar || undefined}
+            <Typography
+              fontWeight="bold"
+              fontSize={{ xs: "18px", sm: "24px" }}
+              mb={2}
+            >
+              قائمة المتقدمين
+            </Typography>
+
+            {[
+              ...(profile?.weekly_competition?.progress_zone || []),
+              ...(profile?.weekly_competition?.zone || []),
+              ...(profile?.weekly_competition?.retreat_zone || []),
+            ]
+              .slice()
+              .sort((a, b) => b.xp_per_week - a.xp_per_week)
+              .map((player, index) => (
+                <Box
+                  key={player.id}
                   sx={{
-                    width: { xs: 28, sm: 36 },
-                    height: { xs: 28, sm: 36 },
-                    m: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1.5,
+                    px: 1,
                   }}
                 >
-                  {!player.avatar && player.first_name?.charAt(0)}
-                </Avatar>
-                <Typography
-                  sx={{ flexGrow: 1, fontSize: { xs: "12px", sm: "14px" } }}
-                >
-                  {player.first_name}
-                </Typography>
-                <Typography
-                  dir="ltr"
-                  fontWeight="bold"
-                  sx={{
-                    border: "1px solid",
-                    borderRadius: "100px",
-                    px: { xs: "12px", sm: "33px" },
-                    py: { xs: "2px", sm: "5px" },
-                    color: "#205DC7",
-                    fontSize: { xs: "12px", sm: "14px" },
-                  }}
-                >
-                  {player.xp_per_week} XP
-                </Typography>
-              </Box>
-            ))}
-          <Button
-            onClick={() => navigate("/competitions")}
-            sx={{
-              fontSize: { xs: "14px", sm: "20px" },
-              fontWeight: "bold",
-              color: "#205DC7",
-              textTransform: "none",
-              gap: "6px",
-            }}
-          >
-            عرض المزيد
-            <ArrowBackIcon fontSize="small" />
-          </Button>
-        </Box>
-      )}
+                  <Typography
+                    sx={{ width: 20, fontSize: { xs: "12px", sm: "14px" } }}
+                  >
+                    {index + 1}
+                  </Typography>
+                  <Avatar
+                    src={player.avatar || undefined}
+                    sx={{
+                      width: { xs: 28, sm: 36 },
+                      height: { xs: 28, sm: 36 },
+                      m: 1,
+                    }}
+                  >
+                    {!player.avatar && player.first_name?.charAt(0)}
+                  </Avatar>
+                  <Typography
+                    sx={{ flexGrow: 1, fontSize: { xs: "12px", sm: "14px" } }}
+                  >
+                    {player.first_name}
+                  </Typography>
+                  <Typography
+                    dir="ltr"
+                    fontWeight="bold"
+                    sx={{
+                      border: "1px solid",
+                      borderRadius: "100px",
+                      px: { xs: "12px", sm: "33px" },
+                      py: { xs: "2px", sm: "5px" },
+                      color: "#205DC7",
+                      fontSize: { xs: "12px", sm: "14px" },
+                    }}
+                  >
+                    {player.xp_per_week} XP
+                  </Typography>
+                </Box>
+              ))}
+
+            <Button
+              onClick={() => navigate("/competitions")}
+              sx={{
+                fontSize: { xs: "14px", sm: "20px" },
+                fontWeight: "bold",
+                color: "#205DC7",
+                textTransform: "none",
+                gap: "6px",
+              }}
+            >
+              عرض المزيد
+              <ArrowBackIcon fontSize="small" />
+            </Button>
+          </Box>
+        )}
 
       {/* Achievements */}
       <Box sx={{ mt: 3 }}>
-        {achievements ? (
+        {!showAchievements && achievements ? (
           <Box sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2 }}>
             <Typography
               fontWeight="bold"
@@ -260,6 +276,7 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
                         sx={{
                           height: { xs: 14, sm: 24 },
                           borderRadius: "12px",
+                          backgroundColor: "#F0F0F0",
                         }}
                       />
                       <Typography
@@ -286,6 +303,7 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
               </Box>
             ))}
             <Button
+              onClick={() => navigate("/achievements")}
               sx={{
                 fontSize: { xs: "14px", sm: "20px" },
                 fontWeight: "bold",
@@ -299,7 +317,9 @@ const ProfileStatsCard = ({ profile, mySubjects }) => {
             </Button>
           </Box>
         ) : (
-          <Typography fontSize="14px">لا توجد إنجازات حالياً.</Typography>
+          !showAchievements && (
+            <Typography fontSize="14px">لا توجد إنجازات حالياً.</Typography>
+          )
         )}
       </Box>
     </Box>
