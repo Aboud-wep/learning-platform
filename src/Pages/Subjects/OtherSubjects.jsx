@@ -1,19 +1,20 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
   Button,
   Grid,
-  Card,
   CardMedia,
-  LinearProgress,
   useTheme,
   useMediaQuery,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useSubjects } from "./Context/SubjectsContext";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SearchIcon from "@mui/icons-material/Search";
 
 const OtherSubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -21,6 +22,9 @@ const OtherSubjects = () => {
   const { subjects, userProgress } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+
+  // 🔎 Search state
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     setPageTitle("المواد/مواد أخرى");
@@ -31,6 +35,11 @@ const OtherSubjects = () => {
     return acc;
   }, {});
   const otherSubjects = subjects.filter((s) => !userProgressMap[s.id]);
+
+  // 🔎 Filter subjects by search value
+  const filteredOtherSubjects = otherSubjects.filter((s) =>
+    s.name?.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   const lastUpdatedSubject = useMemo(() => {
     if (otherSubjects.length === 0) return null;
@@ -45,6 +54,7 @@ const OtherSubjects = () => {
       ) || sortedSubjects[0]
     );
   }, [otherSubjects]);
+
   const isCompleted = useMemo(() => {
     if (!lastUpdatedSubject) return false;
 
@@ -58,6 +68,7 @@ const OtherSubjects = () => {
       allItems.every((item) => item?.lesson?.is_passed === true)
     );
   }, [lastUpdatedSubject]);
+
   return (
     <Box
       sx={{
@@ -76,13 +87,38 @@ const OtherSubjects = () => {
           maxWidth: { md: 800 },
         }}
       >
-        {otherSubjects.length === 0 ? (
+        {/* 🔎 Search bar */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="اكتب هنا للبحث"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            sx={{
+              maxWidth: { xs: "100%", md: "438px" },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "20px", // ✅ apply to input
+                backgroundColor:"white"
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
+        {filteredOtherSubjects.length === 0 ? (
           <Typography textAlign="center" py={4}>
-            لا توجد مواد أخرى متاحة.
+            لا توجد مواد أخرى مطابقة لبحثك.
           </Typography>
         ) : (
           <Grid container spacing={2}>
-            {otherSubjects.map((subject) => (
+            {filteredOtherSubjects.map((subject) => (
               <Grid item xs={12} sm={6} key={subject.id}>
                 <OtherSubjectCard
                   subject={subject}
@@ -131,8 +167,8 @@ const OtherSubjects = () => {
                 p: 1,
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center", // ✅ center horizontally
-                textAlign: "center", // ✅ center text
+                alignItems: "center",
+                textAlign: "center",
               }}
             >
               {/* Progress Section */}

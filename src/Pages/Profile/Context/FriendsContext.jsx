@@ -6,7 +6,7 @@ const FriendsContext = createContext();
 
 export const FriendsProvider = ({ children }) => {
   const { profile } = useHome(); // logged-in user
-  const [loading, setLoading] = useState(false);
+  const [loadinggg, setLoadinggg] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -16,7 +16,7 @@ export const FriendsProvider = ({ children }) => {
       return;
     }
 
-    setLoading(true);
+    setLoadinggg(true);
     setError(null);
     setSuccess(null);
 
@@ -35,12 +35,12 @@ export const FriendsProvider = ({ children }) => {
       console.error("Error adding friend:", err);
       setError("فشل في إضافة الصديق");
     } finally {
-      setLoading(false);
+      setLoadinggg(false);
     }
   };
 
   return (
-    <FriendsContext.Provider value={{ addFriend, loading, error, success }}>
+    <FriendsContext.Provider value={{ addFriend, loadinggg, error, success }}>
       {children}
     </FriendsContext.Provider>
   );

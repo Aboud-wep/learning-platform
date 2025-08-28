@@ -335,7 +335,7 @@ const UserLayout = () => {
           component="main"
           sx={{
             flex: 1,
-            pb: { xs: "56px", sm: "64px", md: "72px" }, // reserve space for bottom nav
+            pb: { xs: "80px", md:"40px" }, // reserve space for bottom nav
           }}
         >
           <Outlet context={{ setPageTitle }} />

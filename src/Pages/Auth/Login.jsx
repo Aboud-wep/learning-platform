@@ -56,7 +56,7 @@ export default function Login() {
   const handleGoogleLogin = async (tokenResponse) => {
     try {
       const res = await fetch(
-        "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard/login-google",
+        "http://localhost:8000/api/v1/users/auth/dashboard/login-google",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -91,8 +91,8 @@ export default function Login() {
   });
 
   return (
-    <Box className="flex justify-center items-center min-h-screen p-4 bg-gray-100">
-      <Box className="p-6 w-full max-w-md bg-white rounded-2xl shadow-lg">
+    <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
+      <Box className="p-6 w-full max-w-md">
         <Typography variant="h5" align="center" className="mb-4">
           تسجيل الدخول
         </Typography>
@@ -258,12 +258,12 @@ export default function Login() {
           </Button>
 
           <Box className="flex justify-center pt-10">
-            <Typography sx={{ fontSize: "20px", color: "#343F4E" }}>
+            <Typography sx={{ fontSize: {xs:"16px",sm:"20px"}, color: "#343F4E" }}>
               لست عضوا حتى الآن؟&nbsp;
             </Typography>
             <Link
               href="/register"
-              sx={{ fontSize: "20px", textDecoration: "none" }}
+              sx={{ fontSize: {xs:"16px",sm:"20px"}, textDecoration: "none" }}
             >
               سجل الآن
             </Link>

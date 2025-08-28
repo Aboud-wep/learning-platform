@@ -5,16 +5,20 @@ const isAuthenticated = () => !!localStorage.getItem("accessToken");
 const ProtectedRoutes = () => {
   const location = useLocation();
 
-  // Allow /login page without redirect
-  if (location.pathname === "/login") {
-    return <Outlet />;
-  }
+  console.log("🔐 ProtectedRoutes check");
+  console.log("Current path:", location.pathname);
+  console.log("Authenticated?", isAuthenticated());
 
   if (!isAuthenticated()) {
+    console.log("➡️ Redirecting to /login");
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-console.log("ProtectedRoutes: location", location.pathname);
-console.log("Is authenticated?", isAuthenticated());
+  console.log(
+    "🔒 ProtectedRoutes check",
+    location.pathname,
+    "Authenticated?",
+    isAuthenticated()
+  );
 
   return <Outlet />;
 };

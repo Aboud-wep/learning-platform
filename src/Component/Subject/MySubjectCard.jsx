@@ -99,7 +99,7 @@ const MySubjectCard = ({ subject }) => {
             <LinearProgress
               variant="determinate"
               value={subject.completion_percentage || 0}
-              sx={{ height: 24, borderRadius: "12px" }}
+              sx={{ height: 24, borderRadius: "12px",backgroundColor: "#eee" }}
             />
             <Typography
               variant="caption"
@@ -114,7 +114,7 @@ const MySubjectCard = ({ subject }) => {
                 justifyContent: "center",
                 fontSize: "14px",
                 fontWeight: "bold",
-                color: "white",
+                color: "black",
               }}
             >
               {subject.completion_percentage || 0}%

@@ -22,7 +22,7 @@ const AchievementsPage = () => {
   const { subjects, userProgress } = useSubjects();
   const { achievements } = useAchievements();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
   const { setPageTitle } = useOutletContext();
@@ -214,7 +214,7 @@ const AchievementsPage = () => {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        color: "#fff",
+                        color: "black",
                         fontWeight: "bold",
                         fontSize: "16px",
                         textShadow: "0 0 2px rgba(0,0,0,0.3)",
