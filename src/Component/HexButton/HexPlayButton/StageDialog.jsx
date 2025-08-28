@@ -67,7 +67,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
       }
     }
   };
-
+  
   const handleOpenSummary = (summary) => {
     setSelectedSummary(summary);
     setSummaryOpen(true);
@@ -87,7 +87,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
           backgroundColor: "#fff",
           borderRadius: 20,
           boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
-          // zIndex: 2000,
+          zIndex: 2000,
           padding: "20px 24px",
           direction: "rtl",
           textAlign: "right",
