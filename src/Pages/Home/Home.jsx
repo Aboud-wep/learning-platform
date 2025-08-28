@@ -73,7 +73,7 @@ const Home = () => {
         sx={{
           flexGrow: 1,
           minWidth: { xs: "100%", lg: "400px" },
-          maxWidth: { lg: "700px", lg: "800px" },
+          maxWidth: { lg: "800px" },
           display: "flex",
           flexDirection: "column",
           alignItems: "center",

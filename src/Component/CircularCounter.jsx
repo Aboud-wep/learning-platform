@@ -93,7 +93,7 @@ const CircularCounter = ({ number = 1, color = blue, percentage = 0 }) => {
             <Typography variant="caption" sx={{ fontSize: 14, color: progressColor }}>
               سؤال
             </Typography>
-            <Typography sx={{ fontWeight: 'bold', color: '#333',fontSize:"47px",lineHeight:"50px",color:"#1E51C5" }}>
+            <Typography sx={{ fontWeight: 'bold',fontSize:"47px",lineHeight:"50px",color:"#1E51C5" }}>
               {String(number).padStart(2, '0')}
             </Typography>
           </Box>
