@@ -108,7 +108,7 @@ const LastSubjectCard = ({ subject }) => {
         justifyContent: "center",
         fontSize: "14px",
         fontWeight: "bold",
-        color: "#000",
+        color: "black",
       }}
     >
       {subject.completion_percentage || 0}%

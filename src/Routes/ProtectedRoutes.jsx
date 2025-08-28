@@ -20,10 +20,9 @@ const ProtectedRoutes = () => {
     );
   }
 
-  // Allow /login page without redirect
-  if (location.pathname === "/login") {
-    return <Outlet />;
-  }
+  console.log("🔐 ProtectedRoutes check");
+  console.log("Current path:", location.pathname);
+  console.log("Authenticated?", isAuthenticated());
 
   if (!isAuthenticated) {
     console.log("🔒 ProtectedRoutes: User not authenticated, redirecting to login");

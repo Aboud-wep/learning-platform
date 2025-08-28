@@ -11,7 +11,7 @@ const LessonEnded = () => {
     if (location.state?.nextPage) {
       navigate(location.state.nextPage);
     } else {
-      navigate("/"); // fallback to home if no nextPage
+      navigate("/home"); // fallback to home if no nextPage
     }
   };
 

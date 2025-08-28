@@ -9,6 +9,7 @@ import {
   Button,
   useTheme,
   useMediaQuery,
+  Divider,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -32,7 +33,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { achievements } = useAchievements();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleViewProfile = (userId) => {
@@ -49,11 +50,11 @@ const Profile = () => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
+        flexDirection: { xs: "column", lg: "row" },
         mt: { xs: 2, md: "30px" },
         gap: { xs: 3, md: 2 },
         px: { xs: 2, sm: 3, md: 4 },
-        maxWidth: 1200,
+        // maxWidth: "1200",
         mx: "auto",
       }}
     >
@@ -62,7 +63,7 @@ const Profile = () => {
         sx={{
           flex: 1,
           width: "100%",
-          maxWidth: { md: 710 },
+          maxWidth: { md: "100%" },
           mx: { xs: "auto", md: "20px" },
         }}
       >
@@ -70,8 +71,8 @@ const Profile = () => {
           <Avatar
             src={profile.avatar || ""}
             sx={{
-              width: { xs: 150, sm: 200, md: 300 },
-              height: { xs: 150, sm: 200, md: 300 },
+              width: "300px",
+              height: "300px",
               mx: "auto",
               mb: "10px",
             }}
@@ -80,21 +81,14 @@ const Profile = () => {
               <PersonIcon sx={{ fontSize: { xs: 40, md: 60 } }} />
             )}
           </Avatar>
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            sx={{ fontSize: { xs: "28px", sm: "36px", md: "48px" } }}
-          >
+          <Typography variant="h5" fontWeight="bold" sx={{ fontSize: "48px" }}>
             {profile.first_name} {profile.last_name}
           </Typography>
-          <Typography
-            color="textSecondary"
-            sx={{ fontSize: { xs: "16px", sm: "20px", md: "24px" } }}
-          >
+          <Typography color="textSecondary" sx={{ fontSize: "24px" }}>
             {profile.title || "بدون لقب"}
           </Typography>
         </Box>
-
+        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item xs={12} sm={6} md={3}>
             <Box
@@ -106,7 +100,7 @@ const Profile = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingLeft:"20px",
+                paddingLeft: "20px",
                 color: "#fff",
               }}
             >
@@ -132,7 +126,7 @@ const Profile = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingLeft:"20px",
+                paddingLeft: "20px",
                 color: "#fff",
               }}
             >
@@ -158,7 +152,7 @@ const Profile = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingLeft:"20px",
+                paddingLeft: "20px",
                 color: "#fff",
               }}
             >
@@ -184,7 +178,7 @@ const Profile = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingLeft:"20px",
+                paddingLeft: "20px",
                 color: "#fff",
               }}
             >
@@ -200,7 +194,7 @@ const Profile = () => {
             </Box>
           </Grid>
         </Grid>
-
+        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
         {/* Achievements Section */}
         <Box>
           <Box
@@ -255,19 +249,18 @@ const Profile = () => {
                       gap: 2,
                       backgroundColor: "#fff",
                       borderRadius: "20px",
-                      p: { xs: 2, md: 2.5 },
-                      flexDirection: { xs: "column", sm: "row" },
-                      textAlign: { xs: "center", sm: "left" },
+                      p: { xs: 0, md: 2.5 },
                     }}
                   >
                     <Avatar
                       src={achievementImg}
                       alt="Achievement"
                       sx={{
-                        width: { xs: 80, sm: 93 },
-                        height: { xs: 80, sm: 93 },
+                        width: { xs: 93, md: "auto" },
+                        height: { xs: 138, md: 93 },
                         backgroundColor: "#F0F7FF",
                         borderRadius: "12px",
+                        m: 1,
                       }}
                     />
 
@@ -321,7 +314,7 @@ const Profile = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            color: "#fff",
+                            color: "black",
                             fontWeight: "bold",
                             fontSize: { xs: "10px", sm: "12px", md: "14px" },
                             textShadow: "0 0 2px rgba(0,0,0,0.3)",
@@ -339,12 +332,12 @@ const Profile = () => {
           </Box>
         </Box>
       </Box>
-
+      <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
       {/* Sidebar - Friends Section */}
       <Box
         sx={{
-          width: { xs: "100%", md: 320 },
-          maxWidth: { xs: 400, md: 320 },
+          width: { xs: "100%", lg: 320 },
+          maxWidth: { xs: "100%", lg: 320 },
           mx: { xs: "auto", md: 0 },
         }}
       >
@@ -441,32 +434,6 @@ const Profile = () => {
             الأصدقاء المقترحون
           </Typography>
 
-          <TextField
-            fullWidth
-            placeholder="Search for a friend..."
-            variant="outlined"
-            onClick={handleOpenDialog}
-            InputProps={{
-              readOnly: true,
-              sx: {
-                cursor: "pointer",
-                "& input": {
-                  cursor: "pointer",
-                  fontSize: { xs: "14px", md: "16px" },
-                },
-              },
-            }}
-            sx={{
-              mb: 2,
-              "& .MuiOutlinedInput-root": {
-                "&:hover": {
-                  borderColor: "transparent",
-                  boxShadow: "none",
-                },
-              },
-            }}
-          />
-
           {recommended.slice(0, 3).map((user, index) => (
             <Box
               key={index}
@@ -494,6 +461,31 @@ const Profile = () => {
               </Box>
             </Box>
           ))}
+          <TextField
+            fullWidth
+            placeholder="Search for a friend..."
+            variant="outlined"
+            onClick={handleOpenDialog}
+            InputProps={{
+              readOnly: true,
+              sx: {
+                cursor: "pointer",
+                "& input": {
+                  cursor: "pointer",
+                  fontSize: { xs: "14px", md: "16px" },
+                },
+              },
+            }}
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                "&:hover": {
+                  borderColor: "transparent",
+                  boxShadow: "none",
+                },
+              },
+            }}
+          />
         </Paper>
 
         <RecommendedFriendsDialog

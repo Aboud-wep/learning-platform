@@ -7,7 +7,6 @@ import {
   useMediaQuery,
   useTheme,
   Card,
-  Chip,
 } from "@mui/material";
 import { useWeeklyCompetition } from "./Context/WeeklyCompetitionContext";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
@@ -18,19 +17,22 @@ import DownArrow from "../../assets/Icons/DownArrow.png";
 import FirstIcon from "../../assets/Icons/First.png";
 import SecondIcon from "../../assets/Icons/Second.png";
 import ThirdIcon from "../../assets/Icons/Third.png";
+import dayjs from "dayjs";
 
 const CompetitionsPage = () => {
   const { setPageTitle } = useOutletContext();
-  const { competition, fetchCompetition, loading } = useWeeklyCompetition();
+  const { competition, competitionLevels, fetchCompetition, loading } =
+    useWeeklyCompetition();
   const { profile } = useHome();
   const { subjects, userProgress } = useSubjects();
   const competitionId = profile?.weekly_competition?.id;
+
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
     return acc;
   }, {});
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const showWeeklyCompetition = location.pathname === "/competitions";
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
@@ -64,6 +66,39 @@ const CompetitionsPage = () => {
 
     // Sort all players by XP in descending order
     return players.sort((a, b) => b.xp_per_week - a.xp_per_week);
+  }, [competition]);
+
+  const { prevLevel, currentLevel, nextLevel } = useMemo(() => {
+    if (!competitionLevels?.length || !competition?.level) return {};
+
+    // Current level id from competition response
+    const currentLevelId = competition.level;
+
+    // Sort levels by order (just in case backend sends them unsorted)
+    const sortedLevels = [...competitionLevels].sort(
+      (a, b) => a.order - b.order
+    );
+
+    // Find current level by id
+    const currentIdx = sortedLevels.findIndex(
+      (lvl) => lvl.id === currentLevelId
+    );
+    if (currentIdx === -1) return {};
+
+    return {
+      currentLevel: sortedLevels[currentIdx],
+      prevLevel: sortedLevels[currentIdx - 1] || null,
+      nextLevel: sortedLevels[currentIdx + 1] || null,
+    };
+  }, [competitionLevels, competition]);
+
+  // 🟢 Remaining days until competition ends
+  const remainingDays = useMemo(() => {
+    if (!competition?.end_date) return null;
+    const today = dayjs();
+    const end = dayjs(competition.end_date);
+    const diff = end.diff(today, "day");
+    return diff > 0 ? diff : 0;
   }, [competition]);
 
   if (loading) return <Typography>جاري التحميل...</Typography>;
@@ -190,16 +225,61 @@ const CompetitionsPage = () => {
           width: { xs: "100%", md: "70%" },
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            color: "#1A202C",
-            textAlign: "center",
-          }}
-        >
-          المسابقة الأسبوعية
-        </Typography>
+        {currentLevel && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+            }}
+          >
+            {prevLevel && (
+              <img
+                src={prevLevel.image}
+                alt={prevLevel.name}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  opacity: 0.5,
+                  borderRadius: "12px",
+                }}
+              />
+            )}
+
+            <img
+              src={currentLevel.image}
+              alt={currentLevel.name}
+              style={{ width: "120px", height: "120px", borderRadius: "16px" }}
+            />
+
+            {nextLevel && (
+              <img
+                src={nextLevel.image}
+                alt={nextLevel.name}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  opacity: 0.5,
+                  borderRadius: "12px",
+                }}
+              />
+            )}
+          </Box>
+        )}
+        {currentLevel && (
+          <Typography sx={{ textAlign: "center",fontSize:"32px",color:"#343F4E", fontWeight: "bold" }}>
+            {currentLevel.name}
+          </Typography>
+        )}
+        {/* 🟢 Remaining Days */}
+        {remainingDays !== null && (
+          <Typography
+            sx={{ textAlign: "center", fontWeight: "bold", fontSize: "25px",color:"#205DC7" }}
+          >
+            {remainingDays} أيام متبقية
+          </Typography>
+        )}
         {competition?.progress_zone?.length > 0 && (
           <Box
             sx={{

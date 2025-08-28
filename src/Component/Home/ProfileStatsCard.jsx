@@ -37,7 +37,7 @@ const ProfileStatsCard = ({
         sx={{
           mb: 3,
           color: "white",
-          display: { xs: "none", sm: "none", md: "flex" }, // 👈 hide on xs + sm
+          display: { xs: "none", sm: "none", lg: "flex" }, // 👈 hide on xs + sm
         }}
         justifyContent="center"
       >

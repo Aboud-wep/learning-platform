@@ -1,5 +1,5 @@
 // src/Pages/UserDashboard/Subjects/SubjectsPage.jsx
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,7 +10,10 @@ import {
   useTheme,
   CardMedia,
   Divider,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import { useSubjects } from "./Context/SubjectsContext";
 import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
@@ -24,6 +27,9 @@ const SubjectsList = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const isTablet = useMediaQuery(theme.breakpoints.up("md"));
+
+  // 🔎 Search state
+  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     setPageTitle("المواد");
@@ -40,6 +46,11 @@ const SubjectsList = () => {
   const userSubjectIds = userSubjects.map(({ subject }) => subject.id);
   const otherSubjects = subjects.filter(
     (subject) => !userSubjectIds.includes(subject.id)
+  );
+
+  // 🔎 Filter otherSubjects by searchValue (case-insensitive)
+  const filteredOtherSubjects = otherSubjects.filter((s) =>
+    s.name?.toLowerCase().includes(searchValue.toLowerCase())
   );
 
   const userProgressMap = userProgress.reduce((acc, item) => {
@@ -99,6 +110,31 @@ const SubjectsList = () => {
           maxWidth: { lg: 800 },
         }}
       >
+        {/* 🔎 Search bar */}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="اكتب هنا للبحث"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            sx={{
+              maxWidth: { xs: "100%", md: "438px" },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "20px", // ✅ apply to input
+                backgroundColor: "white",
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchIcon color="action" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
         <Box
           sx={{
             display: "flex",
@@ -129,14 +165,21 @@ const SubjectsList = () => {
         </Box>
 
         <Grid container spacing={2} mb={4}>
-          {subjects.map((subject) => (
-            <Grid item key={subject.id} xs={12} sm={6} md={4}>
-              <OtherSubjectCard subject={subject} />
-            </Grid>
-          ))}
+          {filteredOtherSubjects.length > 0 ? (
+            filteredOtherSubjects.map((subject) => (
+              <Grid item key={subject.id} xs={12} sm={6} md={4}>
+                <OtherSubjectCard subject={subject} />
+              </Grid>
+            ))
+          ) : (
+            <Typography textAlign="center" width="100%" py={4}>
+              لا توجد مواد مطابقة لبحثك.
+            </Typography>
+          )}
         </Grid>
-        <Divider/>
 
+        {/* Keep موادي section same */}
+        <Divider sx={{ display: { xs: "block", lg: "none" } }} />
         <Box
           sx={{
             display: "flex",
@@ -169,7 +212,7 @@ const SubjectsList = () => {
             لم تبدأ أي مادة بعد.
           </Typography>
         ) : (
-          <Grid spacing={2}>
+          <Grid>
             {userSubjects.map(({ subject, progress }) => (
               <Grid item key={subject.id}>
                 <MySubjectCard subject={subject} progress={progress} />
@@ -180,7 +223,7 @@ const SubjectsList = () => {
       </Box>
 
       {/* Last Updated Subject Panel - Show on desktop and tablet */}
-      {(isDesktop || isTablet) && lastUpdatedSubject && (
+      {isDesktop && lastUpdatedSubject && (
         <Box
           sx={{
             width: { md: 300, lg: 324 },

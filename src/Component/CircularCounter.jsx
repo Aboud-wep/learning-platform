@@ -2,12 +2,12 @@ import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 
 const colorMap = {
-  blue: '#1976d2',
+  blue: '#1E51C5',
   red: '#d32f2f',
   green: '#388e3c',
 };
 
-const CircularCounter = ({ number = 1, color = 'blue', percentage = 0 }) => {
+const CircularCounter = ({ number = 1, color = blue, percentage = 0 }) => {
   const progressColor = colorMap[color] || colorMap.blue;
   console.log('perc',percentage);
   return (
@@ -37,8 +37,8 @@ const CircularCounter = ({ number = 1, color = 'blue', percentage = 0 }) => {
         <Box
           sx={{
             position: 'relative',
-            width: 100,
-            height: 100,
+            width: 110,
+            height: 110,
             borderRadius: '50%',
             backgroundColor: 'white',
             boxShadow: 3,
@@ -50,11 +50,11 @@ const CircularCounter = ({ number = 1, color = 'blue', percentage = 0 }) => {
           {/* Background Circle */}
           <CircularProgress
             variant="determinate"
-            value={100}
-            size={100}
-            thickness={4}
+            value={110}
+            size={110}
+            thickness={3}
             sx={{
-              color: '#e0e0e0',
+              color: 'white',
               position: 'absolute',
               top: 0,
               left: 0,
@@ -65,8 +65,8 @@ const CircularCounter = ({ number = 1, color = 'blue', percentage = 0 }) => {
           <CircularProgress
             variant="determinate"
             value={percentage}
-            size={100}
-            thickness={4}
+            size={110}
+            thickness={3}
             sx={{
               color: progressColor,
               position: 'absolute',
@@ -93,7 +93,7 @@ const CircularCounter = ({ number = 1, color = 'blue', percentage = 0 }) => {
             <Typography variant="caption" sx={{ fontSize: 14, color: progressColor }}>
               سؤال
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333' }}>
+            <Typography sx={{ fontWeight: 'bold', color: '#333',fontSize:"47px",lineHeight:"50px",color:"#1E51C5" }}>
               {String(number).padStart(2, '0')}
             </Typography>
           </Box>

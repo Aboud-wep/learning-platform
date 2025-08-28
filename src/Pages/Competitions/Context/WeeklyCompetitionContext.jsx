@@ -7,13 +7,14 @@ import React, {
   useCallback,
 } from "react";
 import axiosInstance from "../../../lip/axios";
-import { useHome } from "../../Home/Context/HomeContext"; // ✅ using HomeContext profile
+import { useHome } from "../../Home/Context/HomeContext";
 
 const WeeklyCompetitionContext = createContext();
 
 export const WeeklyCompetitionProvider = ({ children }) => {
-  const { profile } = useHome(); // ✅ get profile from HomeContext
+  const { profile } = useHome();
   const [competition, setCompetition] = useState(null);
+  const [competitionLevels, setCompetitionLevels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,17 +26,30 @@ export const WeeklyCompetitionProvider = ({ children }) => {
       const res = await axiosInstance.get(
         `/titles/weekly_competitions/website/WeeklyCompetition/${competitionId}`
       );
-      setCompetition(res.data.data); // API wraps inside "data"
-      console.log("✅ Weekly Competition Fetched:", res.data.data);
+      setCompetition(res.data.data);
     } catch (err) {
-      console.error("❌ Failed to fetch weekly competition:", err);
       setError(err.response?.data || "Something went wrong");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // 👇 whenever profile is loaded, auto-fetch its competition
+  // 🟢 Fetch competition levels
+  const fetchCompetitionLevels = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get(
+        `/titles/competition_levels/website/CompetitionLevel`
+      );
+      setCompetitionLevels(res.data.data.items);
+    } catch (err) {
+      console.error("❌ Failed to fetch competition levels:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCompetitionLevels();
+  }, [fetchCompetitionLevels]);
+
   useEffect(() => {
     const hasTokens =
       localStorage.getItem("accessToken") &&
@@ -47,7 +61,13 @@ export const WeeklyCompetitionProvider = ({ children }) => {
 
   return (
     <WeeklyCompetitionContext.Provider
-      value={{ competition, loading, error, fetchCompetition }}
+      value={{
+        competition,
+        competitionLevels,
+        loading,
+        error,
+        fetchCompetition,
+      }}
     >
       {children}
     </WeeklyCompetitionContext.Provider>

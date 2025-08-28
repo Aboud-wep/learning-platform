@@ -12,7 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 
-import { registerUser } from "./AuthApi"; // import your API helper
+import { registerUser } from "./AuthApi";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ const Register = () => {
     password: "",
     account_enabled: true,
   });
+console.log("Register component mounted");
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -44,11 +45,12 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const data = await registerUser(form); // call API helper
+      const data = await registerUser(form);
       setMessage(data.meta?.message || "Registered successfully");
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.meta?.message || "Something went wrong");
+      console.log("register error", err);
     } finally {
       setLoading(false);
     }
@@ -62,7 +64,64 @@ const Register = () => {
             Create an Account
           </Typography>
 
-          {/* Form fields... (same as your code) */}
+          <TextField
+            label="Username"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+
+          <TextField
+            label="First Name"
+            name="first_name"
+            value={form.first_name}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+
+          <TextField
+            label="Last Name"
+            name="last_name"
+            value={form.last_name}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+
+          <TextField
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={form.account_enabled}
+                onChange={handleChange}
+                name="account_enabled"
+                color="primary"
+              />
+            }
+            label="Enable Account"
+          />
 
           <Button
             type="submit"
@@ -79,7 +138,6 @@ const Register = () => {
           </Button>
 
           {message && <Alert severity="success">{message}</Alert>}
-
           {error && <Alert severity="error">{error}</Alert>}
         </form>
       </Paper>
