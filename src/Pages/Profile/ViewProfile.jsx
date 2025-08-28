@@ -21,11 +21,14 @@ import { useFriends } from "./Context/FriendsContext";
 const ViewProfile = () => {
   const { id } = useParams();
   const [userProfile, setUserProfile] = useState(null);
+  const [isFriend, setIsFriend] = useState(false); // Add this state
   const { followers, recommended } = useProfile();
   const token = localStorage.getItem("accessToken");
   const { profile } = useHome();
   const navigate = useNavigate();
   const { addFriend, loading, success, error } = useFriends();
+  const { refreshFriendData } = useProfile(); // Add this
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -41,12 +44,25 @@ const ViewProfile = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setUserProfile(res.data.data);
+        const profileData = res.data.data;
+        setUserProfile(profileData);
+        
+        // ✅ Check if this user is already a friend
+        if (profileData.is_friend !== undefined) {
+          setIsFriend(profileData.is_friend);
+        } else {
+          // ✅ If is_friend is not provided, check against current user's followers
+          const isAlreadyFriend = followers.some(friend => 
+            friend.follower === profile.id && friend.following === profileData.id ||
+            friend.following === profile.id && friend.follower === profileData.id
+          );
+          setIsFriend(isAlreadyFriend);
+        }
       })
       .catch((err) => {
         console.error("Error fetching profile:", err);
       });
-  }, [id, token]);
+  }, [id, token, followers, profile?.id]);
 
   const boxStyle = (bgcolor) => ({
     bgcolor,
@@ -63,6 +79,16 @@ const ViewProfile = () => {
 
   const handleViewProfile = (userId) => {
     navigate(`/user-profile/${userId}`);
+  };
+
+  const handleAddFriend = async (userId) => {
+    await addFriend(userId, () => {
+      // ✅ Refresh friend lists after successful addition
+      refreshFriendData();
+      
+      // ✅ Update local friend status
+      setIsFriend(true);
+    });
   };
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -120,16 +146,26 @@ const ViewProfile = () => {
             {userProfile.title || "بدون لقب"}
           </Typography>
 
-          {userProfile.id !== profile.id && !userProfile.is_friend && (
+          {userProfile.id !== profile.id && !isFriend && (
             <Button
               variant="contained"
               color="primary"
               sx={{ mt: 2, fontSize: { xs: "14px", md: "16px" } }}
               disabled={loading}
-              onClick={() => addFriend(userProfile.id)}
+              onClick={() => handleAddFriend(userProfile.id)}
             >
               {loading ? "جاري الإضافة..." : "➕ إضافة صديق"}
             </Button>
+          )}
+
+          {userProfile.id !== profile.id && isFriend && (
+            <Typography
+              color="green"
+              mt={2}
+              sx={{ fontSize: { xs: "14px", md: "16px" } }}
+            >
+              ✅ صديق
+            </Typography>
           )}
 
           {success && (

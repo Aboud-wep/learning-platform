@@ -2,9 +2,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import NoHeartsImg from "../assets/Icons/NoHearts.png"; // adjust path if needed
+import { useHome } from "../Pages/Home/Context/HomeContext";
 
 export default function NoHeartsPage() {
   const navigate = useNavigate();
+  const { profile } = useHome();
 
   return (
     <div
@@ -51,6 +53,8 @@ export default function NoHeartsPage() {
         >
           استنفذت محاولاتك!
         </p>
+        
+
 
         <div style={{ textAlign: "left" }}>
           <button

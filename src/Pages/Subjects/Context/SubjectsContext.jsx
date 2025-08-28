@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../lip/axios";
 
@@ -21,19 +21,15 @@ export const SubjectsProvider = ({ children }) => {
         setAuthReady(true);
       } else {
         setAuthReady(false);
-        // Optional: navigate to login if no token
-        // navigate("/login", { replace: true });
       }
     };
 
     checkToken();
-
-    // Listen to token changes in other tabs
     window.addEventListener("storage", checkToken);
     return () => window.removeEventListener("storage", checkToken);
   }, [navigate]);
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       setLoadingg(false);
@@ -67,18 +63,42 @@ export const SubjectsProvider = ({ children }) => {
     } finally {
       setLoadingg(false);
     }
-  };
+  }, [navigate]);
+
+  // ✅ Function to refresh subjects and progress
+  const refreshSubjects = useCallback(async () => {
+    await fetchSubjects();
+  }, [fetchSubjects]);
+
+  // ✅ Function to update progress locally
+  const updateProgress = useCallback((subjectId, newProgress) => {
+    setUserProgress(prev => 
+      prev.map(item => 
+        item.subject === subjectId 
+          ? { ...item, ...newProgress }
+          : item
+      )
+    );
+  }, []);
 
   // Only fetch when token is ready
   useEffect(() => {
     if (authReady) {
       fetchSubjects();
     }
-  }, [authReady]);
+  }, [authReady, fetchSubjects]);
 
   return (
     <SubjectsContext.Provider
-      value={{ subjects, userProgress, loadingg, error }}
+      value={{ 
+        subjects, 
+        userProgress, 
+        loadingg, 
+        error, 
+        fetchSubjects,
+        refreshSubjects,
+        updateProgress
+      }}
     >
       {children}
     </SubjectsContext.Provider>

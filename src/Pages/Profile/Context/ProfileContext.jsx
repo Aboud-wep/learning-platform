@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../lip/axios";
 
@@ -26,48 +26,55 @@ export const ProfileProvider = ({ children }) => {
   }, [token, navigate]);
 
   // Fetch followers on mount
-  useEffect(() => {
-    if (!token) return; // already redirected
+  const fetchFollowers = useCallback(async () => {
+    if (!token) return;
 
-    const fetchFollowers = async () => {
-      try {
-        const res = await axiosInstance.get(
-          "friends/friends/website/Follower",
-          { headers }
-        );
-        setFollowers(res.data.data.items || []);
-      } catch (err) {
-        console.error("❌ Followers fetch error:", err);
-        setError("Failed to load followers");
-      }
-    };
-
-    fetchFollowers();
+    try {
+      const res = await axiosInstance.get(
+        "friends/friends/website/Follower",
+        { headers }
+      );
+      setFollowers(res.data.data.items || []);
+    } catch (err) {
+      console.error("❌ Followers fetch error:", err);
+      setError("Failed to load followers");
+    }
   }, [token]);
 
   // Fetch recommended users on mount
-  useEffect(() => {
-    if (!token) return; // already redirected
+  const fetchRecommended = useCallback(async () => {
+    if (!token) return;
 
-    const fetchRecommended = async () => {
-      try {
-        const res = await axiosInstance.get(
-          "friends/friends/website/recommended-followers",
-          { headers }
-        );
-        setRecommended(res.data.data.items.slice(0, 5) || []);
-      } catch (err) {
-        console.error("❌ Recommended fetch error:", err);
-        setError("Failed to load recommended users");
-      }
-    };
-
-    fetchRecommended();
+    try {
+      const res = await axiosInstance.get(
+        "friends/friends/website/recommended-followers",
+        { headers }
+      );
+      setRecommended(res.data.data.items.slice(0, 5) || []);
+    } catch (err) {
+      console.error("❌ Recommended fetch error:", err);
+      setError("Failed to load recommended users");
+    }
   }, [token]);
+
+  // ✅ Function to refresh all friend data
+  const refreshFriendData = useCallback(async () => {
+    await Promise.all([fetchFollowers(), fetchRecommended()]);
+  }, [fetchFollowers, fetchRecommended]);
+
+  // ✅ Function to update followers locally
+  const updateFollowers = useCallback((newFollowers) => {
+    setFollowers(newFollowers);
+  }, []);
+
+  // ✅ Function to update recommended locally
+  const updateRecommended = useCallback((newRecommended) => {
+    setRecommended(newRecommended);
+  }, []);
 
   // Fetch search results when search changes
   useEffect(() => {
-    if (!token) return; // already redirected
+    if (!token) return;
 
     if (search.trim() === "") {
       setSearchResults([]);
@@ -113,6 +120,14 @@ export const ProfileProvider = ({ children }) => {
     return () => clearTimeout(delayDebounce);
   }, [search, token]);
 
+  // Initial fetch
+  useEffect(() => {
+    if (token) {
+      fetchFollowers();
+      fetchRecommended();
+    }
+  }, [token, fetchFollowers, fetchRecommended]);
+
   return (
     <ProfileContext.Provider
       value={{
@@ -123,6 +138,11 @@ export const ProfileProvider = ({ children }) => {
         error,
         search,
         setSearch,
+        fetchFollowers,
+        fetchRecommended,
+        refreshFriendData,
+        updateFollowers,
+        updateRecommended,
       }}
     >
       {children}

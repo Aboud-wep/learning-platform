@@ -1,16 +1,16 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import axiosInstance from "../../../lip/axios";
-import { useHome } from "../../Home/Context/HomeContext"; // to get logged-in user profile
+import { useHome } from "../../Home/Context/HomeContext";
 
 const FriendsContext = createContext();
 
 export const FriendsProvider = ({ children }) => {
-  const { profile } = useHome(); // logged-in user
+  const { profile, refreshProfile } = useHome();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const addFriend = async (followingId) => {
+  const addFriend = useCallback(async (followingId, onSuccess) => {
     if (!profile?.id) {
       console.error("User not logged in");
       return;
@@ -24,12 +24,22 @@ export const FriendsProvider = ({ children }) => {
       const res = await axiosInstance.post(
         "friends/friends/dashboard/Follower",
         {
-          follower: profile.id, // logged-in user
-          following: followingId, // the user being viewed
+          follower: profile.id,
+          following: followingId,
         }
       );
 
-      // setSuccess(res.data.meta?.message || "تمت إضافة الصديق بنجاح");
+      // ✅ Update success state
+      setSuccess(res.data.meta?.message || "تمت إضافة الصديق بنجاح");
+      
+      // ✅ Refresh user profile stats automatically
+      await refreshProfile();
+      
+      // ✅ Call the success callback if provided (to refresh friend lists)
+      if (onSuccess && typeof onSuccess === 'function') {
+        onSuccess();
+      }
+
       return res.data;
     } catch (err) {
       console.error("Error adding friend:", err);
@@ -37,10 +47,22 @@ export const FriendsProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [profile?.id, refreshProfile]);
+
+  // ✅ Function to clear success/error messages
+  const clearMessages = useCallback(() => {
+    setSuccess(null);
+    setError(null);
+  }, []);
 
   return (
-    <FriendsContext.Provider value={{ addFriend, loading, error, success }}>
+    <FriendsContext.Provider value={{ 
+      addFriend, 
+      loading, 
+      error, 
+      success,
+      clearMessages 
+    }}>
       {children}
     </FriendsContext.Provider>
   );

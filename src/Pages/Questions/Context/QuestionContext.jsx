@@ -4,16 +4,20 @@ import React, {
   useContext,
   useMemo,
   useState,
+  useEffect,
 } from "react";
 import instance from "../../../lip/axios";
 import axiosInstance from "../../../lip/axios";
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useHome } from "../../Home/Context/HomeContext"; // Add this import
+
 const QuestionContext = createContext();
 export const useQuestion = () => useContext(QuestionContext);
 
 export const QuestionProvider = ({ children }) => {
+  const { profile, updateProfileStats } = useHome(); // Add this
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [lessonLogId, setLessonLogId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(null);
@@ -21,7 +25,7 @@ export const QuestionProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [questionGroupId, setQuestionGroupId] = useState(null);
   const [result, setResult] = useState(null);
-  const [answerId, setAnswerId] = useState(null); // ✅ Track answer ID
+  const [answerId, setAnswerId] = useState(null);
   const [nextQuestionId, setNextQuestionId] = useState(null);
   const [nextQuestionData, setNextQuestionData] = useState(null);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -39,9 +43,33 @@ export const QuestionProvider = ({ children }) => {
     completed: 0,
     correctAnswers: 0,
     percentage: 0,
-    number:1
+    number: 1
   });
-  const navigate = useNavigate(); // put this inside your context/provider component
+
+  const navigate = useNavigate();
+
+  // ✅ Sync hearts with profile when profile changes, but don't override API responses
+  useEffect(() => {
+    console.log("🔄 QuestionContext - Profile hearts changed:", profile?.hearts, "Current hearts:", hearts);
+    if (profile?.hearts !== undefined && hearts === null) {
+      // Only sync if hearts haven't been set by API yet
+      console.log("🔄 QuestionContext - Syncing hearts from profile:", profile.hearts);
+      setHearts(profile.hearts);
+    }
+  }, [profile?.hearts, hearts]);
+
+  // ✅ Enhanced setHearts that also updates profile
+  const updateHearts = useCallback(async (newHearts) => {
+    console.log("🔄 QuestionContext - Updating hearts from", hearts, "to", newHearts);
+    setHearts(newHearts);
+    // Update profile stats in HomeContext
+    // Skip server refresh for hearts to ensure local update takes precedence
+    if (profile && newHearts !== profile.hearts) {
+      console.log("🔄 QuestionContext - Updating profile hearts from", profile.hearts, "to", newHearts);
+      await updateProfileStats({ hearts: newHearts }, true);
+    }
+  }, [profile, updateProfileStats, hearts]);
+
   const goToNext = () => {
     setResult(null);
     setIsCorrect(null);
@@ -111,11 +139,11 @@ export const QuestionProvider = ({ children }) => {
     type
   }) => {
     setLoading(true);
-    console.log('submit type',type)
+    console.log('submit type', type);
+    
     try {
       let transformedStructuredAnswer = structured_answer;
 
-      // Handle matching transformation
       if (question_type === "matching" && Array.isArray(structured_answer)) {
         transformedStructuredAnswer = structured_answer.reduce((acc, pair) => {
           acc[pair.left] = pair.right;
@@ -130,26 +158,26 @@ export const QuestionProvider = ({ children }) => {
         structured_answer: transformedStructuredAnswer,
       };
 
-      // Include selected options if applicable
       if (question_type !== "fill_blank" && Array.isArray(selected_options)) {
         payload.selected_options = selected_options;
       }
 
-      // Always include answerId if exists
       if (answerId) {
         payload.answer_id = answerId;
       }
 
-      console.log("📤 Submitting answer payloadddd:", payload);
+      console.log("📤 Submitting answer payload:", payload);
 
       const res = await instance.post(
         "questions/answers/website/Answer",
         payload
       );
+      
       const data = res.data.data;
       const meta = res.data.meta;
       setLastAnswerResult(data.is_correct);
 
+      // ✅ Update progress automatically
       setProgress((prev) => {
         const completed = prev.completed + 1;
         const correctAnswers = data.is_correct
@@ -162,31 +190,41 @@ export const QuestionProvider = ({ children }) => {
             ? Math.round((correctAnswers / totalQuestions) * 100)
             : 0;
 
-        const newProgress = {
+        return {
           totalQuestions,
           completed,
           correctAnswers,
           percentage,
-          number:res.data.data.question_number
+          number: data.question_number
         };
-
-        console.log("Progress updated in QuestionPage:", newProgress);
-
-        return newProgress;
       });
+
       // ✅ Always log first
       console.log("Metaaaaa", meta);
       console.log("Dataaaaa", data);
 
       // 1️⃣ Check for "No hearts left" from API before processing
       if (meta?.message === "No hearts left." || meta?.status === 400) {
-        navigate("/no-hearts");
+        console.log("🔄 QuestionContext - No hearts left detected from API, updating hearts to 0");
+        // Update hearts to 0 before navigating
+        await updateHearts(0);
+        console.log("🔄 QuestionContext - Hearts updated to 0, navigating to /no-hearts");
+        // Small delay to ensure state update is processed
+        setTimeout(() => navigate("/no-hearts"), 100);
         return { noHeartsLeft: true };
       }
 
-      // 2️⃣ Check if hearts became 0 after submitting
+      // ✅ Update hearts FIRST before any navigation
+      if (data.hearts !== undefined) {
+        await updateHearts(data.hearts);
+        console.log("🔄 Hearts updated from API:", data.hearts); // Add logging
+      }
+
+      // 2️⃣ Check if hearts became 0 after answer submission
       if (data?.hearts === 0) {
-        navigate("/no-hearts");
+        console.log("🔄 QuestionContext - Hearts became 0 after answer submission, navigating to /no-hearts");
+        // Small delay to ensure state update is processed
+        setTimeout(() => navigate("/no-hearts"), 100);
         return { ...data, noHeartsLeft: true };
       }
 
@@ -198,7 +236,6 @@ export const QuestionProvider = ({ children }) => {
 
       // ✅ Update state
       setIsCorrect(data.is_correct ?? false);
-      setHearts(data.hearts ?? 0);
 
       if (data.lesson_complete) {
         setRewards({
@@ -206,6 +243,18 @@ export const QuestionProvider = ({ children }) => {
           coins: data.rewarded_coins ?? 0,
           motivationFreezes: data.rewarded_motivation_freezes ?? 0,
         });
+
+        // ✅ Update profile stats when lesson is complete
+        if (profile) {
+          const updates = {};
+          if (data.rewarded_xp !== undefined) updates.xp = (profile.xp || 0) + data.rewarded_xp;
+          if (data.rewarded_coins !== undefined) updates.coins = (profile.coins || 0) + data.rewarded_coins;
+          if (data.rewarded_motivation_freezes !== undefined) updates.motivation_freezes = (profile.motivation_freezes || 0) + data.rewarded_motivation_freezes;
+          
+          if (Object.keys(updates).length > 0) {
+            updateProfileStats(updates);
+          }
+        }
       }
 
       setLessonComplete(data.lesson_complete || false);
@@ -220,7 +269,12 @@ export const QuestionProvider = ({ children }) => {
       return data;
     } catch (err) {
       if (err.response?.data?.meta?.message === "No hearts left.") {
-        navigate("/no-hearts", { replace: true });
+        console.log("🔄 QuestionContext - No hearts left detected in catch block, updating hearts to 0");
+        // Update hearts to 0 before navigating
+        await updateHearts(0);
+        console.log("🔄 QuestionContext - Hearts updated to 0 in catch block, navigating to /no-hearts");
+        // Small delay to ensure state update is processed
+        setTimeout(() => navigate("/no-hearts", { replace: true }), 100);
         return { noHeartsLeft: true };
       }
       console.error("❌ Failed to submit answer:", err);
@@ -246,11 +300,11 @@ export const QuestionProvider = ({ children }) => {
         setCurrentQuestion,
         setLessonLogId,
         setQuestionGroupId,
-        answerId, // ✅ Expose answerId if needed
+        answerId,
         setAnswerId,
-        nextQuestionId, // ✅ add
-        setNextQuestionId, // ✅ add
-        nextQuestionData, // ✅ add
+        nextQuestionId,
+        setNextQuestionId,
+        nextQuestionData,
         setNextQuestionData,
         videoDialogOpen,
         videoUrl,
@@ -261,6 +315,7 @@ export const QuestionProvider = ({ children }) => {
         setProgress,
         rewards,
         lastAnswerResult,
+        updateHearts, // ✅ Expose this function
       }}
     >
       {children}

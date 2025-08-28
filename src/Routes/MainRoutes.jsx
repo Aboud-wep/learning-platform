@@ -38,7 +38,6 @@ const MainRoutes = () => (
       <Route path="/questions/:questionId" element={<QuestionPage type={'lesson'} />} />
       <Route path="/test/:questionId" element={<QuestionPage type={'test'} />} />
 
-      <Route path="no-hearts" element={<NoHeartsPage />} />
       <Route element={<UserLayout />}>
         <Route path="*" element={<Navigate to="/home" replace />} />
         <Route path="user-profile/:id" element={<ViewProfile />} />

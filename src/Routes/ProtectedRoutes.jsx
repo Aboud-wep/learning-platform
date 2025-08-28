@@ -1,21 +1,36 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-
-const isAuthenticated = () => !!localStorage.getItem("accessToken");
+import { useAuth } from "../Pages/Auth/AuthContext";
 
 const ProtectedRoutes = () => {
   const location = useLocation();
+  const { isAuthenticated, loading } = useAuth();
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        جاري التحقق من تسجيل الدخول...
+      </div>
+    );
+  }
 
   // Allow /login page without redirect
   if (location.pathname === "/login") {
     return <Outlet />;
   }
 
-  if (!isAuthenticated()) {
+  if (!isAuthenticated) {
+    console.log("🔒 ProtectedRoutes: User not authenticated, redirecting to login");
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
-console.log("ProtectedRoutes: location", location.pathname);
-console.log("Is authenticated?", isAuthenticated());
 
+  console.log("✅ ProtectedRoutes: User authenticated, allowing access to", location.pathname);
   return <Outlet />;
 };
 

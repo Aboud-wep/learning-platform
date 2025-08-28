@@ -9,7 +9,7 @@ const refreshAccessToken = async () => {
   try {
     console.log("step4");
     const response = await axios.post(
-      "https://beshrbaloush.pythonanywhere.com/api/v1/users/auth/dashboard/refresh",
+      "http://localhost:8000/api/v1/users/auth/dashboard/refresh",
       { refresh: refreshToken }
     );
     console.log("RAmiiiiiiiiii", response.data);
@@ -28,12 +28,8 @@ const refreshAccessToken = async () => {
 
     return access;
   } catch (error) {
-    console.log("taaaaaaaaaaj", error);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("tokenExpiration");
-
+    console.log("❌ Refresh token failed:", error);
+    // Don't remove tokens here, let the calling code handle it
     throw new Error("Failed to refresh token");
   }
 };

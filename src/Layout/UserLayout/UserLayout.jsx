@@ -28,6 +28,7 @@ import Coin from "../../assets/Icons/coin.png";
 import Fire from "../../assets/Icons/fire.png";
 import Heart from "../../assets/Icons/heart.png";
 import { useHome } from "../../Pages/Home/Context/HomeContext";
+import { useAuth } from "../../Pages/Auth/AuthContext";
 import axiosInstance from "../../lip/axios";
 
 const drawerWidth = 229;
@@ -36,17 +37,41 @@ const UserLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState("");
   const navigate = useNavigate();
-  const { profile, updateProfileStats } = useHome(); // useHome reactive
+  const { profile, updateProfileStats, loading: profileLoading } = useHome(); // useHome reactive
+  const { logout: authLogout, isAuthenticated, loading: authLoading } = useAuth(); // Get auth state
   const [bottomNav, setBottomNav] = useState(0);
+
+  // Debug logging for hearts
+  console.log("🔄 UserLayout - Current profile hearts:", profile?.hearts, "Loading:", profileLoading, "Auth:", isAuthenticated);
+
+  // Don't render if still loading authentication
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        جاري التحقق من تسجيل الدخول...
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null; // This should not happen as ProtectedRoutes should handle it
+  }
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) return <Navigate to="/login" replace />;
-
     try {
+      // Call the backend logout endpoint
+      const token = localStorage.getItem("accessToken");
       const refreshToken = localStorage.getItem("refreshToken");
+      
       if (refreshToken && token) {
         await axiosInstance.post(
           "users/auth/dashboard/logout",
@@ -57,9 +82,8 @@ const UserLayout = () => {
     } catch (err) {
       console.error("Logout failed:", err.response?.data || err.message);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("userRole");
+      // Always call the AuthContext logout to clear local state
+      authLogout();
       navigate("/login");
     }
   };
@@ -220,7 +244,21 @@ const UserLayout = () => {
             </Box>
           </Box>
 
-          {profile && (
+          {profileLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 1,
+                alignItems: "center",
+                color: "#666",
+              }}
+            >
+              <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                جاري التحميل...
+              </Typography>
+            </Box>
+          ) : profile && profile.hearts !== undefined ? (
             <Box
               sx={{
                 display: "flex",
@@ -285,7 +323,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.hearts}
+                  {profile.hearts} {/* Hearts: {profile.hearts} */}
                 </Typography>
                 <Box
                   component="img"
@@ -327,7 +365,7 @@ const UserLayout = () => {
                 )}
               </Box>
             </Box>
-          )}
+          ) : null}
         </Box>
 
         <Divider />
