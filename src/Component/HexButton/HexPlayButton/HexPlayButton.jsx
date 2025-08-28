@@ -36,7 +36,7 @@ const HexPlayButton = ({ stage }) => {
             className="absolute left-0 top-0 w-full h-full"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
-            style={{ zIndex: 0 }}
+            style={{ zIndex: 1 }}
           >
             <polygon points="88,59.9 70,84.90 70,95 88,70" fill="#1A53B4" />
             <polygon points="70,95 30,95 30,84.90 70,84.90" fill="#174AA2" />
@@ -53,59 +53,53 @@ const HexPlayButton = ({ stage }) => {
               zIndex: 1,
             }}
           >
-            {/* ▶️ Play Icon */}
             <PlayArrow sx={{ color: "white", fontSize: 30 }} />
           </div>
 
-          {/* 🧠 Hex with Progress Fill */}
-          <svg
-            viewBox="0 0 100 100"
-            className="absolute top-0 left-0 w-full h-full z-10"
-          >
-            {/* Define clip path as hexagon shape */}
-            <defs>
-              <clipPath id={`hexFill-${stage.id}`}>
-                <polygon points="30,30 70,30 95,58 73,84 27,84 5,58" />
-              </clipPath>
-            </defs>
-
-            {/* Dynamic progress fill */}
-            {/* <rect
-              x="0"
-              y={100 - progress} // Progress fill from bottom
-              width="100"
-              height={progress}
-              fill="#397DF3"
-              clipPath={`url(#hexFill-${stage.id})`}
-              opacity="0.4"
-            /> */}
-          <defs>
-            <linearGradient id="hexStrokeGradient" x1="100%" y1="0%" x2="0%" y2="0%">
-            <stop offset={`${progress}%`} stopColor="#397DF3" />
-            <stop offset={`${progress}%`} stopColor="white" />
-            </linearGradient>
-          </defs>
-           {/* Your original polygon border */}
+          {/* Main Hexagon Shape */}
+          <svg viewBox="0 0 100 100">
             <polygon
               points="30,30 70,30 95,58 73,84 27,84 5,58"
-              // fill="#0000001A"
-              fill="none"
-
-              stroke="url(#hexStrokeGradient)"
-              strokeWidth="4"
+              fill="#0000001A"
+              stroke="#397DF3"
+              strokeWidth="0"
               strokeLinejoin="round"
             />
-
-            {/* Progress text */}
             <text
               x="50%"
-              y="80%"
+              y="65%"
               textAnchor="middle"
               fill="white"
               fontSize="10"
-            >
-              {Math.round(progress)}%
-            </text>
+            ></text>
+          </svg>
+
+          {/* Progress Ring - Positioned exactly on top of the main hexagon */}
+          <svg
+            viewBox="0 0 100 100"
+            className="absolute top-0 left-0 w-full h-full z-0"
+            overflow="visible"
+          >
+            <defs>
+              <linearGradient
+                id={`hexStrokeGradient-${stage.id}`}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
+                <stop offset={`${progress}%`} stopColor="#397DF3" />
+                <stop offset={`${progress}%`} stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+            </defs>
+
+            <polygon
+              points="24,36 76,36 104,70 77,100 24,100 -5,70"
+              fill="none"
+              stroke={`url(#hexStrokeGradient-${stage.id})`}
+              strokeWidth="4"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       </button>

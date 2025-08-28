@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Card, Box, Typography } from "@mui/material";
+import { Card, Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import bgImage from "../../assets/Images/Question_BG.png";
 import { useQuestion } from "./Context/QuestionContext";
 import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
@@ -13,19 +13,19 @@ import MatchingQuestion from "./QuestionTypes/MatchingQuestion";
 import { useNavigate } from "react-router-dom";
 import CorrectIcon from "../../assets/Icons/Correct_Answer.png";
 import WrongIcon from "../../assets/Icons/Wrong_Answer.png";
-import NoHeartsPopup from "../../Component/NoHeartsPage";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import ProgressIndicator from "../../Component/ProgressIndicator";
-import CircularProgressIndicator from "../../Component/CircularProgressIndicator";
-import QuestionProgress from "../../Component/QuestionProgress";
-import StageProgressCircle from "../../Component/StageProgressCircle";
-import CircularCounter from '../../Component/CircularCounter';
-const QuestionPage = ({type}) => {
+
+import CircularCounter from "../../Component/CircularCounter";
+
+const QuestionPage = ({ type }) => {
   const location = useLocation();
   const { id } = useParams();
-  console.log("iddd",id);
-  const [pageNumber,setPageNumber]= useState(1);
-  const [questionCount , setQuestionCount] = useState(1);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const [questionCount, setQuestionCount] = useState(1);
   const {
     currentQuestion,
     openVideoDialog,
@@ -46,16 +46,13 @@ const QuestionPage = ({type}) => {
     hearts,
     rewards,
     progress,
-    setProgress
+    setProgress,
   } = useQuestion();
-  console.log("vDkv", progress)
-  console.log(location);
-  console.log(type)
+
   // const [nextQuestionId, setNextQuestionId] = useState(null);
   // const [nextQuestionData, setNextQuestionData] = useState(null);
 
   const navigate = useNavigate();
-
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -128,7 +125,7 @@ const QuestionPage = ({type}) => {
       question_group_id: questionGroupId,
       lesson_log_id: lessonLogId,
       question_type: currentQuestion.type,
-      type:type
+      type: type,
     };
 
     if (answerId) {
@@ -177,8 +174,8 @@ const QuestionPage = ({type}) => {
         setQuestionGroupId(res.next_question.question_group_id);
       }
       setProgress({
-        number:res.data.data.question_number+1
-      })
+        number: res.data.data.question_number + 1,
+      });
 
       // Reset answers
       setSelectedOption(null);
@@ -191,11 +188,10 @@ const QuestionPage = ({type}) => {
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
-    console.log("VKD")
   };
 
   const handleNext = () => {
-    setPageNumber(pageNumber+1);
+    setPageNumber(pageNumber + 1);
     if (lessonComplete) {
       const hasXPOrCoins =
         (rewards.xp && rewards.xp > 0) || (rewards.coins && rewards.coins > 0);
@@ -254,7 +250,7 @@ const QuestionPage = ({type}) => {
             selectedOptions={selectedOptions}
             onToggle={handleMultipleToggle}
             question={currentQuestion}
-            showResult={showResult} // <- pass this down
+            showResult={showResult}
           />
         );
 
@@ -265,14 +261,14 @@ const QuestionPage = ({type}) => {
             options={currentQuestion.options}
             selectedOption={selectedOption}
             onSelect={setSelectedOption}
-            isCorrect={showResult ? isCorrect : null} // pass boolean isCorrect here
+            isCorrect={showResult ? isCorrect : null}
           />
         );
 
       case "fill_blank":
         return (
           <FillBlankQuestion
-            question={currentQuestion} // pass the whole question object here
+            question={currentQuestion}
             answer={blankAnswers}
             onChange={setBlankAnswers}
             showResult={showResult}
@@ -283,11 +279,11 @@ const QuestionPage = ({type}) => {
       case "matching":
         return (
           <MatchingQuestion
-            question={currentQuestion} // pass the whole question object (optional, but useful)
-            pairs={matchingAnswers} // your current answers state
-            onChange={handleMatchingChange} // function to update answers state
-            showResult={showResult} // if you want to show results/highlighting
-            isCorrect={isCorrect} // to know correctness and maybe style accordingly
+            question={currentQuestion}
+            pairs={matchingAnswers}
+            onChange={handleMatchingChange}
+            showResult={showResult}
+            isCorrect={isCorrect}
             handleSubmit={handleSubmit}
           />
         );
@@ -296,6 +292,7 @@ const QuestionPage = ({type}) => {
         return <Box>نوع السؤال غير معروف</Box>;
     }
   };
+
   const questionTypeNames = {
     single: "اختر الإجابة الصحيحة",
     multiple: "اختر جميع الإجابات الصحيحة",
@@ -303,57 +300,59 @@ const QuestionPage = ({type}) => {
     fill_blank: "املأ الفراغات الآتية",
     matching: "صل العبارات",
   };
-  console.log("V")
-  console.log(pageNumber,progress.totalQuestions)
-  console.log((pageNumber-1)/progress.totalQuestions);
+
   return (
     <>
       <Box
         className="min-h-screen bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
+        sx={{
+          backgroundImage: {
+            xs: "none",
+            md: `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
+          },
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        <Box className=" w-full max-w-[1010px] opacity-90 ">
-          <div className="">
-            <CircularCounter 
+        <Box className="w-full max-w-[1010px] opacity-90">
+          <div className="flex justify-center mb-4">
+            <CircularCounter
               number={pageNumber}
-              color={'blue'}
-              percentage={( pageNumber == 1 ? 0 : (pageNumber-1)/questionCount) * 100}
-            >
-            </CircularCounter>
+              color={"blue"}
+              percentage={
+                (pageNumber == 1 ? 0 : (pageNumber - 1) / questionCount) * 100
+              }
+              size={isMobile ? 60 : isTablet ? 70 : 80}
+            />
           </div>
+
           <Box elevation={3} className="bg-white/90 rounded-[40px]">
-            <Box sx={{ paddingX: "114px", paddingTop: "50px" }}>
-              <h4 className="text-right mb-3 text-[#205DC7]">
+            <Box
+              sx={{
+                paddingX: { xs: "16px", sm: "32px", md: "64px", lg: "114px" },
+                paddingTop: { xs: "24px", sm: "36px", md: "50px" },
+              }}
+            >
+              <h4
+                className="text-right mb-3 text-[#205DC7]"
+                style={{
+                  fontSize: isMobile ? "18px" : "20px",
+                }}
+              >
                 {questionTypeNames[currentQuestion.type] ||
                   currentQuestion.type}
               </h4>
-              <Box sx={{ border: "2px solid red", p: 2 }}>
-                <Typography>Progress Test</Typography>
-                <Box
-                  sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    my: 3,
-                    p: 2,
-                    backgroundColor: "rgba(255,255,255,0.7)",
-                    borderRadius: 2,
-                  }}
-                >
-                  <StageProgressCircle />
-                </Box>
-              </Box>
+
               {currentQuestion && <>{renderQuestionByType()}</>}
 
-              <Box className="pb-[40px] flex justify-between items-center">
-                <Box className="flex items-center gap-4">
+              <Box className="pb-[40px] flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
+                <Box className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                   {currentQuestion?.video_url && (
                     <button
                       onClick={() => openVideoDialog(currentQuestion.video_url)}
-                      className="bg-white text-[#343F4E] py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                      className="bg-white text-[#343F4E] py-[7px] px-[11px] rounded-[1000px] text-[14px] flex items-center gap-1"
                     >
-                      شاهد مقطع تعليمي <PlayArrowIcon />
+                      شاهد مقطع تعليمي <PlayArrowIcon fontSize="small" />
                     </button>
                   )}
 
@@ -362,14 +361,17 @@ const QuestionPage = ({type}) => {
                       <img
                         src={isCorrect ? CorrectIcon : WrongIcon}
                         alt={isCorrect ? "Correct" : "Wrong"}
-                        style={{ width: 48, height: 48 }}
+                        style={{
+                          width: isMobile ? 36 : 48,
+                          height: isMobile ? 36 : 48,
+                        }}
                       />
                       <div>
                         <p
                           className={`font-bold mb-1 ${
                             isCorrect ? "text-green-600" : "text-red-600"
                           }`}
-                          style={{ fontSize: "20px" }}
+                          style={{ fontSize: isMobile ? "16px" : "20px" }}
                         >
                           {isCorrect ? "إجابة صحيحة" : "إجابة خاطئة"}
                         </p>
@@ -378,6 +380,7 @@ const QuestionPage = ({type}) => {
                             fontWeight: "bold",
                             color: isCorrect ? "#4CAF50" : "#F44336",
                             marginTop: 0,
+                            fontSize: isMobile ? "14px" : "16px",
                           }}
                         >
                           {isCorrect ? "أحسنت" : "حظ أوفر"}
@@ -387,12 +390,12 @@ const QuestionPage = ({type}) => {
                   )}
                 </Box>
 
-                <Box className="flex items-center gap-3">
+                <Box className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
                   {currentQuestion.type !== "matching"
                     ? !showResult && (
                         <button
                           onClick={handleSubmit}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full xs:w-auto"
                           disabled={loading}
                         >
                           تأكيد الجواب
@@ -401,7 +404,7 @@ const QuestionPage = ({type}) => {
                     : !showResult && (
                         <button
                           onClick={() => setShowResult(true)}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px]"
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full xs:w-auto"
                         >
                           تأكيد الجواب
                         </button>
@@ -410,7 +413,7 @@ const QuestionPage = ({type}) => {
                   {showResult && (
                     <button
                       onClick={handleNext}
-                      className="bg-[#205DC7] text-white py-[8px] px-6 rounded-[1000px] text-[14px]"
+                      className="bg-[#205DC7] text-white py-[8px] px-6 rounded-[1000px] text-[14px] w-full sm:w-auto"
                     >
                       أكمل
                     </button>

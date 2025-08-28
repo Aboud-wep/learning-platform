@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Button } from "@mui/material";
+import { Button, useTheme, useMediaQuery } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 
 const FillBlankQuestion = ({
@@ -9,6 +9,10 @@ const FillBlankQuestion = ({
   showResult,
   isCorrect,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const blanks = answer || [];
   const setBlanks = onChange;
 
@@ -46,13 +50,13 @@ const FillBlankQuestion = ({
           style={{
             display: "inline-block",
             position: "relative",
-            minWidth: "120px",
-            minHeight: "90px",
+            minWidth: isMobile ? "80px" : isTablet ? "100px" : "120px",
+            minHeight: isMobile ? "60px" : isTablet ? "75px" : "90px",
             verticalAlign: "bottom",
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: "20px",
-            lineHeight: "90px",
+            fontSize: isMobile ? "16px" : "20px",
+            lineHeight: isMobile ? "60px" : isTablet ? "75px" : "90px",
             cursor: blanks[blankIndex] && !showResult ? "pointer" : "default",
           }}
           onClick={() =>
@@ -64,12 +68,12 @@ const FillBlankQuestion = ({
               userSelect: "none",
               pointerEvents: "none",
               color: "#000",
-              lineHeight: "40px",
+              lineHeight: isMobile ? "30px" : "40px",
               display: "inline-block",
               verticalAlign: "bottom",
             }}
           >
-            _____________
+            {isMobile ? "______" : "_____________"}
           </span>
 
           <AnimatePresence>
@@ -82,8 +86,8 @@ const FillBlankQuestion = ({
                 transition={{ type: "spring", stiffness: 50, damping: 10 }}
                 style={{
                   position: "absolute",
-                  top: "5%",
-                  left: "18%",
+                  top: "0%",
+                  left: "20%",
                   transform: "translate(-50%, -50%)",
                   pointerEvents: "auto",
                 }}
@@ -95,10 +99,14 @@ const FillBlankQuestion = ({
                     border: "1px solid #BFBFBF",
                     boxShadow: "0px 2px 0px 0px #BFBFBF",
                     borderRadius: "20px",
-                    fontSize: "20px",
+                    fontSize: isMobile ? "14px" : "20px",
                     backgroundColor: "white",
                     minWidth: "auto",
-                    padding: "4px 12px",
+                    padding: isMobile ? "2px 8px" : "4px 12px",
+                    whiteSpace: "nowrap",
+                    maxWidth: isMobile ? "70px" : isTablet ? "90px" : "none",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
                   {blanks[blankIndex]}
@@ -114,10 +122,22 @@ const FillBlankQuestion = ({
   });
 
   return (
-    <div className="flex flex-col gap-4 text-right">
-      <h4 className="text-[#205DC7] text-[20px] mt-[106px]">{renderedText}</h4>
+    <div className="flex flex-col gap-4 text-right" style={{
+      padding: isMobile ? "0 16px" : "0 24px",
+    }}>
+      <h4 className="text-[#205DC7]" style={{
+        fontSize: isMobile ? "16px" : "20px",
+        marginTop: isMobile ? "40px" : isTablet ? "60px" : "106px",
+        lineHeight: "1.5",
+      }}>
+        {renderedText}
+      </h4>
 
-      <div className="flex flex-wrap gap-[20px] justify-center mt-[78px] mb-[120px] ">
+      <div className="flex flex-wrap gap-3 justify-center" style={{
+        marginTop: isMobile ? "30px" : isTablet ? "50px" : "78px",
+        marginBottom: isMobile ? "60px" : isTablet ? "90px" : "120px",
+        gap: isMobile ? "12px" : "20px",
+      }}>
         {question.options.map((opt) => {
           const isSelected = selectedOptions.includes(opt.text);
           const isDisabled = isSelected || showResult;
@@ -140,9 +160,12 @@ const FillBlankQuestion = ({
                   border: "1px solid #BFBFBF",
                   boxShadow: "0px 2px 0px 0px #BFBFBF",
                   borderRadius: "20px",
-                  fontSize: "20px",
+                  fontSize: isMobile ? "14px" : "20px",
                   backgroundColor: "white",
                   pointerEvents: isDisabled ? "none" : "auto",
+                  padding: isMobile ? "4px 12px" : "8px 16px",
+                  minWidth: "auto",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {opt.text}
