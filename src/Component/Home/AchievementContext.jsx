@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import axiosInstance from "../../lip/axios";
 
 const AchievementContext = createContext();
@@ -9,21 +15,26 @@ const AchievementProvider = ({ children }) => {
   const [achievements, setAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAchievements = useCallback(async () => {
+    try {
+      const res = await axiosInstance.get(
+        "titles/achievements/website/Achievement"
+      );
+      setAchievements(res.data.data.items || []);
+    } catch (err) {
+      console.error("Error fetching achievements:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const refreshAchievements = useCallback(() => {
+    setLoading(true);
+    return fetchAchievements();
+  }, [fetchAchievements]);
+
   useEffect(() => {
     let isMounted = true;
-
-    const fetchAchievements = async () => {
-      try {
-        const res = await axiosInstance.get(
-          "titles/achievements/website/Achievement"
-        );
-        if (isMounted) setAchievements(res.data.data.items || []);
-      } catch (err) {
-        if (isMounted) console.error("Error fetching achievements:", err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
 
     // Check for token before fetching
     const token = localStorage.getItem("accessToken");
@@ -37,10 +48,12 @@ const AchievementProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [fetchAchievements]);
 
   return (
-    <AchievementContext.Provider value={{ achievements, loading }}>
+    <AchievementContext.Provider
+      value={{ achievements, loading, refreshAchievements }}
+    >
       {children}
     </AchievementContext.Provider>
   );

@@ -13,6 +13,10 @@ import { useAchievements } from "./AchievementContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import achievementImg from "../../assets/Images/achievement.png";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../lip/axios";
+import AchievementRewardXPDialog from "../Popups/AchievementRewardXPDialog";
+import AchievementRewardFreezeDialog from "../Popups/AchievementRewardFreezeDialog";
+import { useHome } from "../../Pages/Home/Context/HomeContext";
 
 const ProfileStatsCard = ({
   profile,
@@ -20,8 +24,37 @@ const ProfileStatsCard = ({
   showAchievements,
   showWeeklyCompetition,
 }) => {
-  const { achievements } = useAchievements();
+  const { achievements, refreshAchievements } = useAchievements();
+  const { updateProfileStats } = useHome();
   const navigate = useNavigate();
+  const [loadingId, setLoadingId] = React.useState(null);
+  const [dialogRewards, setDialogRewards] = React.useState(null);
+  const [openXPDialog, setOpenXPDialog] = React.useState(false);
+  const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);
+
+  const claimReward = async (achievementId) => {
+    try {
+      setLoadingId(achievementId);
+      const response = await axiosInstance.put(
+        `titles/achievements/website/Achievement/${achievementId}`
+      );
+      if (response.data.meta.success) {
+        const rewards = response.data.data.rewards || {};
+        const updatedProfile = response.data.data.updated_profile || {};
+        await updateProfileStats(updatedProfile, true);
+        setDialogRewards(rewards);
+        if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0)
+          setOpenXPDialog(true);
+        if ((rewards.motivation_freezes || 0) > 0) setOpenFreezeDialog(true);
+        // Refresh to remove completed achievements and update progress
+        refreshAchievements();
+      }
+    } catch (e) {
+      console.error("Error claiming reward:", e);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   return (
     <Box
@@ -297,6 +330,21 @@ const ProfileStatsCard = ({
                         {item.completion_percentage || 0}%
                       </Typography>
                     </Box>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                      onClick={() => claimReward(item.achievement.id)}
+                      disabled={
+                        item.completion_percentage !== 100 ||
+                        loadingId === item.achievement.id
+                      }
+                    >
+                      {loadingId === item.achievement.id
+                        ? "جاري الاستلام..."
+                        : "احصل على جائزتك"}
+                    </Button>
                   </Box>
                 </Box>
                 {index < achievements.length - 1 && <Divider sx={{ mb: 2 }} />}
@@ -322,6 +370,17 @@ const ProfileStatsCard = ({
           )
         )}
       </Box>
+      {/* Reward Dialogs */}
+      <AchievementRewardXPDialog
+        open={openXPDialog}
+        onClose={() => setOpenXPDialog(false)}
+        rewards={dialogRewards}
+      />
+      <AchievementRewardFreezeDialog
+        open={openFreezeDialog}
+        onClose={() => setOpenFreezeDialog(false)}
+        rewards={dialogRewards}
+      />
     </Box>
   );
 };

@@ -21,9 +21,12 @@ import RecommendedFriendsDialog from "../../Component/RecommendedFriends/Recomme
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import achievementImg from "../../assets/Images/achievement.png";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import axiosInstance from "../../lip/axios";
+import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
+import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
 
 const Profile = () => {
-  const { profile } = useHome();
+  const { profile, updateProfileStats } = useHome();
   const { userProgress } = useSubjects();
   const { followers, recommended } = useProfile();
   const [openDialog, setOpenDialog] = useState(false);
@@ -31,10 +34,39 @@ const Profile = () => {
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
   const navigate = useNavigate();
-  const { achievements } = useAchievements();
+  const { achievements, refreshAchievements } = useAchievements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [loadingId, setLoadingId] = useState(null);
+  const [dialogRewards, setDialogRewards] = useState(null);
+  const [openXPDialog, setOpenXPDialog] = useState(false);
+  const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
+
+  const claimReward = async (achievementId) => {
+    try {
+      setLoadingId(achievementId);
+      const response = await axiosInstance.put(
+        `titles/achievements/website/Achievement/${achievementId}`
+      );
+      if (response.data.meta.success) {
+        const rewards = response.data.data.rewards || {};
+        const updatedProfile = response.data.data.updated_profile || {};
+        // Use updateProfileStats to refresh locally
+        await updateProfileStats(updatedProfile, true);
+        setDialogRewards(rewards);
+        if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0)
+          setOpenXPDialog(true);
+        if ((rewards.motivation_freezes || 0) > 0) setOpenFreezeDialog(true);
+        // Refresh achievements so UI reflects completion and disappearance
+        refreshAchievements();
+      }
+    } catch (e) {
+      console.error("Error claiming reward:", e);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   const handleViewProfile = (userId) => {
     navigate(`/user-profile/${userId}`);
@@ -325,6 +357,21 @@ const Profile = () => {
                             : `${item.completion_percentage}%`}
                         </Typography>
                       </Box>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        fullWidth
+                        sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                        onClick={() => claimReward(item.achievement.id)}
+                        disabled={
+                          item.completion_percentage !== 100 ||
+                          loadingId === item.achievement.id
+                        }
+                      >
+                        {loadingId === item.achievement.id
+                          ? "جاري الاستلام..."
+                          : "احصل على جائزتك"}
+                      </Button>
                     </Box>
                   </Box>
                 </Box>
@@ -494,6 +541,17 @@ const Profile = () => {
           recommended={recommended}
         />
       </Box>
+      {/* Reward Dialogs */}
+      <AchievementRewardXPDialog
+        open={openXPDialog}
+        onClose={() => setOpenXPDialog(false)}
+        rewards={dialogRewards}
+      />
+      <AchievementRewardFreezeDialog
+        open={openFreezeDialog}
+        onClose={() => setOpenFreezeDialog(false)}
+        rewards={dialogRewards}
+      />
     </Box>
   );
 };

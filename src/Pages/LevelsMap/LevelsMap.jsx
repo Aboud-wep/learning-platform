@@ -12,11 +12,24 @@ import HexPlayButton from "../../Component/HexButton/HexPlayButton/HexPlayButton
 const LevelsMap = () => {
   const { levelsData, stagesStatus, loading } = useLevels();
   const { profile } = useHome();
-  const { mySubjects, loadingg } = useSubjects();
+  const { subjects, loadingg,userProgress } = useSubjects();
   const { subjectId } = useParams();
   const { setPageTitle } = useOutletContext();
   const [selectedStage, setSelectedStage] = useState(null);
 
+  const userProgressMap = userProgress.reduce((acc, item) => {
+    acc[item.subject.id] = item;
+    return acc;
+  }, {});
+  const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
+  const otherSubjects = subjects.filter((s) => !userProgressMap[s.id]);
+
+  const lastSubject = mySubjects.length
+    ? [...mySubjects].sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      )[0]
+    : null;
   const navigate = useNavigate();
   const handleStageClick = (stage) => {
     setSelectedStage(stage);
@@ -34,9 +47,9 @@ const LevelsMap = () => {
     ) {
       navigate("/subjects");
     }
-    console.log("VD")
+    console.log("VD");
     console.log(stagesStatus);
-    console.log(levelsData)
+    console.log(levelsData);
   }, [mySubjects, subjectId, navigate, loadingg]);
 
   if (loading) {

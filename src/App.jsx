@@ -4,15 +4,35 @@ import { BrowserRouter as Router } from "react-router-dom";
 import MainRoutes from "./Routes/MainRoutes";
 import useAuth from "./Pages/Auth/TryAuth";
 import { AuthProvider } from "./Pages/Auth/AuthContext";
-import { QuestionProvider } from "./Pages/Questions/Context/QuestionContext";
+import {
+  QuestionProvider,
+  useQuestion,
+} from "./Pages/Questions/Context/QuestionContext";
 import StageSummaryProvider from "./Pages/LevelsMap/Context/StageSummaryContext";
-import AchievementProvider from "./Component/Home/AchievementContext";
+import AchievementProvider, {
+  useAchievements,
+} from "./Component/Home/AchievementContext";
 import { StageStartProvider } from "./Pages/Questions/Context/StageStartContext";
 import { ProfileProvider } from "./Pages/Profile/Context/ProfileContext";
 import { HomeProvider } from "./Pages/Home/Context/HomeContext";
 import { SubjectsProvider } from "./Pages/Subjects/Context/SubjectsContext";
 import { WeeklyCompetitionProvider } from "./Pages/Competitions/Context/WeeklyCompetitionContext";
 import { FriendsProvider } from "./Pages/Profile/Context/FriendsContext";
+
+// Wrapper component to register achievement refresh callback
+const QuestionAchievementBridge = ({ children }) => {
+  const { registerAchievementRefresh } = useQuestion();
+  const { refreshAchievements } = useAchievements();
+
+  React.useEffect(() => {
+    if (registerAchievementRefresh && refreshAchievements) {
+      registerAchievementRefresh(refreshAchievements);
+    }
+  }, [registerAchievementRefresh, refreshAchievements]);
+
+  return children;
+};
+
 const App = () => {
   useAuth();
 
@@ -24,15 +44,17 @@ const App = () => {
             <WeeklyCompetitionProvider>
               <StageSummaryProvider>
                 <AchievementProvider>
-                  <StageStartProvider>
-                    <ProfileProvider>
-                      <FriendsProvider>
-                        <SubjectsProvider>
-                          <MainRoutes />
-                        </SubjectsProvider>
-                      </FriendsProvider>
-                    </ProfileProvider>
-                  </StageStartProvider>
+                  <QuestionAchievementBridge>
+                    <StageStartProvider>
+                      <ProfileProvider>
+                        <FriendsProvider>
+                          <SubjectsProvider>
+                            <MainRoutes />
+                          </SubjectsProvider>
+                        </FriendsProvider>
+                      </ProfileProvider>
+                    </StageStartProvider>
+                  </QuestionAchievementBridge>
                 </AchievementProvider>
               </StageSummaryProvider>
             </WeeklyCompetitionProvider>

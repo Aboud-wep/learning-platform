@@ -324,7 +324,7 @@ const QuestionPage = ({ type }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           px: 1,
-          paddingBottom:{xs:"160px",md:"0px"}
+          paddingBottom: { xs: "160px", md: "0px" },
         }}
       >
         <Box className="w-full max-w-[1010px] opacity-90">
@@ -394,7 +394,7 @@ const QuestionPage = ({ type }) => {
                 sx={{
                   fontSize: isMobile ? "18px" : "20px",
                   textAlign: { xs: "center", md: "left" },
-                  fontWeight:"bold"
+                  fontWeight: "bold",
                 }}
               >
                 {questionTypeNames[currentQuestion.type] ||

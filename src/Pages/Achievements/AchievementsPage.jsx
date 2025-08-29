@@ -16,11 +16,13 @@ import achievementImg from "../../assets/Images/achievement.png";
 import { useLocation, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import axiosInstance from "../../lip/axios";
+import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
+import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
 
 const AchievementsPage = () => {
   const { profile, setProfile } = useHome();
   const { subjects, userProgress } = useSubjects();
-  const { achievements } = useAchievements();
+  const { achievements, refreshAchievements } = useAchievements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
@@ -28,6 +30,9 @@ const AchievementsPage = () => {
   const { setPageTitle } = useOutletContext();
 
   const [loadingId, setLoadingId] = useState(null);
+  const [dialogRewards, setDialogRewards] = useState(null);
+  const [openXPDialog, setOpenXPDialog] = useState(false);
+  const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
 
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
@@ -50,7 +55,8 @@ const AchievementsPage = () => {
       );
 
       if (response.data.meta.success) {
-        const updatedProfile = response.data.data.updated_profile;
+        const rewards = response.data.data.rewards || {};
+        const updatedProfile = response.data.data.updated_profile || {};
 
         // Update profile in context
         setProfile((prev) => ({
@@ -58,7 +64,16 @@ const AchievementsPage = () => {
           ...updatedProfile,
         }));
 
-        alert("🎉 تم استلام الجائزة بنجاح!");
+        setDialogRewards(rewards);
+        // Open dialogs based on rewards
+        if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0) {
+          setOpenXPDialog(true);
+        }
+        if ((rewards.motivation_freezes || 0) > 0) {
+          setOpenFreezeDialog(true);
+        }
+        // Refresh achievements so completed ones disappear and progress updates
+        refreshAchievements();
       }
     } catch (error) {
       console.error("Error claiming reward:", error);
@@ -226,21 +241,22 @@ const AchievementsPage = () => {
                     </Typography>
                   </Box>
 
-                  {/* Claim button */}
-                  {item.completion_percentage === 100 && (
-                    <Button
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                      onClick={() => claimReward(item.achievement.id)}
-                      disabled={loadingId === item.achievement.id}
-                    >
-                      {loadingId === item.achievement.id
-                        ? "جاري الاستلام..."
-                        : "احصل على جائزتك"}
-                    </Button>
-                  )}
+                  {/* Claim button - disabled until 100% */}
+                  <Button
+                    variant="contained"
+                    color="success"
+                    fullWidth
+                    sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                    onClick={() => claimReward(item.achievement.id)}
+                    disabled={
+                      item.completion_percentage !== 100 ||
+                      loadingId === item.achievement.id
+                    }
+                  >
+                    {loadingId === item.achievement.id
+                      ? "جاري الاستلام..."
+                      : "احصل على جائزتك"}
+                  </Button>
                 </Box>
               </Box>
             </Box>
@@ -258,6 +274,17 @@ const AchievementsPage = () => {
           />
         </Box>
       )}
+      {/* Reward Dialogs */}
+      <AchievementRewardXPDialog
+        open={openXPDialog}
+        onClose={() => setOpenXPDialog(false)}
+        rewards={dialogRewards}
+      />
+      <AchievementRewardFreezeDialog
+        open={openFreezeDialog}
+        onClose={() => setOpenFreezeDialog(false)}
+        rewards={dialogRewards}
+      />
     </Box>
   );
 };
