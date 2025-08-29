@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Card, Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import {
+  Card,
+  Box,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Button,
+} from "@mui/material";
 import bgImage from "../../assets/Images/Question_BG.png";
 import { useQuestion } from "./Context/QuestionContext";
 import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
@@ -16,6 +23,7 @@ import WrongIcon from "../../assets/Icons/Wrong_Answer.png";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 import CircularCounter from "../../Component/CircularCounter";
+import HeartIcon from "../../assets/Icons/heart.png";
 
 const QuestionPage = ({ type }) => {
   const location = useLocation();
@@ -304,56 +312,123 @@ const QuestionPage = ({ type }) => {
   return (
     <>
       <Box
-        className="min-h-screen bg-cover bg-center flex items-center justify-center"
         sx={{
+          display: "flex",
+          justifyContent: { xs: "normal", md: "center" },
+          alignItems: { xs: "normal", md: "center" },
+          minHeight: "100vh", // ✅ equivalent to min-h-screen
           backgroundImage: {
             xs: "none",
             md: `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
           },
           backgroundSize: "cover",
           backgroundPosition: "center",
+          px: 1,
+          paddingBottom:{xs:"160px",md:"0px"}
         }}
       >
         <Box className="w-full max-w-[1010px] opacity-90">
-          <div className="flex justify-center mb-4">
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mb: "16px",
+              my: { xs: 8, md: 0 }, // ✅ push down on xs
+            }}
+          >
             <CircularCounter
               number={pageNumber}
-              color={"blue"}
+              color="blue"
               percentage={
-                (pageNumber == 1 ? 0 : (pageNumber - 1) / questionCount) * 100
+                (pageNumber === 1 ? 0 : (pageNumber - 1) / questionCount) * 100
               }
-              size={isMobile ? 60 : isTablet ? 70 : 80}
             />
-          </div>
+          </Box>
 
           <Box elevation={3} className="bg-white/90 rounded-[40px]">
             <Box
               sx={{
-                paddingX: { xs: "16px", sm: "32px", md: "64px", lg: "114px" },
-                paddingTop: { xs: "24px", sm: "36px", md: "50px" },
+                paddingX: { xs: "10px", sm: "32px", md: "64px", lg: "114px" },
+                paddingTop: { xs: "0px", md: "50px" },
               }}
             >
-              <h4
-                className="text-right mb-3 text-[#205DC7]"
-                style={{
+              {hearts !== null && hearts !== undefined && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: { xs: "flex-start", md: "flex-end" }, // ✅ different alignment
+                    mb: { xs: 0, md: 1.5 },
+                    position: { xs: "absolute", md: "static" }, // ✅ absolute on xs
+                    top: { xs: "20px", md: "auto" }, // ✅ small offset from top
+                    right: "15px", // ✅ stick to right on xs
+                    // width: "fit-content",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      bgcolor: "white",
+                      borderRadius: "50px",
+                      px: { xs: "10px", sm: "20px" },
+                      py: "5px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                      {hearts}
+                    </Typography>
+                    <Box
+                      component="img"
+                      src={HeartIcon}
+                      alt="heart"
+                      sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                    />
+                  </Box>
+                </Box>
+              )}
+
+              <Box
+                className="mb-3 text-[#205DC7]"
+                sx={{
                   fontSize: isMobile ? "18px" : "20px",
+                  textAlign: { xs: "center", md: "left" },
+                  fontWeight:"bold"
                 }}
               >
                 {questionTypeNames[currentQuestion.type] ||
                   currentQuestion.type}
-              </h4>
+              </Box>
 
               {currentQuestion && <>{renderQuestionByType()}</>}
 
-              <Box className="pb-[40px] flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
+              <Box
+                className="pb-[40px] flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"
+                sx={{
+                  position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
+                  // position:"static",
+                  bottom: { xs: 0, md: "auto" },
+                  left: { xs: 0, md: "auto" },
+                  width: { xs: "100%", md: "auto" },
+                  px: { xs: 2, md: 0 }, // padding from screen edges on xs
+                  py: { xs: 2, md: "40px" },
+                  backgroundColor: { xs: "white", md: "transparent" },
+                }}
+              >
                 <Box className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                   {currentQuestion?.video_url && (
-                    <button
+                    <Button
                       onClick={() => openVideoDialog(currentQuestion.video_url)}
-                      className="bg-white text-[#343F4E] py-[7px] px-[11px] rounded-[1000px] text-[14px] flex items-center gap-1"
+                      className="py-[7px] px-[11px]  text-[14px] flex items-center gap-1"
+                      sx={{
+                        backgroundColor: { xs: "#205DC7", md: "white" },
+                        color: { xs: "white", md: "#205DC7" },
+                        borderRadius: "1000px",
+                      }}
                     >
                       شاهد مقطع تعليمي <PlayArrowIcon fontSize="small" />
-                    </button>
+                    </Button>
                   )}
 
                   {showResult && currentQuestion.type !== "matching" && (
@@ -390,12 +465,12 @@ const QuestionPage = ({ type }) => {
                   )}
                 </Box>
 
-                <Box className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
+                <Box className="flex items-center gap-3 w-full sm:w-auto justify-center md:justify-end">
                   {currentQuestion.type !== "matching"
                     ? !showResult && (
                         <button
                           onClick={handleSubmit}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full xs:w-auto"
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto"
                           disabled={loading}
                         >
                           تأكيد الجواب
@@ -404,7 +479,7 @@ const QuestionPage = ({ type }) => {
                     : !showResult && (
                         <button
                           onClick={() => setShowResult(true)}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full xs:w-auto"
+                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto"
                         >
                           تأكيد الجواب
                         </button>
@@ -413,7 +488,7 @@ const QuestionPage = ({ type }) => {
                   {showResult && (
                     <button
                       onClick={handleNext}
-                      className="bg-[#205DC7] text-white py-[8px] px-6 rounded-[1000px] text-[14px] w-full sm:w-auto"
+                      className="bg-[#205DC7] text-white py-[8px] px-6 rounded-[1000px] text-[14px] w-full md:w-auto"
                     >
                       أكمل
                     </button>

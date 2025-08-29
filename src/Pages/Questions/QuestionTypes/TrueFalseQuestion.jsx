@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography } from "@mui/material";
+import { Button, Typography, useTheme, useMediaQuery, Box } from "@mui/material";
 
 // Import icons
 import TrueIcon from "../../../assets/Icons/True.png";
@@ -18,6 +18,10 @@ const TrueFalseQuestion = ({
   isCorrect, // boolean indicating if the chosen answer was correct
   question,
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   if (!options?.length) return null;
 
   const [lockedSelection, setLockedSelection] = useState(null);
@@ -91,7 +95,7 @@ const TrueFalseQuestion = ({
       return {
         opacity: 1,
         transform: showFeedback
-          ? "translateY(-20px) scale(1.05)" // slide up
+          ? "translateY(-10px) scale(1.05)" // slide up (reduced for mobile)
           : "translateY(0) scale(1)",
         transition: "transform 0.6s ease, opacity 0.6s ease",
       };
@@ -101,19 +105,26 @@ const TrueFalseQuestion = ({
     return {
       opacity: 0.3,
       transform: showFeedback
-        ? `translateY(20px) scale(0.95)` // slide down
+        ? `translateY(10px) scale(0.95)` // slide down (reduced for mobile)
         : "translateY(0) scale(1)",
       transition: "transform 0.6s ease, opacity 0.6s ease",
     };
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold text-right mb-6 text-[#205DC7]">
+    <div className="w-full">
+      <Box className="text-right text-[#205DC7]"
+      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
+      style={{
+        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+        fontWeight: "bold",
+        marginBottom: isMobile ? "80px" : "24px",
+        padding: isMobile ? "0 8px" : "0"
+      }}>
         {question.text}
-      </h2>
+      </Box>
 
-      <div className="flex justify-center gap-[194px] text-right transition-all duration-700 ease-in-out">
+      <div className="flex  justify-center gap-4 sm:gap-8 md:gap-12 lg:gap-[194px] text-right transition-all duration-700 ease-in-out">
         {displayedOptions.map((option) => {
           const IconSrc = getIconForOption(option);
           if (!IconSrc) return null;
@@ -130,8 +141,8 @@ const TrueFalseQuestion = ({
               disabled={isCorrect !== null && isCorrect !== undefined}
               variant="outlined"
               sx={{
-                width: "179px",
-                height: "194px",
+                width: isMobile ? "120px" : isTablet ? "140px" : "179px",
+                height: isMobile ? "130px" : isTablet ? "160px" : "194px",
                 borderRadius: "20px",
                 border: "1px solid #ccc",
                 boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
@@ -139,18 +150,22 @@ const TrueFalseQuestion = ({
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                minWidth: 80,
-                marginBottom: "85px",
+                minWidth: "auto",
+                marginBottom: isMobile ? "40px" : isTablet ? "60px" : "85px",
                 transition: "all 0.7s ease-in-out",
-                order: isCorrect && isSelected ? 0 : 1, // selected moves to center
+                order: isCorrect && isSelected ? 0 : 1,
+                padding: "8px",
+                '&:hover': {
+                  backgroundColor: isCorrect === null ? "#f5f5f5" : "inherit"
+                }
               }}
             >
               <img
                 src={IconSrc}
                 alt={option.text}
                 style={{
-                  width: "80px",
-                  height: "80px",
+                  width: isMobile ? "50px" : isTablet ? "60px" : "80px",
+                  height: isMobile ? "50px" : isTablet ? "60px" : "80px",
                   objectFit: "contain",
                   ...animationStyle,
                 }}
@@ -158,11 +173,12 @@ const TrueFalseQuestion = ({
               <Typography
                 variant="body1"
                 sx={{
-                  mt: 1,
+                  marginTop: "8px",
                   fontWeight: "bold",
-                  fontSize: "25px",
+                  fontSize: isMobile ? "18px" : isTablet ? "20px" : "25px",
                   color: textColor,
                   ...animationStyle,
+                  lineHeight: 1.2,
                 }}
               >
                 {option.text}

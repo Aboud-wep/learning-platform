@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
+import { Typography,Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
 
 const MatchingQuestion = ({ question, handleSubmit }) => {
@@ -144,11 +144,14 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold text-right mb-6">{question.text}</h2>
-      <div className="flex justify-center  gap-10 flex-wrap my-[75px] ">
+    <Box>
+      <Box  className="text-xl font-bold mb-6" sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}>{question.text}</Box >
+      <Box
+        className="flex justify-center flex-wrap my-[75px]"
+        sx={{ gap: { xs: "10px", sm: "40px" } }}
+      >
         {/* Right column */}
-        <div className="flex flex-col gap-3 max-w-[45%]">
+        <Box className="flex flex-col gap-3 max-w-[45%]">
           {options.right.map((item, index) => {
             const isMatched = isRightMatched(item);
             const leftItem = getLeftForRight(item);
@@ -161,7 +164,7 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
               selected?.side === "right" && selected.index === index;
 
             return (
-              <div
+              <Box
                 key={index}
                 className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
                   {
@@ -175,13 +178,13 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
                 }}
               >
                 {item}
-              </div>
+              </Box>
             );
           })}
-        </div>
+        </Box>
 
         {/* Left column */}
-        <div className="flex flex-col gap-3 max-w-[45%]">
+        <Box className="flex flex-col gap-3 max-w-[45%] min-w-[130px]">
           {options.left.map((item, index) => {
             const isMatched = isLeftMatched(item);
             const rightItem = matchedPairs[item];
@@ -195,7 +198,7 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
               selected?.side === "left" && selected.index === index;
 
             return (
-              <div
+              <Box
                 key={index}
                 className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
                   {
@@ -209,12 +212,12 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
                 }}
               >
                 {item}
-              </div>
+              </Box>
             );
           })}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

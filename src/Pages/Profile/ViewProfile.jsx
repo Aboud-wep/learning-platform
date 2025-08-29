@@ -31,7 +31,7 @@ const ViewProfile = () => {
   const token = localStorage.getItem("accessToken");
   const { profile } = useHome();
   const navigate = useNavigate();
-  const { addFriend, loading, success, error } = useFriends();
+  const { addFriend, loadinggg, success, error } = useFriends();
   const { refreshFriendData } = useProfile(); // Add this
 
   const theme = useTheme();

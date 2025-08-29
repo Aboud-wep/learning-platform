@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTheme, useMediaQuery, Box } from "@mui/material";
 import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png";
 import MChoice_false from "../../../assets/Icons/MChoice_false.png";
 import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png";
@@ -11,6 +12,10 @@ export default function MultipleChoiceQuestion({
   question,
   showResult,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -84,13 +89,22 @@ export default function MultipleChoiceQuestion({
   });
 
   return (
-    <div>
-      <h2 className="text-xl text-right mb-[40px] text-[#205DC7]">
+    <div className="w-full">
+      <Box className="text-right text-[#205DC7]"
+      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
+      style={{
+        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+        fontWeight: "bold",
+        marginBottom: isMobile ? "80px" : "24px",
+        padding: isMobile ? "0 8px" : "0"
+      }}>
         {question.text}
-      </h2>
+      </Box>
 
-      <div className="flex justify-center mb-[90px]">
-        <div className="grid grid-cols-2 gap-x-[94px] gap-y-[10px] min-w-[344px]">
+      <div className="flex justify-center" style={{
+        marginBottom: isMobile ? "40px" : isTablet ? "60px" : "90px"
+      }}>
+        <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-x-4 md:gap-x-8 lg:gap-x-[94px] gap-y-3 md:gap-y-[10px] w-full max-w-4xl px-4`}>
           {options.map((opt) => {
             const borderColor = getBorderColor(opt);
             const icon = getIconForOption(opt);
@@ -106,16 +120,22 @@ export default function MultipleChoiceQuestion({
                   border: `1px solid ${borderColor}`,
                   boxShadow: getBoxShadow(borderColor),
                 }}
-                className={`flex items-center justify-between py-2 pr-[20px] pl-[10px] rounded-[20px] text-right text-[20px] min-w-[344px] ${getBgClass(
+                className={`flex items-center justify-between py-2 pr-4 md:pr-[20px] pl-3 md:pl-[10px] rounded-[20px] text-right w-full ${getBgClass(
                   opt
                 )}`}
               >
-                <span className="flex-1">{opt.text}</span>
+                <span className="flex-1 text-start" style={{
+                  fontSize: isMobile ? "16px" : "18px",
+                  padding: isMobile ? "8px 4px" : "8px",
+                  lineHeight: "1.4"
+                }}>
+                  {opt.text}
+                </span>
                 {icon && (
                   <img
                     src={icon}
                     alt="status icon"
-                    className="w-6 h-6 ml-2"
+                    className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0"
                     style={animationStyle}
                   />
                 )}

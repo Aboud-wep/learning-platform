@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTheme, useMediaQuery,Box } from "@mui/material";
 import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png"; // default correct
 import MChoice_false from "../../../assets/Icons/MChoice_false.png"; // wrong/red
 import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png"; // missed correct
@@ -10,6 +11,10 @@ export default function SingleChoiceQuestion({
   onChange,
   showResult,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [lockedSelection, setLockedSelection] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -78,12 +83,21 @@ export default function SingleChoiceQuestion({
   });
 
   return (
-    <div>
-      <h2 className="text-xl font-bold text-right mb-[20px]">
-        {question.text || ""}
-      </h2>
+    <div className="w-full">
+      <Box className="text-right text-[#205DC7]"
+      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
+      style={{
+        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+        fontWeight: "bold",
+        marginBottom: isMobile ? "80px" : "24px",
+        padding: isMobile ? "0 8px" : "0"
+      }}>
+        {question.text}
+      </Box>
 
-      <div className="space-y-[10px] text-right mb-[60px]">
+      <div className="space-y-3 md:space-y-[10px] text-right" style={{
+        marginBottom: isMobile ? "30px" : isTablet ? "45px" : "60px"
+      }}>
         {question.options?.map((option) => {
           const borderColor = getBorderColor(option);
           const icon = getIconForOption(option);
@@ -92,21 +106,27 @@ export default function SingleChoiceQuestion({
           return (
             <div
               key={option.id}
-              className={`flex items-center justify-between py-2 px-[30px] rounded-[20px] cursor-pointer w-[782px] min-w-[300px] text-[20px] ${getBgClass(
+              className={`flex items-center justify-between py-2 px-4 md:px-[20px] lg:px-[30px] rounded-[20px] cursor-pointer w-full text-[16px] md:text-[18px] lg:text-[20px] ${getBgClass(
                 option
               )}`}
               style={{
                 border: `1px solid ${borderColor}`,
                 boxShadow: `0px 2px 0px 0px ${borderColor}`,
+                minHeight: isMobile ? "50px" : "60px",
               }}
               onClick={() => !showResult && onChange(option.id)}
             >
-              <span>{option.text}</span>
+              <span className="flex-1 text-right pr-2" style={{
+                lineHeight: "1.4",
+                padding: isMobile ? "4px 0" : "8px 0"
+              }}>
+                {option.text}
+              </span>
               {icon && (
                 <img
                   src={icon}
                   alt="status icon"
-                  className="w-6 h-6 ml-2"
+                  className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0"
                   style={animationStyle}
                 />
               )}
