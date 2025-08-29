@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import axiosInstance from "../../../lip/axios";
 import { useHome } from "../../Home/Context/HomeContext";
+import { useNavigate } from "react-router-dom";
 
 const WeeklyCompetitionContext = createContext();
 
@@ -17,25 +18,47 @@ export const WeeklyCompetitionProvider = ({ children }) => {
   const [competitionLevels, setCompetitionLevels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+  const navigate = useNavigate();
 
-  const fetchCompetition = useCallback(async (competitionId) => {
-    if (!competitionId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axiosInstance.get(
-        `/titles/weekly_competitions/website/WeeklyCompetition/${competitionId}`
-      );
-      setCompetition(res.data.data);
-    } catch (err) {
-      setError(err.response?.data || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+  // ✅ Watch localStorage for token changes
+  useEffect(() => {
+    const checkToken = () => {
+      const hasTokens =
+        !!localStorage.getItem("accessToken") &&
+        !!localStorage.getItem("refreshToken");
+      setAuthReady(hasTokens);
+    };
+    checkToken();
+    window.addEventListener("storage", checkToken);
+    return () => window.removeEventListener("storage", checkToken);
   }, []);
 
-  // 🟢 Fetch competition levels
+  // ✅ Fetch competition (only if logged in)
+  const fetchCompetition = useCallback(
+    async (competitionId) => {
+      if (!authReady) return; // stop if not logged in
+      if (!competitionId) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await axiosInstance.get(
+          `/titles/weekly_competitions/website/WeeklyCompetition/${competitionId}`
+        );
+        setCompetition(res.data.data);
+      } catch (err) {
+        setError(err.response?.data || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [authReady]
+  );
+
+  // ✅ Fetch competition levels (only if logged in)
   const fetchCompetitionLevels = useCallback(async () => {
+    if (!authReady) return;
     try {
       const res = await axiosInstance.get(
         `/titles/competition_levels/website/CompetitionLevel`
@@ -44,20 +67,21 @@ export const WeeklyCompetitionProvider = ({ children }) => {
     } catch (err) {
       console.error("❌ Failed to fetch competition levels:", err);
     }
-  }, []);
+  }, [authReady]);
 
+  // ✅ Load levels once when logged in
   useEffect(() => {
-    fetchCompetitionLevels();
-  }, [fetchCompetitionLevels]);
+    if (authReady) {
+      fetchCompetitionLevels();
+    }
+  }, [authReady, fetchCompetitionLevels]);
 
+  // ✅ Fetch competition only if logged in + profile exists
   useEffect(() => {
-    const hasTokens =
-      localStorage.getItem("accessToken") &&
-      localStorage.getItem("refreshToken");
-    if (hasTokens && profile?.weekly_competition?.id) {
+    if (authReady && profile?.weekly_competition?.id) {
       fetchCompetition(profile.weekly_competition.id);
     }
-  }, [profile, fetchCompetition]);
+  }, [authReady, profile, fetchCompetition]);
 
   return (
     <WeeklyCompetitionContext.Provider
@@ -74,4 +98,5 @@ export const WeeklyCompetitionProvider = ({ children }) => {
   );
 };
 
-export const useWeeklyCompetition = () => useContext(WeeklyCompetitionContext);
+export const useWeeklyCompetition = () =>
+  useContext(WeeklyCompetitionContext);

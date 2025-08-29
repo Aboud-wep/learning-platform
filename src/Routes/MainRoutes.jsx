@@ -24,19 +24,30 @@ import AchievementsPage from "../Pages/Achievements/AchievementsPage";
 
 const MainRoutes = () => (
   <Routes>
-    {/* Public Routes */}
-    <Route path="/" element={<PublicRoutes />} />
-    <Route path="/login" element={  <Login />} />
-    <Route path="/register" element={<Register />} />
+    {/* Public Routes - accessible without authentication */}
+    <Route element={<PublicRoutes />}>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+    </Route>
+
+    {/* Standalone routes that don't need authentication checks */}
     <Route path="/lesson-ended" element={<LessonEnded />} />
     <Route
       path="/rewarded-motivation-freezes"
       element={<RewardedMotivationFreezes />}
     />
-    {/* Protected Routes */}
+
+    {/* Protected Routes - require authentication */}
     <Route element={<ProtectedRoutes />}>
-      <Route path="/questions/:questionId" element={<QuestionPage type={'lesson'} />} />
-      <Route path="/test/:questionId" element={<QuestionPage type={'test'} />} />
+      <Route
+        path="/questions/:questionId"
+        element={<QuestionPage type={"lesson"} />}
+      />
+      <Route
+        path="/test/:questionId"
+        element={<QuestionPage type={"test"} />}
+      />
 
       <Route element={<UserLayout />}>
         <Route path="*" element={<Navigate to="/home" replace />} />
