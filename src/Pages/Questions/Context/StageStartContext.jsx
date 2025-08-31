@@ -21,7 +21,7 @@ export const StageStartProvider = ({ children }) => {
         { stage_item_id }
       );
       setCurrentQuestion(res.data.data.question); // <-- update here
-      console.log("ressss", res);
+      console.log("Stage start response:", res);
       return res.data.data;
     } catch (error) {
       console.log(error);

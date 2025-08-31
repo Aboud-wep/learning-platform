@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, Box, Typography, Button } from "@mui/material";
 import XPRewards from "../../assets/Icons/XPRewards.png";
 import Coin from "../../assets/Icons/coin.png";
+import { borderRadius } from "@mui/system";
 
 const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
   const xp = rewards?.xp || 0;
@@ -9,7 +10,7 @@ const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogContent sx={{ p: { xs: 3, md: 6 } }}>
+      <DialogContent sx={{ p: { xs: 3, md: 6 } ,borderRadius:"20px",}}>
         <Typography
           align="center"
           sx={{

@@ -89,7 +89,8 @@ export const HomeProvider = ({ children }) => {
         error, 
         fetchProfile, 
         updateProfileStats,
-        refreshProfile 
+        refreshProfile ,
+        setProfile
       }}
     >
       {children}

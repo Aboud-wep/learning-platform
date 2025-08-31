@@ -20,24 +20,24 @@ import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardX
 import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
 
 const AchievementsPage = () => {
+  const { updateProfileStats } = useHome();
   const { profile, setProfile } = useHome();
   const { subjects, userProgress } = useSubjects();
-  const { achievements, refreshAchievements } = useAchievements();
+  const { achievements,refreshAchievements } = useAchievements();
   const theme = useTheme();
+  
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
   const { setPageTitle } = useOutletContext();
-
+  const [openXPDialog, setOpenXPDialog] = React.useState(false);
   const [loadingId, setLoadingId] = useState(null);
-  const [dialogRewards, setDialogRewards] = useState(null);
-  const [openXPDialog, setOpenXPDialog] = useState(false);
-  const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
-
+  const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
     return acc;
   }, {});
+  const [dialogRewards, setDialogRewards] = React.useState(null);
 
   useEffect(() => {
     setPageTitle("الرئيسية");
@@ -49,34 +49,22 @@ const AchievementsPage = () => {
   const claimReward = async (achievementId) => {
     try {
       setLoadingId(achievementId);
-
       const response = await axiosInstance.put(
         `titles/achievements/website/Achievement/${achievementId}`
       );
-
       if (response.data.meta.success) {
         const rewards = response.data.data.rewards || {};
         const updatedProfile = response.data.data.updated_profile || {};
-
-        // Update profile in context
-        setProfile((prev) => ({
-          ...prev,
-          ...updatedProfile,
-        }));
-
+        await updateProfileStats(updatedProfile, true);
         setDialogRewards(rewards);
-        // Open dialogs based on rewards
-        if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0) {
+        if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0)
           setOpenXPDialog(true);
-        }
-        if ((rewards.motivation_freezes || 0) > 0) {
-          setOpenFreezeDialog(true);
-        }
-        // Refresh achievements so completed ones disappear and progress updates
+        if ((rewards.motivation_freezes || 0) > 0) setOpenFreezeDialog(true);
+        // Refresh to remove completed achievements and update progress
         refreshAchievements();
       }
-    } catch (error) {
-      console.error("Error claiming reward:", error);
+    } catch (e) {
+      console.error("Error claiming reward:", e);
     } finally {
       setLoadingId(null);
     }
@@ -241,22 +229,21 @@ const AchievementsPage = () => {
                     </Typography>
                   </Box>
 
-                  {/* Claim button - disabled until 100% */}
-                  <Button
-                    variant="contained"
-                    color="success"
-                    fullWidth
-                    sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                    onClick={() => claimReward(item.achievement.id)}
-                    disabled={
-                      item.completion_percentage !== 100 ||
-                      loadingId === item.achievement.id
-                    }
-                  >
-                    {loadingId === item.achievement.id
-                      ? "جاري الاستلام..."
-                      : "احصل على جائزتك"}
-                  </Button>
+                  {/* Claim button */}
+                  {item.completion_percentage === 100 && (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                      onClick={() => claimReward(item.achievement.id)}
+                      disabled={loadingId === item.achievement.id}
+                    >
+                      {loadingId === item.achievement.id
+                        ? "جاري الاستلام..."
+                        : "احصل على جائزتك"}
+                    </Button>
+                  )}
                 </Box>
               </Box>
             </Box>

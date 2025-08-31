@@ -8,6 +8,8 @@ const LessonEnded = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isTest = location.state?.isTest || false;
+
   const handleContinue = () => {
     if (location.state?.nextPage) {
       navigate(location.state.nextPage);
@@ -27,7 +29,7 @@ const LessonEnded = () => {
           WebkitTextFillColor: "transparent",
         }}
       >
-        أنهيت الدرس!
+        {isTest ? "أنهيت الاختبار!" : "أنهيت الدرس!"}
       </h1>
 
       <p

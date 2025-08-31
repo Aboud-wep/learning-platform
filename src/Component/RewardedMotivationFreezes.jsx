@@ -1,14 +1,16 @@
 import React from "react";
 import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
 import FreezesRewards from "../assets/Icons/FreezesRewards.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 
 const RewardedMotivationFreezes = () => {
   const { rewards } = useQuestion();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const freezeCount = rewards?.rewarded_motivation_freezes || 0;
+  const isTest = location.state?.isTest || false;
+  const freezeCount = rewards?.motivationFreezes || 0;
 
   return (
     <div
@@ -28,7 +30,11 @@ const RewardedMotivationFreezes = () => {
           padding: `0 249px`,
         }}
       >
-        <h2 className="text-[20px] mb-[62px]">مبارك! لقد حصلت على:</h2>
+        <h2 className="text-[20px] mb-[62px]">
+          {isTest
+            ? "مبارك! لقد أكملت الاختبار وحصلت على:"
+            : "مبارك! لقد حصلت على:"}
+        </h2>
 
         {/* Image between h2 and p */}
         <img

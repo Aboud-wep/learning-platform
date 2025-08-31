@@ -83,10 +83,11 @@ const HexPlayButton = ({ stage }) => {
             <defs>
               <linearGradient
                 id={`hexStrokeGradient-${stage.id}`}
-                x1="0%"
-                y1="0%"
-                x2="100%"
-                y2="0%"
+                x1="100%" // Middle horizontally
+                y1="0%" // Start from top
+                x2="0%" // Middle horizontally
+                y2="100%" // End at bottom
+                gradientUnits="userSpaceOnUse"
               >
                 <stop offset={`${progress}%`} stopColor="#397DF3" />
                 <stop offset={`${progress}%`} stopColor="rgba(255,255,255,0)" />
@@ -94,13 +95,66 @@ const HexPlayButton = ({ stage }) => {
             </defs>
 
             <polygon
-              points="24,36 76,36 104,70 77,100 24,100 -5,70"
+              points="26,36 74,36 104,70 77,100 24,100 -5,70"
               fill="none"
               stroke={`url(#hexStrokeGradient-${stage.id})`}
               strokeWidth="4"
               strokeLinejoin="round"
             />
           </svg>
+{/* 
+          <svg
+            viewBox="0 0 100 100"
+            className="absolute top-0 left-0 w-full h-full z-0"
+            overflow="visible"
+          >
+            <defs>
+              
+              <linearGradient
+                id={`hexStrokeGradient-${stage.id}`}
+                x1="100%" // Start from right
+                y1="0%" // Start from top
+                x2="0%" // End at left
+                y2="100%" // End at bottom
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset={`${progress}%`} stopColor="#397DF3" />
+                <stop offset={`${progress}%`} stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+
+              <mask id={`progress-mask-${stage.id}`}>
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="48"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeDasharray="301.6"
+                  strokeDashoffset={301.6 - (progress / 100) * 301.6}
+                  transform="rotate(-90 50 50)"
+                />
+              </mask>
+            </defs>
+
+            <polygon
+              points="26,36 74,36 104,70 77,100 24,100 -5,70"
+              fill="none"
+              stroke="#E5E7EB"
+              strokeWidth="4"
+              strokeLinejoin="round"
+            />
+
+            <polygon
+              points="26,36 74,36 104,70 77,100 24,100 -5,70"
+              fill="none"
+              stroke="#397DF3"
+              strokeWidth="4"
+              strokeLinejoin="round"
+              mask={`url(#progress-mask-${stage.id})`}
+              transform="rotate(0 50 50)"
+            />
+          </svg> */}
         </div>
       </button>
 

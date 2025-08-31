@@ -22,6 +22,9 @@ export const QuestionProvider = ({ children }) => {
   // const { refreshAchievements } = useAchievements();
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [lessonLogId, setLessonLogId] = useState(null);
+  const [testLogId, setTestLogId] = useState(null); // Add test log ID
+  const [isTest, setIsTest] = useState(false); // Add test flag
+  const [testId, setTestId] = useState(null); // Add test ID
   const [isCorrect, setIsCorrect] = useState(null);
   const [hearts, setHearts] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,7 @@ export const QuestionProvider = ({ children }) => {
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [videoUrl, setVideoUrl] = useState(null);
   const [lessonComplete, setLessonComplete] = useState(false);
+  const [testComplete, setTestComplete] = useState(false); // Add test complete flag
   const [rewards, setRewards] = useState({
     xp: null,
     coins: null,
@@ -110,7 +114,7 @@ export const QuestionProvider = ({ children }) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
       navigate("/login", { replace: true });
-      return;
+      return Promise.resolve(null);
     }
 
     try {
@@ -127,6 +131,25 @@ export const QuestionProvider = ({ children }) => {
         return;
       }
 
+      // Check if this is a test or lesson
+      const isTestItem = data.item_type === "test";
+      console.log("🔍 API response item_type:", data.item_type);
+      console.log("🔍 Detected isTestItem:", isTestItem);
+      console.log("🔍 Full data object:", data);
+
+      setIsTest(isTestItem);
+
+      if (isTestItem) {
+        setTestLogId(data.test_log_id);
+        setTestId(data.test_id);
+        setLessonLogId(null); // Clear lesson log ID for tests
+      } else {
+        console.log("📚 Starting lesson - lesson_log_id:", data.lesson_log_id);
+        setLessonLogId(data.lesson_log_id);
+        setTestLogId(null); // Clear test log ID for lessons
+        setTestId(null);
+      }
+
       setProgress((prev) => ({
         ...prev,
         totalQuestions: data.question_count || 0,
@@ -136,14 +159,21 @@ export const QuestionProvider = ({ children }) => {
         number: data.question_number || 1,
       }));
 
-      console.log("Lesson started - total questions:", data.question_count);
+      console.log(
+        isTestItem ? "Test started" : "Lesson started",
+        "- total questions:",
+        data.question_count
+      );
 
       setCurrentQuestion(data.question);
-      setLessonLogId(data.lesson_log_id);
       setQuestionGroupId(data.question_group_id);
       setAnswerId(null);
+
+      // Return the data so QuestionPage can store it
+      return data;
     } catch (err) {
       console.error("❌ Failed to start stage item:", err.response || err);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -181,12 +211,33 @@ export const QuestionProvider = ({ children }) => {
         }, {});
       }
 
+      // Use test_log_id for tests, lesson_log_id for lessons
+      const logId = isTest ? testLogId : lessonLogId;
+
+      console.log("🔍 submitAnswer - Current state values:");
+      console.log("🔍 isTest:", isTest);
+      console.log("🔍 testLogId:", testLogId);
+      console.log("🔍 lessonLogId:", lessonLogId);
+      console.log("🔍 testId:", testId);
+      console.log("🔍 logId being used:", logId);
+
       const payload = {
         question,
         question_group_id,
-        lesson_log_id,
         structured_answer: transformedStructuredAnswer,
       };
+
+      // Add the appropriate log ID field based on whether it's a test or lesson
+      if (isTest) {
+        payload.test_log_id = logId; // Use test_log_id for tests
+        payload.test_id = testId; // Also include test_id for tests
+        payload.item_type = "test"; // Explicitly mark as test
+        console.log("✅ Setting test payload fields");
+      } else {
+        payload.lesson_log_id = logId; // Use lesson_log_id for lessons
+        payload.item_type = "lesson"; // Explicitly mark as lesson
+        console.log("✅ Setting lesson payload fields");
+      }
 
       if (question_type !== "fill_blank" && Array.isArray(selected_options)) {
         payload.selected_options = selected_options;
@@ -197,6 +248,11 @@ export const QuestionProvider = ({ children }) => {
       }
 
       console.log("📤 Submitting answer payload:", payload);
+      console.log("🧪 Is test:", isTest);
+      console.log("🔑 Log ID being used:", logId);
+      console.log("🔑 Test ID:", testId);
+      console.log("🔑 Test Log ID:", testLogId);
+      console.log("🔑 Lesson Log ID:", lessonLogId);
 
       const res = await instance.post(
         "questions/answers/website/Answer",
@@ -310,7 +366,46 @@ export const QuestionProvider = ({ children }) => {
         }
       }
 
+      // Handle test completion
+      if (data.test_complete) {
+        setRewards({
+          xp: data.rewarded_xp ?? 0,
+          coins: data.rewarded_coins ?? 0,
+          motivationFreezes: data.rewarded_motivation_freezes ?? 0,
+        });
+
+        // ✅ Update profile stats when test is complete
+        if (profile) {
+          const updates = {};
+          if (data.rewarded_xp !== undefined)
+            updates.xp = (profile.xp || 0) + data.rewarded_xp;
+          if (data.rewarded_coins !== undefined)
+            updates.coins = (profile.coins || 0) + data.rewarded_coins;
+          if (data.rewarded_motivation_freezes !== undefined)
+            updates.motivation_freezes =
+              (profile.motivation_freezes || 0) +
+              data.rewarded_motivation_freezes;
+
+          if (Object.keys(updates).length > 0) {
+            updateProfileStats(updates);
+          }
+        }
+
+        // ✅ Refresh achievements immediately after test completion
+        if (achievementRefreshCallback) {
+          try {
+            await achievementRefreshCallback();
+          } catch (e) {
+            console.warn(
+              "Failed to refresh achievements after test completion",
+              e
+            );
+          }
+        }
+      }
+
       setLessonComplete(data.lesson_complete || false);
+      setTestComplete(data.test_complete || false); // Add test completion handling
       setResult(data);
 
       // ✅ Next question
@@ -346,6 +441,9 @@ export const QuestionProvider = ({ children }) => {
       value={{
         currentQuestion,
         lessonLogId,
+        testLogId, // Add test log ID
+        isTest, // Add test flag
+        testId, // Add test ID
         isCorrect,
         hearts,
         loading,
@@ -356,6 +454,8 @@ export const QuestionProvider = ({ children }) => {
         goToNext,
         setCurrentQuestion,
         setLessonLogId,
+        setTestLogId, // Add setter for test log ID
+        setTestId, // Add setter for test ID
         setQuestionGroupId,
         answerId,
         setAnswerId,
@@ -368,12 +468,14 @@ export const QuestionProvider = ({ children }) => {
         openVideoDialog,
         closeVideoDialog,
         lessonComplete,
+        testComplete, // Add test complete flag
         progress,
         setProgress,
         rewards,
         lastAnswerResult,
         updateHearts, // ✅ Expose this function
         registerAchievementRefresh, // ✅ Expose this function
+        setIsTest,
       }}
     >
       {children}

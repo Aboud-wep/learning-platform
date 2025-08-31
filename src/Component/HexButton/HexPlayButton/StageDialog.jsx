@@ -56,18 +56,29 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
     const firstItem = stage?.items?.find((item) => !item.lesson?.is_passed);
     if (firstItem) {
       try {
-        console.log("testttt")
+        console.log("Starting stage item:", firstItem.id);
         const result = await startStageItem(firstItem.id);
-        console.log("Test",result)
+        console.log("Stage item result:", result);
+
         if (result?.question?.id) {
-          navigate(`/questions/${result.question.id}`, { state: result });
+          // Pass the appropriate log ID based on whether it's a test or lesson
+          const logIdKey =
+            result.item_type === "test" ? "test_log_id" : "lesson_log_id";
+          const logId = result[logIdKey];
+
+          navigate(`/questions/${result.question.id}`, {
+            state: {
+              ...result,
+              [logIdKey]: logId,
+            },
+          });
         }
       } catch (error) {
         console.error("Failed to start stage item:", error);
       }
     }
   };
-  
+
   const handleOpenSummary = (summary) => {
     setSelectedSummary(summary);
     setSummaryOpen(true);
@@ -150,11 +161,11 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
 
       {/* Stage Summary Dialog */}
       <CssVarsProvider>
-      <StageSummaryDialogJoy
-        open={summaryOpen}
-        onClose={() => setSummaryOpen(false)}
-        stageSummaries={selectedSummary} // ✅ matches prop name
-      />
+        <StageSummaryDialogJoy
+          open={summaryOpen}
+          onClose={() => setSummaryOpen(false)}
+          stageSummaries={selectedSummary} // ✅ matches prop name
+        />
       </CssVarsProvider>
     </>
   );

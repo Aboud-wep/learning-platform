@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Typography,Box } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
 
 const MatchingQuestion = ({ question, handleSubmit }) => {
@@ -9,6 +9,9 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
     submitAnswer,
     questionGroupId,
     lessonLogId,
+    testLogId,
+    isTest,
+    testId,
     answerId,
     setAnswerId,
     setCurrentQuestion,
@@ -91,17 +94,33 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
     // Prepare structured answer including previous matchedPairs + this pair
     const structured_answer = { ...matchedPairs, [left]: right };
 
+    // Use test_log_id for tests, lesson_log_id for lessons
+    const logId = isTest ? testLogId : lessonLogId;
+
     const payload = {
       question: question.id,
       question_group_id: questionGroupId,
-      lesson_log_id: lessonLogId,
       structured_answer,
       question_type: question.question_type,
     };
 
+    // Add the appropriate log ID field based on whether it's a test or lesson
+    if (isTest) {
+      payload.test_log_id = logId; // Use test_log_id for tests
+      payload.item_type = "test"; // Explicitly mark as test
+    } else {
+      payload.lesson_log_id = logId; // Use lesson_log_id for lessons
+      payload.item_type = "lesson"; // Explicitly mark as lesson
+    }
+
     if (answerId) {
       payload.answer_id = answerId;
     }
+
+    // Debug logging for test vs lesson payloads
+    console.log("🧪 MatchingQuestion - Is test:", isTest);
+    console.log("🔑 MatchingQuestion - Log ID being used:", logId);
+    console.log("📤 MatchingQuestion - Submitting payload:", payload);
 
     const response = await submitAnswer(payload);
 
@@ -145,7 +164,12 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
 
   return (
     <Box>
-      <Box  className="text-xl font-bold mb-6" sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}>{question.text}</Box >
+      <Box
+        className="text-xl font-bold mb-6"
+        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+      >
+        {question.text}
+      </Box>
       <Box
         className="flex justify-center flex-wrap my-[75px]"
         sx={{ gap: { xs: "10px", sm: "40px" } }}

@@ -43,18 +43,25 @@ const QuestionPage = ({ type }) => {
     questionGroupId,
     setCurrentQuestion,
     setLessonLogId,
+    setTestLogId, // Add test log setter
+    setTestId, // Add test ID setter
     setQuestionGroupId,
     lessonLogId,
+    testLogId, // Add test log ID
+    isTest, // Add test flag
+    testId, // Add test ID
     answerId,
     nextQuestionId,
     setNextQuestionId,
     nextQuestionData,
     setNextQuestionData,
     lessonComplete,
+    testComplete, // Add test complete flag
     hearts,
     rewards,
     progress,
     setProgress,
+    setIsTest,
   } = useQuestion();
 
   // const [nextQuestionId, setNextQuestionId] = useState(null);
@@ -72,25 +79,44 @@ const QuestionPage = ({ type }) => {
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(null); // true/false/null
 
+  // Store the API response locally to ensure we have the correct item type
+  const [apiResponse, setApiResponse] = useState(null);
+
   // Fetch question on load if not passed via navigation
   useEffect(() => {
     if (!location.state?.question) {
       startStageItem(id)
         .then((res) => {
+          console.log("🔍 QuestionPage - API response:", res);
+          console.log("🔍 QuestionPage - item_type:", res?.item_type);
+          console.log("🔍 QuestionPage - Full response object:", res);
+
+          // Store the API response locally
+          setApiResponse(res);
+          console.log("✅ QuestionPage - API response stored in state");
+
           // Update context with latest questionGroupId if needed
           if (res?.question_group_id) {
             setQuestionGroupId(res.question_group_id);
           }
+          // Note: QuestionContext already handles setting test/lesson log IDs
         })
         .catch((err) => {
           console.error("Failed to start stage item:", err);
         });
     } else {
       setCurrentQuestion(location.state.question);
-      setLessonLogId(location.state.lesson_log_id);
+      // Handle test vs lesson log IDs from navigation state
+      if (location.state.test_log_id) {
+        setTestLogId(location.state.test_log_id);
+        setIsTest(true); // Mark as test
+      } else {
+        setLessonLogId(location.state.lesson_log_id);
+        setIsTest(false); // Mark as lesson
+      }
       setQuestionGroupId(location.state.question_group_id);
     }
-  }, [id, startStageItem, location.state]);
+  }, [id, startStageItem, location.state, setTestLogId, setLessonLogId]);
 
   useEffect(() => {
     if (!progress) return;
@@ -106,6 +132,24 @@ const QuestionPage = ({ type }) => {
       percentage,
     });
   }, [progress]);
+
+  // Monitor context state changes
+  useEffect(() => {
+    console.log("🔍 QuestionPage - Context state changed:");
+    console.log("🔍 isTest:", isTest);
+    console.log("🔍 testLogId:", testLogId);
+    console.log("🔍 lessonLogId:", lessonLogId);
+    console.log("🔍 testId:", testId);
+  }, [isTest, testLogId, lessonLogId, testId]);
+
+  // Monitor apiResponse state changes
+  useEffect(() => {
+    console.log("🔍 QuestionPage - API response state changed:");
+    console.log("🔍 apiResponse:", apiResponse);
+    console.log("🔍 apiResponse?.item_type:", apiResponse?.item_type);
+    console.log("🔍 apiResponse?.test_log_id:", apiResponse?.test_log_id);
+    console.log("🔍 apiResponse?.lesson_log_id:", apiResponse?.lesson_log_id);
+  }, [apiResponse]);
 
   const handleFillChange = (index, value) => {
     const updated = [...blankAnswers];
@@ -128,13 +172,39 @@ const QuestionPage = ({ type }) => {
   const handleSubmit = async () => {
     if (!currentQuestion) return;
 
+    console.log("🔍 QuestionPage handleSubmit - Current state:");
+    console.log("🔍 isTest:", isTest);
+    console.log("🔍 testLogId:", testLogId);
+    console.log("🔍 lessonLogId:", lessonLogId);
+    console.log("🔍 testId:", testId);
+    console.log("🔍 apiResponse:", apiResponse);
+
+    // Determine if this is a test based on context state (more reliable)
+    const isTestFromContext = isTest;
+    console.log("🔍 isTestFromContext:", isTestFromContext);
+
+    // Use context state for log IDs (more reliable than apiResponse)
+    const logId = isTestFromContext ? testLogId : lessonLogId;
+    console.log("🔍 logId being used:", logId);
+
     const payload = {
       question: currentQuestion.id,
       question_group_id: questionGroupId,
-      lesson_log_id: lessonLogId,
       question_type: currentQuestion.type,
       type: type,
     };
+
+    // Add the appropriate log ID field based on whether it's a test or lesson
+    if (isTestFromContext) {
+      payload.test_log_id = logId; // Use test_log_id for tests
+      payload.test_id = testId; // Use context testId
+      payload.item_type = "test"; // Explicitly mark as test
+      console.log("✅ Setting test payload fields");
+    } else {
+      payload.lesson_log_id = logId; // Use lesson_log_id for lessons
+      payload.item_type = "lesson"; // Explicitly mark as lesson
+      console.log("✅ Setting lesson payload fields");
+    }
 
     if (answerId) {
       payload.answer_id = answerId;
@@ -181,9 +251,17 @@ const QuestionPage = ({ type }) => {
         setNextQuestionData(res.next_question);
         setQuestionGroupId(res.next_question.question_group_id);
       }
-      setProgress({
-        number: res.data.data.question_number + 1,
-      });
+
+      // Safely update progress with error handling
+      if (res?.data?.data?.question_number !== undefined) {
+        setProgress({
+          number: res.data.data.question_number + 1,
+        });
+      } else if (res?.question_number !== undefined) {
+        setProgress({
+          number: res.question_number + 1,
+        });
+      }
 
       // Reset answers
       setSelectedOption(null);
@@ -200,32 +278,81 @@ const QuestionPage = ({ type }) => {
 
   const handleNext = () => {
     setPageNumber(pageNumber + 1);
-    if (lessonComplete) {
-      const hasXPOrCoins =
-        (rewards.xp && rewards.xp > 0) || (rewards.coins && rewards.coins > 0);
-      const hasMotivationFreeze =
-        rewards.motivationFreezes && rewards.motivationFreezes > 0;
+    if (lessonComplete || testComplete) {
+      // Handle lesson completion
+      if (lessonComplete) {
+        const hasXPOrCoins =
+          (rewards.xp && rewards.xp > 0) ||
+          (rewards.coins && rewards.coins > 0);
+        const hasMotivationFreeze =
+          rewards.motivationFreezes && rewards.motivationFreezes > 0;
 
-      if (hasXPOrCoins && hasMotivationFreeze) {
-        navigate("/lesson-ended", {
-          state: { nextPage: "/rewarded-motivation-freezes" },
-        });
-      } else if (hasXPOrCoins) {
-        navigate("/lesson-ended");
-      } else if (hasMotivationFreeze) {
-        navigate("/rewarded-motivation-freezes");
-      } else {
-        navigate("/lesson-ended");
+        if (hasXPOrCoins && hasMotivationFreeze) {
+          navigate("/lesson-ended", {
+            state: { nextPage: "/rewarded-motivation-freezes" },
+          });
+        } else if (hasXPOrCoins) {
+          navigate("/lesson-ended");
+        } else if (hasMotivationFreeze) {
+          navigate("/rewarded-motivation-freezes");
+        } else {
+          navigate("/lesson-ended");
+        }
+      }
+      // Handle test completion
+      else if (testComplete) {
+        const hasXPOrCoins =
+          (rewards.xp && rewards.xp > 0) ||
+          (rewards.coins && rewards.coins > 0);
+        const hasMotivationFreeze =
+          rewards.motivationFreezes && rewards.motivationFreezes > 0;
+
+        if (hasXPOrCoins && hasMotivationFreeze) {
+          navigate("/lesson-ended", {
+            state: {
+              nextPage: "/rewarded-motivation-freezes",
+              isTest: true,
+              testCompleted: true,
+            },
+          });
+        } else if (hasXPOrCoins) {
+          navigate("/lesson-ended", {
+            state: {
+              isTest: true,
+              testCompleted: true,
+            },
+          });
+        } else if (hasMotivationFreeze) {
+          navigate("/rewarded-motivation-freezes", {
+            state: {
+              isTest: true,
+              testCompleted: true,
+            },
+          });
+        } else {
+          navigate("/lesson-ended", {
+            state: {
+              isTest: true,
+              testCompleted: true,
+            },
+          });
+        }
       }
     } else {
       if (!nextQuestionId || !nextQuestionData) {
         console.warn("Missing next question data or ID");
         return;
       }
+
+      // Pass the appropriate log ID based on whether it's a test or lesson
+      const isTestFromContext = isTest;
+      const logId = isTestFromContext ? testLogId : lessonLogId;
+      const logIdKey = isTestFromContext ? "test_log_id" : "lesson_log_id";
+
       navigate(`/questions/${nextQuestionId}`, {
         state: {
           question: nextQuestionData,
-          lesson_log_id: lessonLogId,
+          [logIdKey]: logId,
           question_group_id: nextQuestionData.question_group_id,
         },
       });
@@ -302,11 +429,15 @@ const QuestionPage = ({ type }) => {
   };
 
   const questionTypeNames = {
-    single: "اختر الإجابة الصحيحة",
-    multiple: "اختر جميع الإجابات الصحيحة",
-    true_false: "صح أم خطأ",
-    fill_blank: "املأ الفراغات الآتية",
-    matching: "صل العبارات",
+    single: isTest ? "اختر الإجابة الصحيحة (اختبار)" : "اختر الإجابة الصحيحة",
+    multiple: isTest
+      ? "اختر جميع الإجابات الصحيحة (اختبار)"
+      : "اختر جميع الإجابات الصحيحة",
+    true_false: isTest ? "صح أم خطأ (اختبار)" : "صح أم خطأ",
+    fill_blank: isTest
+      ? "املأ الفراغات الآتية (اختبار)"
+      : "املأ الفراغات الآتية",
+    matching: isTest ? "صل العبارات (اختبار)" : "صل العبارات",
   };
 
   return (
@@ -384,6 +515,78 @@ const QuestionPage = ({ type }) => {
                       src={HeartIcon}
                       alt="heart"
                       sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                    />
+                  </Box>
+                </Box>
+              )}
+
+              {/* Test Indicator Banner */}
+              {isTest && (
+                <Box
+                  sx={{
+                    backgroundColor: "#FF6B35",
+                    color: "white",
+                    padding: "12px 20px",
+                    borderRadius: "12px",
+                    marginBottom: "16px",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                  }}
+                >
+                  🧪 اختبار - Test Mode
+                </Box>
+              )}
+
+              {/* Test Progress Bar */}
+              {isTest && progress && (
+                <Box
+                  sx={{
+                    marginBottom: "16px",
+                    padding: "8px 16px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "8px",
+                    border: "1px solid #e0e0e0",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      تقدم الاختبار
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {progress.number || 1} / {progress.totalQuestions || 1}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "8px",
+                      backgroundColor: "#e0e0e0",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: `${
+                          ((progress.number || 1) /
+                            (progress.totalQuestions || 1)) *
+                          100
+                        }%`,
+                        height: "100%",
+                        backgroundColor: "#FF6B35",
+                        transition: "width 0.3s ease",
+                      }}
                     />
                   </Box>
                 </Box>
