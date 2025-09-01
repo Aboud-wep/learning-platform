@@ -252,17 +252,6 @@ const QuestionPage = ({ type }) => {
         setQuestionGroupId(res.next_question.question_group_id);
       }
 
-      // Safely update progress with error handling
-      if (res?.data?.data?.question_number !== undefined) {
-        setProgress({
-          number: res.data.data.question_number + 1,
-        });
-      } else if (res?.question_number !== undefined) {
-        setProgress({
-          number: res.question_number + 1,
-        });
-      }
-
       // Reset answers
       setSelectedOption(null);
       setSelectedOptions([]);
@@ -277,7 +266,10 @@ const QuestionPage = ({ type }) => {
   };
 
   const handleNext = () => {
-    setPageNumber(pageNumber + 1);
+    if (isCorrect) {
+      setPageNumber(pageNumber + 1);
+    }
+
     if (lessonComplete || testComplete) {
       // Handle lesson completion
       if (lessonComplete) {
@@ -473,6 +465,7 @@ const QuestionPage = ({ type }) => {
               percentage={
                 (pageNumber === 1 ? 0 : (pageNumber - 1) / questionCount) * 100
               }
+              isCorrect={isCorrect} // Pass the correctness state
             />
           </Box>
 
@@ -521,7 +514,7 @@ const QuestionPage = ({ type }) => {
               )}
 
               {/* Test Indicator Banner */}
-              {isTest && (
+              {/* {isTest && (
                 <Box
                   sx={{
                     backgroundColor: "#FF6B35",
@@ -542,7 +535,6 @@ const QuestionPage = ({ type }) => {
                 </Box>
               )}
 
-              {/* Test Progress Bar */}
               {isTest && progress && (
                 <Box
                   sx={{
@@ -590,7 +582,7 @@ const QuestionPage = ({ type }) => {
                     />
                   </Box>
                 </Box>
-              )}
+              )} */}
 
               <Box
                 className="mb-3 text-[#205DC7]"

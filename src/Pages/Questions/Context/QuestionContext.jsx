@@ -264,26 +264,32 @@ export const QuestionProvider = ({ children }) => {
       setLastAnswerResult(data.is_correct);
 
       // ✅ Update progress automatically
-      setProgress((prev) => {
-        const completed = prev.completed + 1;
-        const correctAnswers = data.is_correct
-          ? prev.correctAnswers + 1
-          : prev.correctAnswers;
-        const totalQuestions = prev.totalQuestions || 0;
+      if (data.is_correct) {
+        setProgress((prev) => {
+          const completed = prev.completed + 1;
+          const correctAnswers = prev.correctAnswers + 1;
+          const totalQuestions = prev.totalQuestions || 0;
 
-        const percentage =
-          totalQuestions > 0
-            ? Math.round((correctAnswers / totalQuestions) * 100)
-            : 0;
+          const percentage =
+            totalQuestions > 0
+              ? Math.round((correctAnswers / totalQuestions) * 100)
+              : 0;
 
-        return {
-          totalQuestions,
-          completed,
-          correctAnswers,
-          percentage,
-          number: data.question_number,
-        };
-      });
+          return {
+            totalQuestions,
+            completed,
+            correctAnswers,
+            percentage,
+            number: prev.number + 1, // Only increment on correct answers
+          };
+        });
+      } else {
+        // For wrong answers, keep the same question number
+        setProgress((prev) => ({
+          ...prev,
+          // Don't increment number for wrong answers
+        }));
+      }
 
       // ✅ Always log first
       console.log("Metaaaaa", meta);
