@@ -3,8 +3,10 @@ import { useAuth } from "../Pages/Auth/AuthContext";
 
 const PublicRoutes = () => {
   const location = useLocation();
+  if(location.pathname.includes('register')){
+    return <Outlet></Outlet>
+  } 
   const { isAuthenticated, loading } = useAuth();
-
   console.log("🌍 PublicRoutes check");
   console.log("Current path:", location.pathname);
   console.log("Authenticated?", isAuthenticated);
@@ -15,7 +17,7 @@ const PublicRoutes = () => {
   if (
     !loading &&
     isAuthenticated &&
-    (location.pathname === "/login" || location.pathname === "/register")
+    (location.pathname === "/login" )
   ) {
     console.log(
       "➡️ Redirecting authenticated user from",
@@ -34,7 +36,7 @@ const PublicRoutes = () => {
   // Show loading only when we need to redirect but are still loading
   if (
     loading &&
-    (location.pathname === "/login" || location.pathname === "/register")
+    (location.pathname === "/login" )
   ) {
     return (
       <div

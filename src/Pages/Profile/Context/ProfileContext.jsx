@@ -21,7 +21,8 @@ export const ProfileProvider = ({ children }) => {
   // Redirect if no token
   useEffect(() => {
     if (!token) {
-      navigate("/login", { replace: true });
+      // REGISTER PROBLEM
+      // navigate("/login", { replace: true });
     }
   }, [token, navigate]);
 

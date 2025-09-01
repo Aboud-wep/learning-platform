@@ -17,7 +17,8 @@ const StageSummaryProvider = ({ children }) => {
     if (!token) {
       setError("No access token, please log in");
       setLoading(false);
-      navigate("/login", { replace: true });
+      // REGISTER PROBLEM
+      // navigate("/login", { replace: true });
       return;
     }
 
