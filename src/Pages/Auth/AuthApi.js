@@ -1,7 +1,7 @@
 import axiosInstance from "../../lip/axios";
 
 const BASE_URL =
-  "https://alibdaagroup.com/api/api/v1/users/auth/dashboard";
+  "https://alibdaagroup.com/api/v1/users/auth/dashboard";
 
 export const registerUser = async (formData) => {
   try {

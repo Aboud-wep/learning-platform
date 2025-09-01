@@ -9,7 +9,7 @@ const refreshAccessToken = async () => {
   try {
     console.log("step4");
     const response = await axios.post(
-      "https://alibdaagroup.com/api/api/v1/users/auth/dashboard/refresh",
+      "https://alibdaagroup.com/api/v1/users/auth/dashboard/refresh",
       { refresh: refreshToken }
     );
     console.log("RAmiiiiiiiiii", response.data);

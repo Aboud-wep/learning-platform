@@ -2,7 +2,7 @@ import axios from "axios";
 import refreshAccessToken from "./refreshAccessToken"; // your refresh logic
 
 const axiosInstance = axios.create({
-  baseURL: "https://alibdaagroup.com/api/api/v1/",
+  baseURL: "https://alibdaagroup.com/api/v1/",
   headers: { "Content-Type": "application/json" },
 });
 
