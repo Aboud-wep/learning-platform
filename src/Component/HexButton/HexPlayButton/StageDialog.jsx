@@ -2,11 +2,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useStageStart } from "../../../Pages/Questions/Context/StageStartContext";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
-
+import { Box, Button, useTheme, useMediaQuery } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useStageSummary } from "../../../Pages/LevelsMap/Context/StageSummaryContext";
 import StageSummaryDialogJoy from "../../Levels/StageSummaryDialog";
 import { CssVarsProvider } from "@mui/joy";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
   const popupRef = useRef(null);
@@ -14,6 +15,25 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
   const { startStageItem, loading } = useStageStart();
   const navigate = useNavigate();
   const { stageSummaries } = useStageSummary();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  // count how many items are passed
+  const items = stage.items ?? [];
+  const total = items.length;
+  const passed = items.filter((item) => {
+    if (item.item_type === "lesson") return item.lesson?.is_passed;
+    if (item.item_type === "test") return item.test?.is_passed;
+    return false;
+  }).length;
+
+  // find first unpassed item
+  const firstItem = items.find((item) => {
+    if (item.item_type === "lesson") return !item.lesson?.is_passed;
+    if (item.item_type === "test") return !item.test?.is_passed;
+    return false;
+  });
 
   // Dialog state
   const [summaryOpen, setSummaryOpen] = useState(false);
@@ -35,6 +55,15 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
   // Close popper when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
+      // ignore clicks inside the stage summary dialog
+      if (
+        event?.target &&
+        event.target.closest &&
+        event.target.closest('[role="dialog"]')
+      ) {
+        return;
+      }
+
       if (
         popupRef.current &&
         !popupRef.current.contains(event.target) &&
@@ -48,7 +77,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open, onClose, anchorEl]);
+  }, [open, onClose, anchorEl /* add summaryOpen if you want */]);
 
   if (!open || !stage || !anchorEl || !position) return null;
 
@@ -94,12 +123,12 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
           top: position.top,
           left: position.left,
           transform: "translateX(-50%)",
-          width: 360,
-          backgroundColor: "#fff",
+          width: isMobile ? 280 : isTablet ? 300 : 329,
+          backgroundColor: "#205DC7",
           borderRadius: 20,
           boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
           zIndex: 2000,
-          padding: "20px 24px",
+          padding: isMobile ? "16px" : "20px 24px",
           direction: "rtl",
           textAlign: "right",
         }}
@@ -115,46 +144,91 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
             height: 0,
             borderLeft: "10px solid transparent",
             borderRight: "10px solid transparent",
-            borderBottom: "10px solid #fff",
+            borderBottom: "10px solid #205DC7",
             filter: "drop-shadow(0px -1px 2px rgba(0,0,0,0.08))",
           }}
         />
 
-        <h3
-          style={{
-            marginTop: 0,
-            marginBottom: 8,
-            fontSize: 20,
-            fontWeight: 700,
-            color: "#222",
-          }}
-        >
-          {stage.name}
-        </h3>
-
         {stage.description && (
-          <p style={{ color: "#666", marginBottom: 16, fontSize: 15 }}>
-            {stage.description}
-          </p>
+          <Box>
+            <p
+              style={{
+                color: "#fff",
+                marginBottom: 12,
+                fontSize: isMobile ? 16 : 20,
+                fontWeight: "bold",
+                lineHeight: 1.3,
+              }}
+            >
+              {stage.description}
+            </p>
+            <p
+              style={{
+                color: "#fff",
+                marginBottom: 16,
+                fontSize: isMobile ? 16 : 20,
+                lineHeight: 1.3,
+              }}
+            >
+              الدرس {passed} من {total}
+            </p>
+          </Box>
         )}
 
-        <div style={{ display: "flex", gap: "8px", marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            marginBottom: 0,
+            justifyContent: "center",
+            flexDirection: isMobile ? "column" : "row",
+          }}
+        >
           <Button
-            variant="outlined"
-            color="primary"
-            fullWidth
+            sx={{
+              backgroundColor: "#fff",
+              borderRadius: "1000px",
+              minWidth: "auto",
+              padding: 1,
+              width: isMobile ? "100%" : "auto",
+              marginBottom: isMobile ? "8px" : 0,
+            }}
             onClick={() => handleOpenSummary(stageSummaries[0])}
           >
-            تفاصيل
+            <InfoOutlinedIcon
+              sx={{
+                color: "#33363F",
+                fontSize: isMobile ? "20px" : "24px",
+              }}
+            />
           </Button>
+
           <Button
-            variant="contained"
-            color="primary"
-            fullWidth
+            sx={{
+              backgroundColor: "#fff",
+              gap: "8px",
+              paddingX: 2,
+              borderRadius: "1000px",
+              width: isMobile ? "100%" : "auto",
+              color: "#33363F",
+              fontSize: isMobile ? "14px" : "16px",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
             onClick={handleStartClick}
             disabled={loading}
           >
-            {loading ? "جاري التحميل..." : "ابدأ"}
+            {loading
+              ? "جاري التحميل..."
+              : firstItem?.item_type === "test"
+              ? "اختبار"
+              : "ابدأ"}
+            <ArrowBackIcon
+              sx={{
+                fontSize: isMobile ? "18px" : "20px",
+              }}
+            />
           </Button>
         </div>
       </div>
@@ -164,7 +238,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
         <StageSummaryDialogJoy
           open={summaryOpen}
           onClose={() => setSummaryOpen(false)}
-          stageSummaries={selectedSummary} // ✅ matches prop name
+          stageSummaries={selectedSummary}
         />
       </CssVarsProvider>
     </>

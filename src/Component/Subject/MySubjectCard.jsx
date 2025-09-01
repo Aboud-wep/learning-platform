@@ -1,4 +1,4 @@
-import React , { useState} from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -10,13 +10,10 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import PlacementModal from "../PlacementModal";
 
 const MySubjectCard = ({ subject }) => {
   const navigate = useNavigate();
 
-  const [isPlacementedTestModalOpen, setIsPlacementedTestModalOpen] = useState(false);
-  const [subjectId, setSubjectId] = useState(null);
   const allItems =
     subject?.levels?.flatMap((level) =>
       level?.stages?.flatMap((stage) => stage?.items || [])
@@ -26,20 +23,18 @@ const MySubjectCard = ({ subject }) => {
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
 
-
-
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: { xs: "column", sm: "row" }, // stack on mobile
-        alignItems: { xs: "flex-start", sm: "center" },
+        alignItems: { xs: "flex-start", sm: "center" }, // center on mobile
         height: "auto", // let it grow naturally
         overflow: "hidden",
         // px: "15px",
         borderRadius: "20px",
         mb: "20px",
-        backgroundColor:"#FFFFFF",
+        backgroundColor: "#FFFFFF",
         // gap: { xs: 2, sm: 0 }, // spacing when stacked
       }}
     >
@@ -82,30 +77,25 @@ const MySubjectCard = ({ subject }) => {
               color: isCompleted ? "#036108" : "#FF4346",
               border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
               borderRadius: "8px",
-              px: "10px",
-              py: "3px",
+              padding: "5px",
               display: "inline-block",
               fontSize: "14px",
-              my: "8px",
+              my: "15px",
             }}
             gutterBottom
           >
             {isCompleted ? "مكتمل" : "قيد التقدم"}
           </Typography>
 
-          {/* Progress Bar */}
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              maxWidth: "300px",
-              paddingRight: "10px",
-            }}
-          >
+          <Box sx={{ position: "relative", width: "100%" }}>
             <LinearProgress
               variant="determinate"
               value={subject.completion_percentage || 0}
-              sx={{ height: 24, borderRadius: "12px",backgroundColor: "#eee" }}
+              sx={{
+                height: 24,
+                borderRadius: "12px",
+                backgroundColor: "#eee",
+              }}
             />
             <Typography
               variant="caption"
@@ -141,20 +131,11 @@ const MySubjectCard = ({ subject }) => {
         }}
         variant="contained"
         size="small"
-        onClick={() =>{
-          setIsPlacementedTestModalOpen(true);
-          setSubjectId(subject.id);
-        }}
+        onClick={() => navigate(`/levels-map/${subject.id}`)}
         endIcon={<ArrowBackIcon fontSize="small" />}
       >
         أكمل التعلم
       </Button>
-
-      <PlacementModal
-        open={isPlacementedTestModalOpen}
-        onClose={() => setIsPlacementedTestModalOpen(false)}
-        subjectId={subjectId}
-      />
     </Box>
   );
 };

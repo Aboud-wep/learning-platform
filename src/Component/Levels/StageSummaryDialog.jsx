@@ -7,12 +7,23 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import ReactMarkdown from "react-markdown";
 
-export default function StageSummaryDialogJoy({ open, onClose, stageSummaries }) {
+export default function StageSummaryDialogJoy({
+  open,
+  onClose,
+  stageSummaries,
+}) {
   if (!stageSummaries) return null;
 
   return (
-    <div style={{zIndex:3001}}>
-      <Modal open={open} onClose={onClose}>
+    <div style={{ zIndex: 3001 }}>
+      <Modal
+        open={open}
+        onClose={(_, reason) => {
+          if (reason === "backdropClick" || reason === "escapeKeyDown") {
+            onClose(); // ✅ close only when clicking outside or pressing Esc
+          }
+        }}
+      >
         <ModalDialog
           layout="center"
           variant="outlined"
@@ -20,23 +31,22 @@ export default function StageSummaryDialogJoy({ open, onClose, stageSummaries })
             maxHeight: "80vh",
             width: { xs: 360, sm: 600 },
             overflow: "hidden",
-            p: 0
+            px: 5,
           }}
         >
-          {/* Close button */}
-          <ModalClose />
-
           {/* Title */}
           <DialogTitle
             sx={{
-              textAlign: "right",
+              textAlign: "left",
               fontWeight: "bold",
               fontSize: "1.25rem",
               p: 2,
             }}
           >
-            {stageSummaries.title || "تفاصيل المرحلة"}
+            شرح المرحلة
           </DialogTitle>
+
+          <Stack>{stageSummaries.title || "العنوان"}</Stack>
 
           {/* Scrollable content */}
           <Stack
@@ -45,7 +55,7 @@ export default function StageSummaryDialogJoy({ open, onClose, stageSummaries })
               maxHeight: "60vh",
               overflowY: "auto",
               direction: "rtl",
-              textAlign: "right",
+              textAlign: "left",
               "& h1, & h2, & h3": {
                 fontWeight: "bold",
                 margin: "16px 0 8px",

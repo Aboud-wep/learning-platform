@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,36 +9,14 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../lip/axios";
+import PlacementModal from "../PlacementModal";
 
 const OtherSubjectCard = ({ subject }) => {
   const navigate = useNavigate();
+  const [isPlacementModalOpen, setIsPlacementModalOpen] = useState(false);
 
-  const handleJoin = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    try {
-      const response = await axiosInstance.post(
-        "profiles/profiles/website/user-subject-progress",
-        { subject: subject.id }
-      );
-
-      console.log("📦 API response:", response.data);
-
-      // Extract ID safely from API response
-      const subjectId = response?.data?.data?.subject?.id;
-      console.log("Mesiiiiiiiiiiiii", subjectId);
-      if (subjectId) {
-        navigate(`/levels-map/${subjectId}`, { replace: true });
-      } else {
-        console.error("❌ No subject ID in response.");
-      }
-    } catch (error) {
-      console.error("❌ Error joining subject:", error);
-    }
+  const handleJoin = () => {
+    setIsPlacementModalOpen(true);
   };
 
   return (
@@ -52,7 +30,7 @@ const OtherSubjectCard = ({ subject }) => {
         width: { xs: "195px", sm: "209px" }, // full width on mobile
         maxWidth: "209px",
         boxSizing: "border-box",
-        backgroundColor:"#ffffff"
+        backgroundColor: "#ffffff",
       }}
     >
       <CardMedia
@@ -67,7 +45,7 @@ const OtherSubjectCard = ({ subject }) => {
         }}
       />
 
-      <Box sx={{ textAlign: "center",  flexGrow: 1 }}>
+      <Box sx={{ textAlign: "center", flexGrow: 1 }}>
         <Typography
           fontSize={"20px"}
           fontWeight="bold"
@@ -95,10 +73,16 @@ const OtherSubjectCard = ({ subject }) => {
         variant="contained"
         color="primary"
         onClick={handleJoin}
-        sx={{ mt: "auto",borderRadius:"1000px" }}
+        sx={{ mt: "auto", borderRadius: "1000px" }}
       >
         ابدأ التعلم
       </Button>
+
+      <PlacementModal
+        open={isPlacementModalOpen}
+        onClose={() => setIsPlacementModalOpen(false)}
+        subjectId={subject.id}
+      />
     </Box>
   );
 };

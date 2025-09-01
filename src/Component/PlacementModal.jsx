@@ -1,41 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Modal,
   Box,
   Typography,
   Button,
-  Grid,
   Paper,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import CompassIcon from '../Component/ui/compass'
-import BookIcon from '../Component/ui/book'
-const PlacementModal = ({ open, onClose , subjectId}) => {
-  const [selectedOption, setSelectedOption] = useState(null);
-  const navigate = useNavigate();
+  useTheme,
+  useMediaQuery,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import CompassIcon from "./ui/compass";
+import BookIcon from "./ui/book";
+import axiosInstance from "../lip/axios";
 
-  const handleConfirm = () => {
-    if (selectedOption === 'beginner') {
-      navigate(`/levels-map/${subjectId}`)
-    } else if (selectedOption === 'level') {
-      navigate(`/test/${subjectId}`);
+const PlacementModal = ({ open, onClose, subjectId }) => {
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  const handleConfirm = async () => {
+    if (selectedOption === "beginner") {
+      // Start from level 0 - join the subject normally
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(
+          "profiles/profiles/website/user-subject-progress",
+          { subject: subjectId }
+        );
+
+        console.log("📦 API response:", response.data);
+
+        const subjectIdFromResponse = response?.data?.data?.subject?.id;
+        if (subjectIdFromResponse) {
+          navigate(`/levels-map/${subjectIdFromResponse}`, { replace: true });
+        } else {
+          console.error("❌ No subject ID in response.");
+        }
+      } catch (error) {
+        console.error("❌ Error joining subject:", error);
+      } finally {
+        setLoading(false);
+      }
+    } else if (selectedOption === "level") {
+      // Start placement test
+      try {
+        setLoading(true);
+        const response = await axiosInstance.post(
+          "subjects/subjects/website/Subject",
+          {
+            mode: "placement",
+            subject_id: subjectId,
+          }
+        );
+
+        console.log("📦 Placement test API response:", response.data);
+
+        if (response.data?.data?.question?.id) {
+          // Navigate to the placement test with the test data
+          navigate(`/test/${response.data.data.question.id}`, {
+            state: {
+              ...response.data.data,
+              test_log_id: response.data.data.test_log_id,
+              test_id: response.data.data.test_id,
+              question_group_id: response.data.data.question_group_id,
+              question: response.data.data.question,
+              question_count: response.data.data.question_count,
+              item_type: "test",
+            },
+          });
+        } else {
+          console.error("❌ No question data in placement test response.");
+        }
+      } catch (error) {
+        console.error("❌ Error starting placement test:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const options = [
     {
-      key: 'level',
-      title: 'اختبار تحديد المستوى',
-      description: 'قم بعمل اختبار بسيط لتتعرف أي من أي مستوى تستطيع أن تبدأ.',
-      icon:<CompassIcon />
-      
+      key: "level",
+      title: "اختبار تحديد المستوى",
+      description: "قم بعمل اختبار بسيط لتتعرف أي من أي مستوى تستطيع أن تبدأ.",
+      icon: <CompassIcon />,
     },
     {
-      key: 'beginner',
-      title: 'ابدأ من الصفر',
-      description: 'إن كانت هذه المرة الأولى التي تدرس فيها هذا العلم، فابدأ من نقطة البداية.',
-      icon:<BookIcon />
-      
+      key: "beginner",
+      title: "ابدأ من الصفر",
+      description:
+        "إن كانت هذه المرة الأولى التي تدرس فيها هذا العلم، فابدأ من نقطة البداية.",
+      icon: <BookIcon />,
     },
   ];
 
@@ -43,28 +103,38 @@ const PlacementModal = ({ open, onClose , subjectId}) => {
     <Modal open={open} onClose={onClose}>
       <Box
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 500,
-          bgcolor: 'background.paper',
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: isMobile ? "90%" : isTablet ? "80%" : 500,
+          maxWidth: 500,
+          bgcolor: "background.paper",
           boxShadow: 24,
-          p: 4,
+          p: isMobile ? 2 : 4,
           borderRadius: 2,
-          textAlign: 'center',
+          textAlign: "center",
+          maxHeight: isMobile ? "90vh" : "auto",
+          overflowY: "auto",
         }}
       >
-        <Typography variant="h6" mb={3}>
+        <Typography
+          variant="h6"
+          mb={3}
+          sx={{
+            fontSize: isMobile ? "18px" : "20px",
+          }}
+        >
           اختر نقطة البداية
         </Typography>
 
         <Box
           sx={{
-            display: 'flex',
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             gap: 2,
-            justifyContent: 'center',
-            flexWrap: 'nowrap', // prevent wrapping to new lines
+            justifyContent: "center",
+            alignItems: "center",
           }}
         >
           {options.map((option) => (
@@ -73,41 +143,75 @@ const PlacementModal = ({ open, onClose , subjectId}) => {
               elevation={selectedOption === option.key ? 6 : 2}
               onClick={() => setSelectedOption(option.key)}
               sx={{
-                p: 2,
-                cursor: 'pointer',
-                border: selectedOption === option.key ? '2px solid #1976d2' : '1px solid #ccc',
+                p: isMobile ? 1.5 : 2,
+                cursor: "pointer",
+                border:
+                  selectedOption === option.key
+                    ? "2px solid #1976d2"
+                    : "1px solid #ccc",
                 borderRadius: 2,
-                flex: 1, // equal width distribution
-                minWidth: 200, // minimum width to prevent too narrow cards
-                maxWidth: 250, // maximum width to maintain proportions
+                width: isMobile ? "100%" : "auto",
+                minWidth: isMobile ? "auto" : 200,
+                maxWidth: isMobile ? "100%" : 250,
+                minHeight: isMobile ? "120px" : "160px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "all 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: 4,
+                },
               }}
             >
-                <Box 
+              <Box
+                sx={{
+                  justifyContent: "center",
+                  display: "flex",
+                  mb: 1,
+                }}
+              >
+                {option.icon}
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="bold"
                   sx={{
-                    justifyContent:'center',
-                    display:'flex'
+                    fontSize: isMobile ? "14px" : "16px",
                   }}
                 >
-                  {option.icon}
-                </Box>
-                <Typography variant="subtitle1" fontWeight="bold">
                   {option.title}
                 </Typography>
-                <Typography variant="body2" mt={1}>
+                <Typography
+                  variant="body2"
+                  mt={1}
+                  sx={{
+                    fontSize: isMobile ? "12px" : "14px",
+                    lineHeight: 1.4,
+                  }}
+                >
                   {option.description}
                 </Typography>
-              </Paper>
+              </Box>
+            </Paper>
           ))}
         </Box>
 
         <Button
           variant="contained"
           color="primary"
-          sx={{ mt: 4 }}
-          disabled={!selectedOption}
+          sx={{
+            mt: 4,
+            width: isMobile ? "100%" : "auto",
+            minWidth: isMobile ? "auto" : "120px",
+            fontSize: isMobile ? "14px" : "16px",
+            py: isMobile ? 1 : 1.5,
+          }}
+          disabled={!selectedOption || loading}
           onClick={handleConfirm}
         >
-          تأكيد
+          {loading ? <CircularProgress size={20} color="inherit" /> : "تأكيد"}
         </Button>
       </Box>
     </Modal>
