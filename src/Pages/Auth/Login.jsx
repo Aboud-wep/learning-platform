@@ -56,7 +56,7 @@ export default function Login() {
   const handleGoogleLogin = async (tokenResponse) => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/v1/users/auth/dashboard/login-google",
+        "https://alibdaagroup.com/api/api/v1/users/auth/dashboard/login-google",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
