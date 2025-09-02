@@ -1,17 +1,25 @@
 // src/auth/AuthContext.jsx
-import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
-import { loginUser } from "./AuthApi";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
+import { loginUser, loginWithGoogleApi } from "./AuthApi"; // <-- add google api
 import refreshAccessToken from "../../lip/refreshAccessToken";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // store user info here if you want
-  const [loading, setLoading] = useState(true); // start as true to show loading on app init
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Define logout early to use inside initAuth
+  // -------------------
+  // LOGOUT
+  // -------------------
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -20,25 +28,30 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     setError("");
-    setLoading(false); // Important: stop loading on logout
+    setLoading(false);
   };
 
-  // ✅ Function to check if user has valid tokens (without API call)
+  // -------------------
+  // TOKEN CHECK
+  // -------------------
   const hasValidTokens = useCallback(() => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
     const expiration = localStorage.getItem("tokenExpiration");
-    
+
     if (!accessToken || !refreshToken || !expiration) {
       return false;
     }
-    
+
     const now = Date.now();
-    const expirationTime = parseInt(expiration);
-    
+    const expirationTime = parseInt(expiration, 10);
+
     return now < expirationTime;
   }, []);
 
+  // -------------------
+  // INIT AUTH
+  // -------------------
   useEffect(() => {
     const initAuth = async () => {
       const accessToken = localStorage.getItem("accessToken");
@@ -46,74 +59,112 @@ export const AuthProvider = ({ children }) => {
       const expiration = localStorage.getItem("tokenExpiration");
 
       if (!accessToken || !refreshToken || !expiration) {
-        // No tokens, just stop loading, user not logged in
         setLoading(false);
         setIsAuthenticated(false);
         return;
       }
 
-      // Check if token is expired
       const now = Date.now();
-      const expirationTime = parseInt(expiration);
-      
+      const expirationTime = parseInt(expiration, 10);
+
       if (now >= expirationTime) {
-        // Token is expired, try to refresh it
         try {
           console.log("🔄 Token expired, attempting to refresh...");
           await refreshAccessToken();
-          
-          // If refresh succeeded, set user as authenticated
-          setUser({ id: 'authenticated' }); // Set minimal user data
+          setUser({ id: "authenticated" });
           setIsAuthenticated(true);
           setError("");
         } catch (err) {
           console.error("❌ Failed to refresh expired token:", err);
-          // Refresh failed, logout user
           logout();
         }
       } else {
-        // Token is still valid, set user as authenticated
         console.log("✅ Token is still valid");
-        setUser({ id: 'authenticated' }); // Set minimal user data
+        setUser({ id: "authenticated" });
         setIsAuthenticated(true);
         setError("");
       }
-      
+
       setLoading(false);
     };
 
     initAuth();
   }, []);
 
+  // -------------------
+  // LOGIN (normal)
+  // -------------------
   const login = async (credentials) => {
     setLoading(true);
     setError("");
     try {
       const data = await loginUser(credentials);
-      const { access, refresh, expires_in } = data.data;
+      const { access, refresh, expires_in, role } = data.data;
 
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("userRole", role);
 
-      // Correct expiration calculation:
-      const expires = expires_in.replace("+00:00", "Z"); // replace timezone format
+      const expires = expires_in.replace("+00:00", "Z");
       const expirationTimestamp = new Date(expires).getTime();
       localStorage.setItem("tokenExpiration", expirationTimestamp.toString());
 
-      setUser({ id: 'authenticated' }); // Set minimal user data
+      setUser({ id: "authenticated" });
       setIsAuthenticated(true);
-      setLoading(false);
       return true;
     } catch (err) {
       setError(err.response?.data?.meta?.message || "Login failed");
-      setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // -------------------
+  // LOGIN WITH GOOGLE
+  // -------------------
+  const loginWithGoogle = async (idToken) => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await loginWithGoogleApi(idToken);
+      const { access, refresh, expires_in, role } = data.tokens;
+
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("userRole", role);
+
+      const expires = expires_in.replace("+00:00", "Z");
+      const expirationTimestamp = new Date(expires).getTime();
+      localStorage.setItem("tokenExpiration", expirationTimestamp.toString());
+
+      setUser({ id: "authenticated" });
+      setIsAuthenticated(true);
+
+      return { success: true, needs_username: data.needs_username };
+    } catch (err) {
+      setError(
+        err.response?.data?.meta?.message || "فشل تسجيل الدخول باستخدام Google"
+      );
+      return { success: false };
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, setError, login, logout, isAuthenticated, hasValidTokens }}
+      value={{
+        user,
+        loading,
+        error,
+        setError,
+        login,
+        loginWithGoogle, // ✅ exposed
+        logout,
+        isAuthenticated,
+        hasValidTokens,
+      }}
     >
       {children}
     </AuthContext.Provider>

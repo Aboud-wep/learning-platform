@@ -351,7 +351,7 @@ const CompetitionsPage = () => {
               fontSize: "20px",
             }}
           >
-            منطقة التقدم
+            منطقة التراجع
           </Typography>
           <img src={DownArrow} alt="DownArrow" className="" />
         </Box>

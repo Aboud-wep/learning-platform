@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@mui/material";
 
 const RewardedMotivationFreezes = () => {
-  const { rewards } = useQuestion();
+  const { rewards, dailyLog } = useQuestion();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -61,7 +61,26 @@ const RewardedMotivationFreezes = () => {
 
         <div style={{ textAlign: "left" }}>
           <Button
-            onClick={() => navigate("/home")}
+            onClick={() => {
+              // Check if daily log should be shown
+              const shouldShowDailyLog = () => {
+                if (!dailyLog?.created) return false;
+
+                const logs = dailyLog?.lastWeekLogs || {};
+                const hasCompletedDay = Object.values(logs).some(
+                  (log) => log.completed === true
+                );
+
+                return hasCompletedDay;
+              };
+
+              // If daily log should be shown, go to daily log page first
+              if (shouldShowDailyLog()) {
+                navigate("/daily-log");
+              } else {
+                navigate("/home");
+              }
+            }}
             sx={{
               backgroundColor: "#205DC7",
               color: "white",

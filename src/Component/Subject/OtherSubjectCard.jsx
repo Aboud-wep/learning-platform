@@ -39,7 +39,7 @@ const OtherSubjectCard = ({ subject }) => {
         alt={subject.name}
         sx={{
           width: { xs: "175px", sm: "100%" }, // fill card width
-          height: { xs: "115px", sm: "100%" }, // auto height on mobile
+          height: { xs: "115px", sm: "115px" }, // auto height on mobile
           borderRadius: "20px",
           objectFit: "cover",
         }}

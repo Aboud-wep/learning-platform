@@ -54,34 +54,16 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async (tokenResponse) => {
-    try {
-      const res = await fetch(
-        "http://localhost:8000/api/v1/users/auth/dashboard/login-google",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_token: tokenResponse.access_token }),
-        }
-      );
+    const { success, needs_username } = await loginWithGoogle(
+      tokenResponse.access_token
+    );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.meta?.message || "Google login failed");
-
-      // ✅ match structure from your working version
-      const { access, refresh, role } = data.tokens;
-      const { needs_username } = data;
-
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);
-      localStorage.setItem("userRole", role);
-
+    if (success) {
       if (needs_username) {
         navigate("/choose-username", { replace: true });
       } else {
         navigate(from, { replace: true });
       }
-    } catch (err) {
-      setError(err.message || "فشل تسجيل الدخول باستخدام Google");
     }
   };
 
@@ -92,7 +74,7 @@ export default function Login() {
 
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
-      <Box className="p-6 w-full max-w-md">
+      <Box className="p-6 w-full max-w-[500px]">
         <Typography variant="h5" align="center" className="mb-4">
           تسجيل الدخول
         </Typography>
@@ -258,12 +240,17 @@ export default function Login() {
           </Button>
 
           <Box className="flex justify-center pt-10">
-            <Typography sx={{ fontSize: {xs:"16px",sm:"20px"}, color: "#343F4E" }}>
+            <Typography
+              sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}
+            >
               لست عضوا حتى الآن؟&nbsp;
             </Typography>
             <Link
               href="/register"
-              sx={{ fontSize: {xs:"16px",sm:"20px"}, textDecoration: "none" }}
+              sx={{
+                fontSize: { xs: "16px", sm: "20px" },
+                textDecoration: "none",
+              }}
             >
               سجل الآن
             </Link>

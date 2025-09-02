@@ -42,6 +42,10 @@ export const QuestionProvider = ({ children }) => {
     coins: null,
     motivationFreezes: null,
   });
+  const [dailyLog, setDailyLog] = useState({
+    created: false,
+    lastWeekLogs: {},
+  });
   const [lastAnswerResult, setLastAnswerResult] = useState(null);
   const [achievementRefreshCallback, setAchievementRefreshCallback] =
     useState(null);
@@ -335,6 +339,17 @@ export const QuestionProvider = ({ children }) => {
       // ✅ Update state
       setIsCorrect(data.is_correct ?? false);
 
+      // ✅ Capture daily log info from API if present
+      if (
+        Object.prototype.hasOwnProperty.call(data, "daily_log_created") ||
+        Object.prototype.hasOwnProperty.call(data, "last_week_logs")
+      ) {
+        setDailyLog({
+          created: Boolean(data.daily_log_created),
+          lastWeekLogs: data.last_week_logs || {},
+        });
+      }
+
       if (data.lesson_complete) {
         setRewards({
           xp: data.rewarded_xp ?? 0,
@@ -478,6 +493,7 @@ export const QuestionProvider = ({ children }) => {
         progress,
         setProgress,
         rewards,
+        dailyLog,
         lastAnswerResult,
         updateHearts, // ✅ Expose this function
         registerAchievementRefresh, // ✅ Expose this function

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Button, useTheme, useMediaQuery } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-
+import ReactMarkdown from "react-markdown";
 const FillBlankQuestion = ({
   question,
   answer,
@@ -131,6 +131,7 @@ const FillBlankQuestion = ({
         lineHeight: "1.5",
       }}>
         {renderedText}
+        
       </h4>
 
       <div className="flex flex-wrap gap-3 justify-center" style={{

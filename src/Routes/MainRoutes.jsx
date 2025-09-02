@@ -17,6 +17,7 @@ import MySubjects from "../Pages/Subjects/MySubjects";
 import OtherSubjects from "../Pages/Subjects/OtherSubjects";
 import ViewProfile from "../Pages/Profile/ViewProfile";
 import LessonEnded from "../Component/LessonEnded";
+import DailyLog from "../Component/DailyLog";
 import NoHeartsPage from "../Component/NoHeartsPage";
 import RewardedMotivationFreezes from "../Component/RewardedMotivationFreezes";
 import Leaderboard from "../Pages/Home/Leaderboard";
@@ -33,6 +34,7 @@ const MainRoutes = () => (
 
     {/* Standalone routes that don't need authentication checks */}
     <Route path="/lesson-ended" element={<LessonEnded />} />
+    <Route path="/daily-log" element={<DailyLog />} />
     <Route
       path="/rewarded-motivation-freezes"
       element={<RewardedMotivationFreezes />}

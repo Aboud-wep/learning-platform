@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Button, Typography, useTheme, useMediaQuery, Box } from "@mui/material";
+import {
+  Button,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Box,
+} from "@mui/material";
 
 // Import icons
 import TrueIcon from "../../../assets/Icons/True.png";
@@ -10,7 +16,7 @@ import TrueGreenIcon from "../../../assets/Icons/True_Green.png";
 import FalseBlueIcon from "../../../assets/Icons/False_Blue.png";
 import FalseRedIcon from "../../../assets/Icons/False_Red.png";
 import FalseGreenIcon from "../../../assets/Icons/False_Green.png";
-
+import ReactMarkdown from "react-markdown";
 const TrueFalseQuestion = ({
   options,
   selectedOption,
@@ -19,9 +25,9 @@ const TrueFalseQuestion = ({
   question,
 }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   if (!options?.length) return null;
 
   const [lockedSelection, setLockedSelection] = useState(null);
@@ -113,15 +119,21 @@ const TrueFalseQuestion = ({
 
   return (
     <div className="w-full">
-      <Box className="text-right text-[#205DC7]"
-      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
-      style={{
-        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
-        fontWeight: "bold",
-        marginBottom: isMobile ? "80px" : "24px",
-        padding: isMobile ? "0 8px" : "0"
-      }}>
-        {question.text}
+      <Box
+        className="text-right text-[#205DC7]"
+        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+        style={{
+          fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+          fontWeight: "bold",
+          marginBottom: isMobile ? "80px" : "24px",
+          padding: isMobile ? "0 8px" : "0",
+        }}
+      >
+        <div
+          dir="rtl"
+          style={{ lineHeight: 1.6 }}
+          dangerouslySetInnerHTML={{ __html: question.text }}
+        />
       </Box>
 
       <div className="flex  justify-center gap-4 sm:gap-8 md:gap-12 lg:gap-[194px] text-right transition-all duration-700 ease-in-out">
@@ -155,9 +167,9 @@ const TrueFalseQuestion = ({
                 transition: "all 0.7s ease-in-out",
                 order: isCorrect && isSelected ? 0 : 1,
                 padding: "8px",
-                '&:hover': {
-                  backgroundColor: isCorrect === null ? "#f5f5f5" : "inherit"
-                }
+                "&:hover": {
+                  backgroundColor: isCorrect === null ? "#f5f5f5" : "inherit",
+                },
               }}
             >
               <img

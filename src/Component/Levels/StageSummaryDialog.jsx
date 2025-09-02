@@ -73,9 +73,11 @@ export default function StageSummaryDialogJoy({
               "& p": { marginBottom: "10px", lineHeight: 1.6 },
             }}
           >
-            <ReactMarkdown>
-              {stageSummaries.text || "لا يوجد وصف"}
-            </ReactMarkdown>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: stageSummaries.text || "لا يوجد وصف",
+              }}
+            />
           </Stack>
         </ModalDialog>
       </Modal>

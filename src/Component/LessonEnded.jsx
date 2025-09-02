@@ -4,13 +4,32 @@ import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
 import XPRewards from "../assets/Icons/XPRewards.png";
 import Coin from "../assets/Icons/coin.png";
 const LessonEnded = () => {
-  const { rewards } = useQuestion();
+  const { rewards, dailyLog } = useQuestion();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isTest = location.state?.isTest || false;
 
   const handleContinue = () => {
+    // Check if daily log should be shown
+    const shouldShowDailyLog = () => {
+      if (!dailyLog?.created) return false;
+
+      const logs = dailyLog?.lastWeekLogs || {};
+      const hasCompletedDay = Object.values(logs).some(
+        (log) => log.completed === true
+      );
+
+      return hasCompletedDay;
+    };
+
+    // If daily log should be shown, go to daily log page first
+    if (shouldShowDailyLog()) {
+      navigate("/daily-log");
+      return;
+    }
+
+    // Otherwise follow normal flow
     if (location.state?.nextPage) {
       navigate(location.state.nextPage);
     } else {
@@ -67,7 +86,7 @@ const LessonEnded = () => {
       <div className="w-full flex justify-end">
         <button
           onClick={handleContinue}
-          className="px-6 py-2 bg-blue-600 text-white rounded"
+          className="px-6 py-2 bg-blue-600 text-white rounded-[1000px]"
         >
           أكمل
         </button>
