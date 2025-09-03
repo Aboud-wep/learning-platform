@@ -351,7 +351,7 @@ const ViewProfile = () => {
                     }}
                   >
                     <Avatar
-                      src={achievementImg}
+                      src={item.achievement.image || achievementImg}
                       alt="Achievement"
                       sx={{
                         width: { xs: 93, md: "auto" },

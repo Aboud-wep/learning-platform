@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Image from "../../assets/images/Image.png";
 
 const MySubjectCard = ({ subject }) => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const MySubjectCard = ({ subject }) => {
       >
         <CardMedia
           component="img"
-          image={subject.image}
+          image={subject.image || Image}
           alt={subject.name}
           sx={{
             width: "134px",
@@ -95,6 +96,7 @@ const MySubjectCard = ({ subject }) => {
                 height: 24,
                 borderRadius: "12px",
                 backgroundColor: "#eee",
+                mr: {xs:"10px",sm:"0px"},
               }}
             />
             <Typography

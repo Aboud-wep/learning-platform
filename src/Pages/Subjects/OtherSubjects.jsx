@@ -15,6 +15,7 @@ import { useSubjects } from "./Context/SubjectsContext";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SearchIcon from "@mui/icons-material/Search";
+import Image from "../../assets/images/Image.png";
 
 const OtherSubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -151,7 +152,7 @@ const OtherSubjects = () => {
             {/* Subject Image */}
             <CardMedia
               component="img"
-              image={lastUpdatedSubject.image || "/placeholder-image.jpg"}
+              image={lastUpdatedSubject.image || Image}
               alt={lastUpdatedSubject.name}
               sx={{
                 objectFit: "cover",
@@ -172,23 +173,7 @@ const OtherSubjects = () => {
               }}
             >
               {/* Progress Section */}
-              <Box>
-                <Typography
-                  sx={{
-                    color: isCompleted ? "#036108" : "#FF4346",
-                    border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
-                    borderRadius: "8px",
-                    px: "10px",
-                    py: "3px",
-                    display: "inline-block",
-                    fontSize: "14px",
-                    my: "8px",
-                  }}
-                  gutterBottom
-                >
-                  {isCompleted ? "مكتمل" : "قيد التقدم"}
-                </Typography>
-              </Box>
+              
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 {lastUpdatedSubject.name}
               </Typography>

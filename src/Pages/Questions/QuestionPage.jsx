@@ -11,6 +11,7 @@ import {
 import bgImage from "../../assets/Images/Question_BG.png";
 import { useQuestion } from "./Context/QuestionContext";
 import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
+import { QuestionSkeleton } from "../../Component/ui/SkeletonLoader";
 // Import all question type components
 import SingleChoiceQuestion from "./QuestionTypes/SingleChoiceQuestion";
 import MultipleChoiceQuestion from "./QuestionTypes/MultipleChoiceQuestion";
@@ -352,6 +353,11 @@ const QuestionPage = ({ type }) => {
       setIsCorrect(null);
     }
   };
+
+  // Show skeleton loading while loading
+  if (loading) {
+    return <QuestionSkeleton />;
+  }
 
   if (!currentQuestion && !showResult) {
     return <Box className="text-center mt-8">لا يوجد سؤال</Box>;

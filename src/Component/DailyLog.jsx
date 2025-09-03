@@ -4,13 +4,19 @@ import { Box, Divider, Typography } from "@mui/material";
 import { useHome } from "../Pages/Home/Context/HomeContext";
 import FreezesRewards from "../assets/Icons/FreezesRewards.png";
 import { useNavigate } from "react-router-dom";
+import { DailyLogSkeleton } from "./ui/SkeletonLoader";
 
 const weekdaysArabic = ["أ", "إ", "ث", "أ", "خ", "ج", "س"];
 
 const DailyLog = () => {
   const { dailyLog } = useQuestion();
-  const { profile } = useHome();
-const navigate = useNavigate();
+  const { profile, loading: profileLoading } = useHome();
+  const navigate = useNavigate();
+
+  // Show skeleton loading while profile is loading
+  if (profileLoading) {
+    return <DailyLogSkeleton />;
+  }
   const formatYmd = (d) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");

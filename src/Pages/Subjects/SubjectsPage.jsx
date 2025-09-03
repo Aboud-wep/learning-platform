@@ -15,10 +15,15 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSubjects } from "./Context/SubjectsContext";
+import {
+  GridSkeleton,
+  SubjectCardSkeleton,
+} from "../../Component/ui/SkeletonLoader";
 import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import Image from "../../assets/images/Image.png";
 
 const SubjectsList = () => {
   const { subjects, userProgress, loadingg, error } = useSubjects();
@@ -82,12 +87,25 @@ const SubjectsList = () => {
   }, [lastUpdatedSubject]);
 
   // ✅ after hooks, handle loading & error
-  if (loadingg)
+  if (loadingg) {
     return (
-      <Box sx={{ textAlign: "center", mt: 4 }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 1200,
+          mx: "auto",
+          px: { xs: 2, sm: 3, lg: 4 },
+          py: { xs: 2, sm: 3 },
+        }}
+      >
+        <GridSkeleton
+          columns={isDesktop ? 3 : isTablet ? 2 : 1}
+          rows={6}
+          itemHeight={200}
+        />
       </Box>
     );
+  }
 
   if (error) return <Typography color="error">خطأ: {error}</Typography>;
 
@@ -244,7 +262,7 @@ const SubjectsList = () => {
             {/* Subject Image */}
             <CardMedia
               component="img"
-              image={lastUpdatedSubject.image || "/placeholder-image.jpg"}
+              image={lastUpdatedSubject.image || Image}
               alt={lastUpdatedSubject.name}
               sx={{
                 objectFit: "cover",

@@ -17,6 +17,11 @@ import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useProfile } from "./Context/ProfileContext";
 import React, { useEffect, useState } from "react";
+import {
+  ProfileStatsSkeleton,
+  AchievementSkeleton,
+  ListSkeleton,
+} from "../../Component/ui/SkeletonLoader";
 import RecommendedFriendsDialog from "../../Component/RecommendedFriends/RecommendedFriendsDialog";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import achievementImg from "../../assets/Images/achievement.png";
@@ -34,7 +39,11 @@ const Profile = () => {
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
   const navigate = useNavigate();
-  const { achievements, refreshAchievements } = useAchievements();
+  const {
+    achievements,
+    refreshAchievements,
+    loading: achievementsLoading,
+  } = useAchievements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -270,112 +279,116 @@ const Profile = () => {
               borderRadius: "20px",
             }}
           >
-            {achievements
-              .slice(0, isMobile ? 2 : achievements.length)
-              .map((item, index) => (
-                <Box key={item.achievement.id}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      backgroundColor: "#fff",
-                      borderRadius: "20px",
-                      p: { xs: 0, md: 2.5 },
-                    }}
-                  >
-                    <Avatar
-                      src={achievementImg}
-                      alt="Achievement"
-                      sx={{
-                        width: { xs: 93, md: "auto" },
-                        height: { xs: 138, md: 93 },
-                        backgroundColor: "#F0F7FF",
-                        borderRadius: "12px",
-                        m: 1,
-                      }}
-                    />
-
+            {achievementsLoading ? (
+              <ListSkeleton count={isMobile ? 2 : 4} height={120} />
+            ) : (
+              achievements
+                .slice(0, isMobile ? 2 : achievements.length)
+                .map((item, index) => (
+                  <Box key={item.achievement.id}>
                     <Box
                       sx={{
-                        flex: 1,
-                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        backgroundColor: "#fff",
+                        borderRadius: "20px",
+                        p: { xs: 0, md: 2.5 },
                       }}
                     >
-                      <Typography
-                        variant="body1"
+                      <Avatar
+                        src={item.achievement.image || achievementImg}
+                        alt="Achievement"
                         sx={{
-                          fontWeight: 500,
-                          fontSize: { xs: "14px", sm: "16px" },
-                          color: "#2D2D2D",
-                          mb: 0.5,
+                          width: { xs: 93, md: "auto" },
+                          height: { xs: 138, md: 93 },
+                          backgroundColor: "#F0F7FF",
+                          borderRadius: "12px",
+                          m: 1,
                         }}
-                      >
-                        {item.achievement.name}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 400,
-                          fontSize: { xs: "12px", sm: "14px" },
-                          color: "#6B6B6B",
-                          mb: 2,
-                        }}
-                      >
-                        {item.achievement.description}
-                      </Typography>
+                      />
 
-                      <Box sx={{ position: "relative", mt: 2 }}>
-                        <LinearProgress
-                          variant="determinate"
-                          value={item.completion_percentage}
-                          sx={{
-                            height: { xs: 14, sm: 20, md: 24 },
-                            borderRadius: "8px",
-                            backgroundColor: "#F0F0F0",
-                            "& .MuiLinearProgress-bar": {
-                              borderRadius: "8px",
-                              backgroundColor: "#81AB00",
-                            },
-                          }}
-                        />
+                      <Box
+                        sx={{
+                          flex: 1,
+                          width: "100%",
+                        }}
+                      >
                         <Typography
-                          variant="caption"
+                          variant="body1"
                           sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            color: "black",
-                            fontWeight: "bold",
-                            fontSize: { xs: "10px", sm: "12px", md: "14px" },
-                            textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                            fontWeight: 500,
+                            fontSize: { xs: "14px", sm: "16px" },
+                            color: "#2D2D2D",
+                            mb: 0.5,
                           }}
                         >
-                          {item.completion_percentage === 100
-                            ? "مكتمل"
-                            : `${item.completion_percentage}%`}
+                          {item.achievement.name}
                         </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: { xs: "12px", sm: "14px" },
+                            color: "#6B6B6B",
+                            mb: 2,
+                          }}
+                        >
+                          {item.achievement.description}
+                        </Typography>
+
+                        <Box sx={{ position: "relative", mt: 2 }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={item.completion_percentage}
+                            sx={{
+                              height: { xs: 14, sm: 20, md: 24 },
+                              borderRadius: "8px",
+                              backgroundColor: "#F0F0F0",
+                              "& .MuiLinearProgress-bar": {
+                                borderRadius: "8px",
+                                backgroundColor: "#81AB00",
+                              },
+                            }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                              color: "black",
+                              fontWeight: "bold",
+                              fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                              textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                            }}
+                          >
+                            {item.completion_percentage === 100
+                              ? "مكتمل"
+                              : `${item.completion_percentage}%`}
+                          </Typography>
+                        </Box>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          fullWidth
+                          sx={{ mt: 2, borderRadius: "12px", py: 1 }}
+                          onClick={() => claimReward(item.achievement.id)}
+                          disabled={
+                            item.completion_percentage !== 100 ||
+                            loadingId === item.achievement.id
+                          }
+                        >
+                          {loadingId === item.achievement.id
+                            ? "جاري الاستلام..."
+                            : "احصل على جائزتك"}
+                        </Button>
                       </Box>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        fullWidth
-                        sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                        onClick={() => claimReward(item.achievement.id)}
-                        disabled={
-                          item.completion_percentage !== 100 ||
-                          loadingId === item.achievement.id
-                        }
-                      >
-                        {loadingId === item.achievement.id
-                          ? "جاري الاستلام..."
-                          : "احصل على جائزتك"}
-                      </Button>
                     </Box>
                   </Box>
-                </Box>
-              ))}
+                ))
+            )}
           </Box>
         </Box>
       </Box>

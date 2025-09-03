@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../lip/axios";
 import PlacementModal from "../PlacementModal";
-
+import Image from "../../assets/images/Image.png";
 const OtherSubjectCard = ({ subject }) => {
   const navigate = useNavigate();
   const [isPlacementModalOpen, setIsPlacementModalOpen] = useState(false);
@@ -35,7 +35,7 @@ const OtherSubjectCard = ({ subject }) => {
     >
       <CardMedia
         component="img"
-        image={subject.image}
+        image={subject.image || Image}
         alt={subject.name}
         sx={{
           width: { xs: "175px", sm: "100%" }, // fill card width

@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { registerUser } from "./AuthApi";
 import { useGoogleLogin } from "@react-oauth/google";
+import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -74,7 +75,6 @@ export default function Register() {
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
       <Box className="p-6 w-full max-w-[500px]">
-
         {message && <Alert severity="success">{message}</Alert>}
         {error && <Alert severity="error">{error}</Alert>}
 

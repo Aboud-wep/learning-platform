@@ -12,6 +12,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useAchievements } from "../../Component/Home/AchievementContext";
+import {
+  ProfileStatsSkeleton,
+  AchievementSkeleton,
+  ListSkeleton,
+} from "../../Component/ui/SkeletonLoader";
 import achievementImg from "../../assets/Images/achievement.png";
 import { useLocation, useOutletContext } from "react-router-dom";
 import axios from "axios";
@@ -23,9 +28,13 @@ const AchievementsPage = () => {
   const { updateProfileStats } = useHome();
   const { profile, setProfile } = useHome();
   const { subjects, userProgress } = useSubjects();
-  const { achievements,refreshAchievements } = useAchievements();
+  const {
+    achievements,
+    refreshAchievements,
+    loading: achievementsLoading,
+  } = useAchievements();
   const theme = useTheme();
-  
+
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
@@ -70,6 +79,15 @@ const AchievementsPage = () => {
     }
   };
 
+  // Show skeleton loading while achievements are loading
+  if (achievementsLoading) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <ListSkeleton count={6} height={120} />
+      </Box>
+    );
+  }
+
   if (!achievements.length) {
     return (
       <Box
@@ -84,7 +102,7 @@ const AchievementsPage = () => {
         }}
       >
         <img
-          src={achievementImg}
+          src={item.achievement.image || achievementImg}
           alt="No achievements"
           style={{ width: 100, opacity: 0.5, marginBottom: 16 }}
         />
@@ -152,7 +170,7 @@ const AchievementsPage = () => {
                 }}
               >
                 <Avatar
-                  src={achievementImg}
+                  src={item.achievement.image || achievementImg}
                   alt="Achievement"
                   sx={{
                     width: { xs: 93, md: "auto" },

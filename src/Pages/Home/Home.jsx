@@ -3,6 +3,11 @@ import { useHome } from "./Context/HomeContext";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
+import {
+  ProfileStatsSkeleton,
+  SubjectCardSkeleton,
+  GridSkeleton,
+} from "../../Component/ui/SkeletonLoader";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -49,6 +54,50 @@ const Home = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Typography color="error">{homeError || subjectsError}</Typography>
+      </Box>
+    );
+  }
+
+  // Show skeleton loading while data is loading
+  if (homeLoading || subjectsLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          my: { xs: 2, sm: 3, lg: 4 },
+          gap: { xs: 2, sm: 3, lg: 4 },
+          flexWrap: { xs: "wrap", lg: "nowrap" },
+          width: "100%",
+          px: { xs: 1.5, sm: 3, lg: 4 },
+        }}
+      >
+        {/* Left Side Skeleton */}
+        <Box
+          sx={{
+            flexGrow: 1,
+            minWidth: { xs: "100%", lg: "400px" },
+            maxWidth: { lg: "800px" },
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: { xs: 2, sm: 3 },
+          }}
+        >
+          <GridSkeleton columns={1} rows={3} itemHeight={200} />
+        </Box>
+
+        {/* Right Side Skeleton */}
+        <Box
+          sx={{
+            minWidth: { xs: "100%", lg: "300px" },
+            maxWidth: { lg: "400px" },
+            display: { xs: "none", lg: "block" },
+          }}
+        >
+          <ProfileStatsSkeleton />
+        </Box>
       </Box>
     );
   }

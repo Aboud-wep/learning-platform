@@ -287,7 +287,7 @@ const ProfileStatsCard = ({
                 >
                   <Avatar
                     variant="rounded"
-                    src={achievementImg}
+                    src={item.achievement.image || achievementImg}
                     alt="Achievement"
                     sx={{
                       width: { xs: 50, sm: 75 },

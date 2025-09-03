@@ -12,6 +12,7 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 import { useSubjects } from "./Context/SubjectsContext";
 import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Image from "../../assets/images/Image.png";
 
 const MySubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -133,7 +134,7 @@ const MySubjects = () => {
             {/* Subject Image */}
             <CardMedia
               component="img"
-              image={lastUpdatedSubject.image || "/placeholder-image.jpg"}
+              image={lastUpdatedSubject.image || Image}
               alt={lastUpdatedSubject.name}
               sx={{
                 objectFit: "cover",

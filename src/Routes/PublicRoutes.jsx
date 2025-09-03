@@ -1,11 +1,12 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../Pages/Auth/AuthContext";
+import { CircularProgressSkeleton } from "../Component/ui/SkeletonLoader";
 
 const PublicRoutes = () => {
   const location = useLocation();
-  if(location.pathname.includes('register')){
-    return <Outlet></Outlet>
-  } 
+  if (location.pathname.includes("register")) {
+    return <Outlet></Outlet>;
+  }
   const { isAuthenticated, loading } = useAuth();
   console.log("🌍 PublicRoutes check");
   console.log("Current path:", location.pathname);
@@ -14,11 +15,7 @@ const PublicRoutes = () => {
 
   // If user is authenticated and trying to access login/register, redirect to home
   // Only redirect if we're sure the user is authenticated (not loading)
-  if (
-    !loading &&
-    isAuthenticated &&
-    (location.pathname === "/login" )
-  ) {
+  if (!loading && isAuthenticated && location.pathname === "/login") {
     console.log(
       "➡️ Redirecting authenticated user from",
       location.pathname,
@@ -34,23 +31,8 @@ const PublicRoutes = () => {
   }
 
   // Show loading only when we need to redirect but are still loading
-  if (
-    loading &&
-    (location.pathname === "/login" )
-  ) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          fontSize: "18px",
-        }}
-      >
-        جاري التحقق من تسجيل الدخول...
-      </div>
-    );
+  if (loading && location.pathname === "/login") {
+    return <CircularProgressSkeleton />;
   }
 
   console.log("✅ PublicRoutes: Allowing access to", location.pathname);

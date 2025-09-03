@@ -35,8 +35,11 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         console.log("📦 API response:", response.data);
 
         const subjectIdFromResponse = response?.data?.data?.subject?.id;
-        if (subjectIdFromResponse) {
-          navigate(`/levels-map/${subjectIdFromResponse}`, { replace: true });
+        console.log("ramiiiiiiiiiiiiiiiiii",subjectIdFromResponse)
+        console.log("mooooramiiiiiiiiiiiiiiiiii",subjectId)
+
+        if (subjectId) {
+          navigate(`/levels-map/${subjectId}`, { replace: true });
         } else {
           console.error("❌ No subject ID in response.");
         }
