@@ -418,6 +418,7 @@ const QuestionPage = ({ type }) => {
             showResult={showResult}
             isCorrect={isCorrect}
             handleSubmit={handleSubmit}
+            setIsCorrect={setIsCorrect}
           />
         );
 

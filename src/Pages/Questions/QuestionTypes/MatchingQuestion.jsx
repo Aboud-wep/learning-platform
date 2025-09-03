@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography, Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
 
-const MatchingQuestion = ({ question, handleSubmit }) => {
+const MatchingQuestion = ({ question, handleSubmit,setIsCorrect }) => {
   const options = question?.matching_columns;
 
   const {
@@ -30,9 +30,12 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
   const [matchedPairs, setMatchedPairs] = useState({});
 
   useEffect(() => {
+    console.log(wrongPairs);
+    console.log(matchedPairs);
     setSelected(null);
     setMatchedPairs({});
     setWrongPairs([]);
+    setIsCorrect(true);
   }, [question?.id]);
 
   if (
@@ -133,7 +136,6 @@ const MatchingQuestion = ({ question, handleSubmit }) => {
       setSelected(null);
       setWrongPairs([[leftIndex, rightIndex]]);
       setTimeout(() => setWrongPairs([]), 800);
-
       // Don't update matched pairs for wrong answers
     } else {
       // ✅ Keep the green highlight until next question

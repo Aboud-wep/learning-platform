@@ -24,4 +24,8 @@ test_log_id instead of lesson_log_id
 
 
 
+register 
+change password 
+reset password 
+counter problem 
 
