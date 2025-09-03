@@ -1,26 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, useTheme, useMediaQuery } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import ReactMarkdown from "react-markdown";
-const FillBlankQuestion = ({
-  question,
-  answer,
-  onChange,
-  showResult,
-  isCorrect,
-}) => {
+
+const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const blanks = answer || [];
   const setBlanks = onChange;
 
   const selectedOptions = blanks.filter((b) => b !== "");
 
-  // Reset blanks when the question changes
+  // Count the number of <u> blanks
+  const countBlanks = () => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = question.text;
+    return tempDiv.querySelectorAll("u").length;
+  };
+
   useEffect(() => {
-    const blankCount = (question.text.match(/_________/g) || []).length;
+    const blankCount = countBlanks();
     setBlanks(Array(blankCount).fill(""));
   }, [question.text]);
 
@@ -39,47 +39,52 @@ const FillBlankQuestion = ({
     setBlanks(newBlanks);
   };
 
-  const renderedText = question.text.split(/(_________)/g).map((part, i) => {
-    if (part === "_________") {
-      const blankIndex =
-        question.text.split("_________").slice(0, i / 2 + 1).length - 1;
+  // Convert HTML string into interactive React nodes
+  const renderHTML = (html) => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
 
-      return (
-        <span
-          key={i}
-          style={{
-            display: "inline-block",
-            position: "relative",
-            minWidth: isMobile ? "80px" : isTablet ? "100px" : "120px",
-            minHeight: isMobile ? "60px" : isTablet ? "75px" : "90px",
-            verticalAlign: "bottom",
-            textAlign: "center",
-            fontWeight: "bold",
-            fontSize: isMobile ? "16px" : "20px",
-            lineHeight: isMobile ? "60px" : isTablet ? "75px" : "90px",
-            cursor: blanks[blankIndex] && !showResult ? "pointer" : "default",
-          }}
-          onClick={() =>
-            blanks[blankIndex] && !showResult && handleClear(blankIndex)
-          }
-        >
+    let blankIndexCounter = -1;
+
+    const traverse = (node) => {
+      if (node.nodeType === 3) return node.textContent; // text node
+      if (node.nodeType !== 1) return null; // skip comments etc.
+
+      if (node.tagName === "U") {
+        blankIndexCounter += 1;
+        const idx = blankIndexCounter;
+        return (
           <span
+            key={idx}
             style={{
-              userSelect: "none",
-              pointerEvents: "none",
-              color: "#000",
-              lineHeight: isMobile ? "30px" : "40px",
               display: "inline-block",
-              verticalAlign: "bottom",
+              position: "relative",
+              minWidth: isMobile ? 80 : isTablet ? 100 : 120,
+              minHeight: isMobile ? 60 : isTablet ? 75 : 80,
+              // verticalAlign: "bottom",
+              textAlign: "center",
+              margin: "0 4px",
+              cursor: blanks[idx] && !showResult ? "pointer" : "default",
             }}
+            onClick={() => blanks[idx] && !showResult && handleClear(idx)}
           >
-            {isMobile ? "______" : "_____________"}
-          </span>
+            <span
+              style={{
+                userSelect: "none",
+                pointerEvents: "none",
+                color: "#000",
+                lineHeight: isMobile ? "30px" : "80px",
+                display: "inline-block",
+                // verticalAlign: "bottom",
+              }}
+            >
+              {isMobile ? "______" : "_____________"}
+            </span>
 
-          <AnimatePresence>
-            {blanks[blankIndex] && (
+            <AnimatePresence>
+            {blanks[idx] && (
               <motion.div
-                layoutId={`option-${blanks[blankIndex]}`}
+                layoutId={`option-${blanks[idx]}`}
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.5, opacity: 0 }}
@@ -109,40 +114,54 @@ const FillBlankQuestion = ({
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {blanks[blankIndex]}
+                  {blanks[idx]}
                 </Button>
               </motion.div>
             )}
           </AnimatePresence>
-        </span>
-      );
-    }
+          </span>
+        );
+      }
 
-    return <span key={i}>{part}</span>;
-  });
+      return React.createElement(
+        node.tagName.toLowerCase(),
+        { key: Math.random() },
+        ...Array.from(node.childNodes).map(traverse)
+      );
+    };
+
+    return Array.from(tempDiv.childNodes).map(traverse);
+  };
 
   return (
-    <div className="flex flex-col gap-4 text-right" style={{
-      padding: isMobile ? "0 16px" : "0 24px",
-    }}>
-      <h4 className="text-[#205DC7]" style={{
-        fontSize: isMobile ? "16px" : "20px",
-        marginTop: isMobile ? "40px" : isTablet ? "60px" : "106px",
-        lineHeight: "1.5",
-      }}>
-        {renderedText}
-        
-      </h4>
+    <div
+      style={{
+        padding: isMobile ? "0 16px" : "0 24px",
+        direction: "rtl",
+        textAlign: "right",
+      }}
+    >
+      <div
+        style={{
+          marginTop: "20px",
+          fontSize: isMobile ? 16 : 20,
+          fontWeight: "bold",
+          lineHeight: isMobile ? 1.6 : 2,
+        }}
+      >
+        {renderHTML(question.text)}
+      </div>
 
-      <div className="flex flex-wrap gap-3 justify-center" style={{
-        marginTop: isMobile ? "30px" : isTablet ? "50px" : "78px",
-        marginBottom: isMobile ? "60px" : isTablet ? "90px" : "120px",
-        gap: isMobile ? "12px" : "20px",
-      }}>
+      <div
+        className="flex flex-wrap gap-3 justify-center"
+        style={{
+          marginTop: isMobile ? 30 : 78,
+          marginBottom: isMobile ? 60 : 120,
+        }}
+      >
         {question.options.map((opt) => {
           const isSelected = selectedOptions.includes(opt.text);
           const isDisabled = isSelected || showResult;
-
           return (
             <motion.div
               key={opt.id}

@@ -60,16 +60,13 @@ const HexLockButton = () => {
           zIndex: 1,
         }}
       >
-        <Lock fontSize="small" />
+        <Lock fontSize="small" sx={{marginTop:"10px"}} />
       </div>
       <svg viewBox="0 0 100 100" >
         <polygon
           points="30,30 70,30 95,58 73,84 27,84 5,58"
           fill="#0000001A"
           
-          stroke="#397DF3"
-          strokeWidth="2"
-          strokeLinejoin="round"
         />
         <text x="50%" y="65%" textAnchor="middle" fill="white" fontSize="10">
           hi

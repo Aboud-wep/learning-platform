@@ -5,6 +5,7 @@ import { useHome } from "../Pages/Home/Context/HomeContext";
 import FreezesRewards from "../assets/Icons/FreezesRewards.png";
 import { useNavigate } from "react-router-dom";
 import { DailyLogSkeleton } from "./ui/SkeletonLoader";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 const weekdaysArabic = ["أ", "إ", "ث", "أ", "خ", "ج", "س"];
 
@@ -13,10 +14,6 @@ const DailyLog = () => {
   const { profile, loading: profileLoading } = useHome();
   const navigate = useNavigate();
 
-  // Show skeleton loading while profile is loading
-  if (profileLoading) {
-    return <DailyLogSkeleton />;
-  }
   const formatYmd = (d) => {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -37,7 +34,7 @@ const DailyLog = () => {
             return formatYmd(d);
           });
 
-    return sourceDates.map((dateStr, idx) => {
+    return sourceDates.map((dateStr) => {
       const log = logs[dateStr] || {};
       const d = new Date(dateStr);
       return {
@@ -47,6 +44,11 @@ const DailyLog = () => {
       };
     });
   }, [dailyLog]);
+
+  // ✅ Only return here, after hooks are already declared
+  if (profileLoading) {
+    return <DailyLogSkeleton />;
+  }
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center bg-[#F2F2F2]">
@@ -143,15 +145,19 @@ const DailyLog = () => {
 
                   {/* Circle */}
                   <div
-                    className={`w-[27px] h-[27px] rounded-full flex items-center justify-center text-sm font-bold`}
+                    className="w-[27px] h-[27px] rounded-full flex items-center justify-center text-sm font-bold"
                     style={{
                       background: it.completed
                         ? "linear-gradient(to right, #D8553A, #E89528)"
-                        : "#e0e0e0", // gray default
+                        : "#e0e0e0",
                       color: it.completed ? "#fff" : "#888",
                     }}
                     title={it.date}
-                  ></div>
+                  >
+                    {it.completed && (
+                      <CheckRoundedIcon sx={{ fontSize: 18, color: "#fff" }} />
+                    )}
+                  </div>
                 </div>
               );
             })}

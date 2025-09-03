@@ -76,9 +76,6 @@ export default function Login() {
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
       <Box className="p-6 w-full max-w-[500px]">
-        <Typography variant="h5" align="center" className="mb-4">
-          تسجيل الدخول
-        </Typography>
         {error && <Alert severity="error">{error}</Alert>}
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <TextField
