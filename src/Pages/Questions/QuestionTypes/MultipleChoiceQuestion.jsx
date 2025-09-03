@@ -11,6 +11,7 @@ export default function MultipleChoiceQuestion({
   onToggle,
   question,
   showResult,
+  isCorrect
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -43,28 +44,28 @@ export default function MultipleChoiceQuestion({
   const getIconForOption = (option) => {
     const isSelected = selectedOptions.includes(option.id); // live selection for pre-submit
     const isLockedSelected = lockedSelection.includes(option.id); // locked selection for post-submit
-    const isCorrect = option.is_correct;
+    // const isCorrect = option.is_correct;
 
     if (!showResult) {
       return isSelected ? MChoice_Blue : null; // blue effect before submit
     }
 
     // After submission
-    if (isCorrect) return MChoiceTrue; // correct answer
-    if (isLockedSelected && !isCorrect) return MChoice_false; // wrong selection
-    if (!isLockedSelected && isCorrect) return MChoice_Correction; // missed correct
+    if (isSelected && isCorrect) return MChoiceTrue; // correct answer
+    if (isSelected && !isCorrect) return MChoice_false; // wrong selection
+    if (!isSelected && isCorrect) return MChoice_Correction; // missed correct
     return null;
   };
 
   const getBorderColor = (option) => {
     const isSelected = selectedOptions.includes(option.id);
     const isLockedSelected = lockedSelection.includes(option.id);
-    const isCorrect = option.is_correct;
+    // const isCorrect = option.is_correct;
 
     if (!showResult) return isSelected ? "#205DC7" : "#BFBFBF"; // pre-submit blue
 
-    if (isCorrect) return "green"; // correct
-    if (isLockedSelected && !isCorrect) return "red"; // wrong selection
+    if (isSelected && isCorrect) return "green"; // correct
+    if (isSelected && !isCorrect) return "red"; // wrong selection
     return "#BFBFBF";
   };
 
@@ -87,7 +88,7 @@ export default function MultipleChoiceQuestion({
       : "scale(0.8)",
     transition: "opacity 0.4s ease, transform 0.4s ease",
   });
-
+  console.log(selectedOptions)
   return (
     <div className="w-full">
       <Box className="text-right text-[#205DC7]"

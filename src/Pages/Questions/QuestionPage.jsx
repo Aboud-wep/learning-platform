@@ -14,6 +14,7 @@ import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
 // import { QuestionSkeleton } from "../../Component/ui/SkeletonLoader";
 // Import all question type components
 import SingleChoiceQuestion from "./QuestionTypes/SingleChoiceQuestion";
+
 import MultipleChoiceQuestion from "./QuestionTypes/MultipleChoiceQuestion";
 import TrueFalseQuestion from "./QuestionTypes/TrueFalseQuestion";
 import FillBlankQuestion from "./QuestionTypes/FillBlankQuestion";
@@ -253,14 +254,6 @@ const QuestionPage = ({ type }) => {
         setQuestionGroupId(res.next_question.question_group_id);
       }
 
-      // Reset answers
-      setSelectedOption(null);
-      setSelectedOptions([]);
-      // setBlankAnswers(["", "", ""]);
-      setMatchingAnswers([
-        { left: "لاعب ١", right: "" },
-        { left: "لاعب ٢", right: "" },
-      ]);
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
@@ -352,6 +345,12 @@ const QuestionPage = ({ type }) => {
       setShowResult(false);
       setIsCorrect(null);
     }
+      setSelectedOption(null);
+      setSelectedOptions([]);
+      setMatchingAnswers([
+        { left: "لاعب ١", right: "" },
+        { left: "لاعب ٢", right: "" },
+      ]);
   };
 
   // Show skeleton loading while loading
@@ -371,7 +370,7 @@ const QuestionPage = ({ type }) => {
             question={currentQuestion}
             selectedOption={selectedOption}
             onChange={setSelectedOption}
-            isCorrect={isCorrect}
+            isCorrect={isCorrect?? false}
             showResult={showResult}
           />
         );
@@ -384,6 +383,7 @@ const QuestionPage = ({ type }) => {
             onToggle={handleMultipleToggle}
             question={currentQuestion}
             showResult={showResult}
+            isCorrect={isCorrect}
           />
         );
 

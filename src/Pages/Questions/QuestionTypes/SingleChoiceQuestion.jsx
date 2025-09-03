@@ -10,6 +10,7 @@ export default function SingleChoiceQuestion({
   selectedOption,
   onChange,
   showResult,
+  isCorrect
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -37,29 +38,28 @@ export default function SingleChoiceQuestion({
   const getIconForOption = (option) => {
     const isSelected = lockedSelection === option.id;
     const isLiveSelected = selectedOption === option.id;
-    const isCorrect = option.is_correct;
+    // const isCorrect = option.is_correct;
 
     if (!showResult) {
       return isLiveSelected ? MChoice_Blue : null; // blue before submit
     }
 
     // After submission
-    if (isCorrect) return MChoiceTrue; // correct
+    if (isSelected && isCorrect) return MChoiceTrue; // correct
     if (isSelected && !isCorrect) return MChoice_false; // wrong selection
-    if (!isSelected && isCorrect) return MChoice_Correction; // missed correct
+    // if (!isSelected && isCorrect) return MChoice_Correction; // missed correct
     return null;
   };
 
   const getBorderColor = (option) => {
     const isSelected = lockedSelection === option.id;
     const isLiveSelected = selectedOption === option.id;
-    const isCorrect = option.is_correct;
 
     if (!showResult) {
       return isLiveSelected ? "#205DC7" : "#BFBFBF"; // blue or gray before submit
     }
 
-    if (isCorrect) return "green";
+    if (isSelected && isCorrect) return "green";
     if (isSelected && !isCorrect) return "red";
     return "#BFBFBF";
   };
@@ -81,6 +81,9 @@ export default function SingleChoiceQuestion({
       : "scale(0.8)",
     transition: "opacity 0.4s ease, transform 0.4s ease",
   });
+  console.log('QSNS' , question)
+  console.log(isCorrect);
+  console.log(selectedOption)
 
   return (
     <div className="w-full">
