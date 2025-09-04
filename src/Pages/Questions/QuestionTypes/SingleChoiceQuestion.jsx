@@ -10,7 +10,7 @@ export default function SingleChoiceQuestion({
   selectedOption,
   onChange,
   showResult,
-  isCorrect
+  // isCorrect
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -38,7 +38,7 @@ export default function SingleChoiceQuestion({
   const getIconForOption = (option) => {
     const isSelected = lockedSelection === option.id;
     const isLiveSelected = selectedOption === option.id;
-    // const isCorrect = option.is_correct;
+    const isCorrect = option.is_correct;
 
     if (!showResult) {
       return isLiveSelected ? MChoice_Blue : null; // blue before submit

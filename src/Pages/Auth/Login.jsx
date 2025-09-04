@@ -25,6 +25,8 @@ export default function Login() {
   const from = location.state?.from?.pathname || "/home";
   const { login, error, loading, setError } = useAuth(); // Use auth context
 
+  const successMessage = location.state?.successMessage;
+
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     identifier: "",
@@ -76,7 +78,9 @@ export default function Login() {
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
       <Box className="p-6 w-full max-w-[500px]">
+        {successMessage && <Alert severity="success">{successMessage}</Alert>}
         {error && <Alert severity="error">{error}</Alert>}
+
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <TextField
             label="اسم المستخدم أو البريد الإلكتروني"

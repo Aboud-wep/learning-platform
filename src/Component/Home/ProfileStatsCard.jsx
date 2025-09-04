@@ -59,7 +59,7 @@ const ProfileStatsCard = ({
   return (
     <Box
       sx={{
-        width: { xs: "100%", sm: "70%", lg: "324px" }, // responsive width
+        width: { xs: "100%", sm: "70%", lg: "auto" }, // responsive width
         mx: "auto",
       }}
     >
@@ -200,6 +200,7 @@ const ProfileStatsCard = ({
             ]
               .slice()
               .sort((a, b) => b.xp_per_week - a.xp_per_week)
+              .slice(0, 5) // ✅ only top 5
               .map((player, index) => (
                 <Box
                   key={player.id}
@@ -275,81 +276,70 @@ const ProfileStatsCard = ({
             >
               التحديات
             </Typography>
-            {achievements.map((item, index) => (
-              <Box key={item.achievement.id}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 2,
-                    pb: 2,
-                  }}
-                >
-                  <Avatar
-                    variant="rounded"
-                    src={item.achievement.image || achievementImg}
-                    alt="Achievement"
+
+            {achievements
+              .slice(-3) // ✅ get last 3
+              .map((item, index, arr) => (
+                <Box key={item.achievement.id}>
+                  <Box
                     sx={{
-                      width: { xs: 50, sm: 75 },
-                      height: { xs: 50, sm: 75 },
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 2,
+                      pb: 2,
                     }}
-                  />
-                  <Box flex={1}>
-                    <Typography
-                      fontSize={{ xs: "12px", sm: "14px" }}
-                      mb={1}
-                      textAlign="center"
-                    >
-                      {item.achievement.description}
-                    </Typography>
-                    <Box sx={{ position: "relative" }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={item.completion_percentage}
-                        sx={{
-                          height: { xs: 14, sm: 24 },
-                          borderRadius: "12px",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      />
+                  >
+                    <Avatar
+                      variant="rounded"
+                      src={item.achievement.image || achievementImg}
+                      alt="Achievement"
+                      sx={{
+                        width: { xs: 50, sm: 75 },
+                        height: { xs: 50, sm: 75 },
+                      }}
+                    />
+                    <Box flex={1}>
                       <Typography
-                        variant="caption"
-                        sx={{
-                          position: "absolute",
-                          top: 0,
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: { xs: "12px", sm: "16px" },
-                          color: "black",
-                        }}
+                        fontSize={{ xs: "12px", sm: "14px" }}
+                        mb={1}
+                        textAlign="center"
                       >
-                        {item.completion_percentage || 0}%
+                        {item.achievement.description}
                       </Typography>
+                      <Box sx={{ position: "relative" }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={item.completion_percentage}
+                          sx={{
+                            height: { xs: 14, sm: 24 },
+                            borderRadius: "12px",
+                            backgroundColor: "#F0F0F0",
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: { xs: "12px", sm: "16px" },
+                            color: "black",
+                          }}
+                        >
+                          {item.completion_percentage || 0}%
+                        </Typography>
+                      </Box>
                     </Box>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                      onClick={() => claimReward(item.achievement.id)}
-                      disabled={
-                        item.completion_percentage !== 100 ||
-                        loadingId === item.achievement.id
-                      }
-                    >
-                      {loadingId === item.achievement.id
-                        ? "جاري الاستلام..."
-                        : "احصل على جائزتك"}
-                    </Button>
                   </Box>
+                  {index < arr.length - 1 && <Divider sx={{ mb: 2 }} />}
                 </Box>
-                {index < achievements.length - 1 && <Divider sx={{ mb: 2 }} />}
-              </Box>
-            ))}
+              ))}
+
             <Button
               onClick={() => navigate("/achievements")}
               sx={{
@@ -370,6 +360,7 @@ const ProfileStatsCard = ({
           )
         )}
       </Box>
+
       {/* Reward Dialogs */}
       <AchievementRewardXPDialog
         open={openXPDialog}

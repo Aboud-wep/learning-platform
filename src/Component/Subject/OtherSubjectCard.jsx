@@ -26,8 +26,8 @@ const OtherSubjectCard = ({ subject }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        padding: "15px",
-        width: { xs: "195px", sm: "209px" }, // full width on mobile
+        padding: {xs:"10px",sm:"15"},
+        width: { xs: "130px", sm: "209px" }, // full width on mobile
         maxWidth: "209px",
         boxSizing: "border-box",
         backgroundColor: "#ffffff",

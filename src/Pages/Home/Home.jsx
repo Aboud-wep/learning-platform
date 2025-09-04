@@ -121,7 +121,7 @@ const Home = () => {
       <Box
         sx={{
           flexGrow: 1,
-          minWidth: { xs: "100%", lg: "400px" },
+          minWidth: { xs: "100%", lg: "200px" },
           maxWidth: { lg: "800px" },
           display: "flex",
           flexDirection: "column",
@@ -249,9 +249,9 @@ const Home = () => {
       <Box
         sx={{
           flexShrink: 0,
-          flexBasis: { xs: "100%", lg: "30%" }, // take 100% on mobile, 30% on desktop
-          maxWidth: { lg: "350px" }, // limit max width on large screens
-          minWidth: { lg: "260px" }, // prevent collapsing too much
+          // flexBasis: { xs: "100%", lg: "30%" }, // take 100% on mobile, 30% on desktop
+          maxWidth: { lg: "320px" }, // limit max width on large screens
+          minWidth: { lg: "300px" }, // prevent collapsing too much
           mt: { xs: 3, lg: 0 }, // stack below on mobile
           display: { xs: "none", lg: "block" },
         }}

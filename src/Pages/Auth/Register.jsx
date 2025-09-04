@@ -62,8 +62,15 @@ export default function Register() {
 
     try {
       const data = await registerUser(form);
-      setMessage(data.meta?.message || "تم إنشاء الحساب بنجاح");
-      navigate("/login");
+
+      navigate("/login", {
+        replace: true,
+        state: {
+          successMessage:
+            data.meta?.message ||
+            "تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل تسجيل الدخول.",
+        },
+      });
     } catch (err) {
       setError(err.response?.data?.meta?.message || "حدث خطأ ما");
       console.error("Register error:", err);
