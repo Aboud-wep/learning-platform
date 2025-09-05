@@ -502,7 +502,8 @@ const QuestionPage = ({ type }) => {
                 paddingTop: { xs: "0px", md: "50px" },
               }}
             >
-              {hearts !== null && hearts !== undefined && (
+              {((isTest && apiResponse?.hearts !== undefined) ||
+                (hearts !== null && hearts !== undefined)) && (
                 <Box
                   sx={{
                     display: "flex",
@@ -527,7 +528,9 @@ const QuestionPage = ({ type }) => {
                     }}
                   >
                     <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                      {hearts}
+                      {isTest && apiResponse?.hearts !== undefined
+                        ? apiResponse.hearts
+                        : hearts}
                     </Typography>
                     <Box
                       component="img"

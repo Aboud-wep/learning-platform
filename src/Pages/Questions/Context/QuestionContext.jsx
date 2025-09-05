@@ -147,11 +147,19 @@ export const QuestionProvider = ({ children }) => {
         setTestLogId(data.test_log_id);
         setTestId(data.test_id);
         setLessonLogId(null); // Clear lesson log ID for tests
+        // For placement tests, use dedicated hearts from API without touching profile hearts
+        if (typeof data.hearts === "number") {
+          setHearts(data.hearts);
+        }
       } else {
         console.log("📚 Starting lesson - lesson_log_id:", data.lesson_log_id);
         setLessonLogId(data.lesson_log_id);
         setTestLogId(null); // Clear test log ID for lessons
         setTestId(null);
+        // For lessons, initialize hearts from profile if available
+        if (profile?.hearts !== undefined) {
+          setHearts(profile.hearts);
+        }
       }
 
       setProgress((prev) => ({
@@ -316,7 +324,12 @@ export const QuestionProvider = ({ children }) => {
 
       // ✅ Update hearts FIRST before any navigation
       if (data.hearts !== undefined) {
-        await updateHearts(data.hearts);
+        if (isTest) {
+          // In tests, hearts are isolated from profile
+          setHearts(data.hearts);
+        } else {
+          await updateHearts(data.hearts);
+        }
         console.log("🔄 Hearts updated from API:", data.hearts); // Add logging
       }
 
