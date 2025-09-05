@@ -148,9 +148,7 @@ const Home = () => {
           {lastSubject && (
             <LastSubjectCard
               subject={lastSubject}
-              progress={
-                userProgressMap[lastSubject.id]?.completion_percentage || 0
-              }
+              progress={userProgressMap[lastSubject.id]}
             />
           )}
 
