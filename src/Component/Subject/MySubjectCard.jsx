@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Image from "../../assets/images/Image.png";
 
-const MySubjectCard = ({ subject }) => {
+const MySubjectCard = ({ subject, progress }) => {
   const navigate = useNavigate();
 
   const allItems =
@@ -91,12 +91,16 @@ const MySubjectCard = ({ subject }) => {
           <Box sx={{ position: "relative", width: "100%" }}>
             <LinearProgress
               variant="determinate"
-              value={subject.completion_percentage || 0}
+              value={
+                (progress?.completion_percentage ??
+                  subject.completion_percentage) ||
+                0
+              }
               sx={{
                 height: 24,
                 borderRadius: "12px",
                 backgroundColor: "#eee",
-                mr: {xs:"10px",sm:"0px"},
+                mr: { xs: "10px", sm: "0px" },
               }}
             />
             <Typography
@@ -115,7 +119,10 @@ const MySubjectCard = ({ subject }) => {
                 color: "black",
               }}
             >
-              {subject.completion_percentage || 0}%
+              {(progress?.completion_percentage ??
+                subject.completion_percentage) ||
+                0}
+              %
             </Typography>
           </Box>
         </Box>

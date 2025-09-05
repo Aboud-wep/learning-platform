@@ -84,6 +84,26 @@ const QuestionPage = ({ type }) => {
   // Store the API response locally to ensure we have the correct item type
   const [apiResponse, setApiResponse] = useState(null);
 
+  // Handle browser/mobile back button: exit to home from tests/lessons
+  useEffect(() => {
+    const handlePopState = (event) => {
+      // Always redirect out of the question flow when back is pressed
+      navigate("/home", { replace: true });
+    };
+
+    // Push a dummy state so that the first back triggers popstate
+    try {
+      window.history.pushState(null, "", window.location.href);
+    } catch (e) {
+      // no-op if pushState fails
+    }
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
   // Fetch question on load if not passed via navigation
   useEffect(() => {
     if (!location.state?.question) {
@@ -253,7 +273,6 @@ const QuestionPage = ({ type }) => {
         setNextQuestionData(res.next_question);
         setQuestionGroupId(res.next_question.question_group_id);
       }
-
     } catch (error) {
       console.error("Error submitting answer:", error);
     }
@@ -345,12 +364,12 @@ const QuestionPage = ({ type }) => {
       setShowResult(false);
       setIsCorrect(null);
     }
-      setSelectedOption(null);
-      setSelectedOptions([]);
-      setMatchingAnswers([
-        { left: "لاعب ١", right: "" },
-        { left: "لاعب ٢", right: "" },
-      ]);
+    setSelectedOption(null);
+    setSelectedOptions([]);
+    setMatchingAnswers([
+      { left: "لاعب ١", right: "" },
+      { left: "لاعب ٢", right: "" },
+    ]);
   };
 
   // Show skeleton loading while loading
@@ -370,7 +389,7 @@ const QuestionPage = ({ type }) => {
             question={currentQuestion}
             selectedOption={selectedOption}
             onChange={setSelectedOption}
-            isCorrect={isCorrect?? false}
+            isCorrect={isCorrect ?? false}
             showResult={showResult}
           />
         );

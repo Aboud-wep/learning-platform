@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../lip/axios";
 
@@ -72,12 +78,18 @@ export const SubjectsProvider = ({ children }) => {
 
   // ✅ Function to update progress locally
   const updateProgress = useCallback((subjectId, newProgress) => {
-    setUserProgress(prev => 
-      prev.map(item => 
-        item.subject === subjectId 
-          ? { ...item, ...newProgress }
-          : item
-      )
+    setUserProgress((previousUserProgress) =>
+      previousUserProgress.map((progressItem) => {
+        const progressSubjectId =
+          typeof progressItem.subject === "object"
+            ? progressItem.subject?.id
+            : progressItem.subject;
+
+        if (progressSubjectId === subjectId) {
+          return { ...progressItem, ...newProgress };
+        }
+        return progressItem;
+      })
     );
   }, []);
 
@@ -90,14 +102,14 @@ export const SubjectsProvider = ({ children }) => {
 
   return (
     <SubjectsContext.Provider
-      value={{ 
-        subjects, 
-        userProgress, 
-        loadingg, 
-        error, 
+      value={{
+        subjects,
+        userProgress,
+        loadingg,
+        error,
         fetchSubjects,
         refreshSubjects,
-        updateProgress
+        updateProgress,
       }}
     >
       {children}
