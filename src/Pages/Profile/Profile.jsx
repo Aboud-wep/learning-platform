@@ -17,6 +17,7 @@ import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useProfile } from "./Context/ProfileContext";
 import React, { useEffect, useState } from "react";
+import { Logout as LogoutIcon } from "@mui/icons-material";
 import {
   ProfileStatsSkeleton,
   AchievementSkeleton,
@@ -29,6 +30,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axiosInstance from "../../lip/axios";
 import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
 import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
+import { useAuth } from "../Auth/AuthContext";
 
 const Profile = () => {
   const { profile, updateProfileStats } = useHome();
@@ -44,6 +46,7 @@ const Profile = () => {
     refreshAchievements,
     loading: achievementsLoading,
   } = useAchievements();
+  const { logout: authLogout } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -51,7 +54,16 @@ const Profile = () => {
   const [dialogRewards, setDialogRewards] = useState(null);
   const [openXPDialog, setOpenXPDialog] = useState(false);
   const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
-
+  const handleLogout = async () => {
+    try {
+      await logoutUser(); // calls backend logout
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      authLogout(); // clear context/local state
+      navigate("/login");
+    }
+  };
   const claimReward = async (achievementId) => {
     try {
       setLoadingId(achievementId);
@@ -108,12 +120,13 @@ const Profile = () => {
           mx: { xs: "auto", md: "20px" },
         }}
       >
+       
         <Box textAlign="center" mb={4}>
           <Avatar
             src={profile.avatar || ""}
             sx={{
-              width: "300px",
-              height: "300px",
+              width: { xs: "270px", sm: "300px" },
+              height: { xs: "270px", sm: "300px" },
               mx: "auto",
               mb: "10px",
             }}

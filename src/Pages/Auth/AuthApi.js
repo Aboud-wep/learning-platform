@@ -21,13 +21,30 @@ export const loginUser = async (credentials) => {
   }
 };
 
-// ✅ New reusable Google login function
 export const loginWithGoogleApi = async (idToken) => {
   try {
     const res = await axiosInstance.post(`${BASE_URL}/login-google`, {
       id_token: idToken,
     });
     return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};
+
+// ✅ New reusable logout function
+export const logoutUser = async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    if (refreshToken && token) {
+      await axiosInstance.post(
+        `${BASE_URL}/logout`,
+        { refresh: refreshToken },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    }
   } catch (error) {
     throw error.response?.data || error;
   }

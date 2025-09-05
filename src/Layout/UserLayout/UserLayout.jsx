@@ -12,6 +12,7 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Avatar,
+  Button,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -38,22 +39,35 @@ const UserLayout = () => {
   const [pageTitle, setPageTitle] = useState("");
   const navigate = useNavigate();
   const { profile, updateProfileStats, loading: profileLoading } = useHome(); // useHome reactive
-  const { logout: authLogout, isAuthenticated, loading: authLoading } = useAuth(); // Get auth state
+  const {
+    logout: authLogout,
+    isAuthenticated,
+    loading: authLoading,
+  } = useAuth(); // Get auth state
   const [bottomNav, setBottomNav] = useState(0);
 
   // Debug logging for hearts
-  console.log("🔄 UserLayout - Current profile hearts:", profile?.hearts, "Loading:", profileLoading, "Auth:", isAuthenticated);
+  console.log(
+    "🔄 UserLayout - Current profile hearts:",
+    profile?.hearts,
+    "Loading:",
+    profileLoading,
+    "Auth:",
+    isAuthenticated
+  );
 
   // Don't render if still loading authentication
   if (authLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "18px",
+        }}
+      >
         جاري التحقق من تسجيل الدخول...
       </div>
     );
@@ -65,25 +79,13 @@ const UserLayout = () => {
   }
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-
   const handleLogout = async () => {
     try {
-      // Call the backend logout endpoint
-      const token = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-      
-      if (refreshToken && token) {
-        await axiosInstance.post(
-          "users/auth/dashboard/logout",
-          { refresh: refreshToken },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
+      await logoutUser(); // calls backend logout
     } catch (err) {
-      console.error("Logout failed:", err.response?.data || err.message);
+      console.error("Logout failed:", err);
     } finally {
-      // Always call the AuthContext logout to clear local state
-      authLogout();
+      authLogout(); // clear context/local state
       navigate("/login");
     }
   };
@@ -137,12 +139,16 @@ const UserLayout = () => {
           </ListItemIcon>
           <ListItemText primary="الملف الشخصي" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/settings")}>
+        <ListItemButton
+          component="a"
+          href="https://alibdaagroup.com/backend/metadata-admin-control/"
+        >
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary="الإعدادات" />
         </ListItemButton>
+
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon />
@@ -367,13 +373,30 @@ const UserLayout = () => {
             </Box>
           ) : null}
         </Box>
-
+        <Divider sx={{ display: { xs: "flex", md: "none" } }} />
+        <Button
+          onClick={handleLogout}
+          variant="text"
+          color="error"
+          startIcon={<LogoutIcon />}
+          sx={{
+            display: { xs: "flex", md: "none" },
+            fontWeight: 600,
+            fontSize: "0.95rem",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "rgba(211, 47, 47, 0.1)",
+            },
+          }}
+        >
+          تسجيل الخروج
+        </Button>
         <Divider />
         <Box
           component="main"
           sx={{
             flex: 1,
-            pb: { xs: "80px", md:"40px" }, // reserve space for bottom nav
+            pb: { xs: "80px", md: "40px" }, // reserve space for bottom nav
           }}
         >
           <Outlet context={{ setPageTitle }} />
