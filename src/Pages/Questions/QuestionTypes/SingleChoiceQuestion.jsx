@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { useTheme, useMediaQuery,Box } from "@mui/material";
+import { useTheme, useMediaQuery, Box } from "@mui/material";
 import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png"; // default correct
 import MChoice_false from "../../../assets/Icons/MChoice_false.png"; // wrong/red
-import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png"; // missed correct
 import MChoice_Blue from "../../../assets/Icons/MChoice_Blue.png"; // blue selected
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 
 export default function SingleChoiceQuestion({
   question,
   selectedOption,
   onChange,
   showResult,
-  isCorrect
+  isCorrect,
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [lockedSelection, setLockedSelection] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
-
+  console.log("heyyyyyyyyyy", question.text);
   // Lock the selection only at submission
   useEffect(() => {
     if (showResult) {
@@ -81,26 +82,33 @@ export default function SingleChoiceQuestion({
       : "scale(0.8)",
     transition: "opacity 0.4s ease, transform 0.4s ease",
   });
-  console.log('QSNS' , question)
+  console.log("QSNS", question);
   console.log(isCorrect);
-  console.log(selectedOption)
+  console.log(selectedOption);
 
   return (
     <div className="w-full">
-      <Box className="text-right text-[#205DC7]"
-      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
-      style={{
-        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
-        fontWeight: "bold",
-        marginBottom: isMobile ? "80px" : "24px",
-        padding: isMobile ? "0 8px" : "0"
-      }}>
-        {question.text}
+      <Box
+        className="text-right text-[#205DC7]"
+        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+        style={{
+          fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+          fontWeight: "bold",
+          marginBottom: isMobile ? "80px" : "24px",
+          padding: isMobile ? "0 8px" : "0",
+        }}
+      >
+        <div dir="rtl" style={{ lineHeight: 1.6 }}>
+          {parse(DOMPurify.sanitize(question.text))}
+        </div>
       </Box>
 
-      <div className="space-y-3 md:space-y-[10px] text-right" style={{
-        marginBottom: isMobile ? "30px" : isTablet ? "45px" : "60px"
-      }}>
+      <div
+        className="space-y-3 md:space-y-[10px] text-right"
+        style={{
+          marginBottom: isMobile ? "30px" : isTablet ? "45px" : "60px",
+        }}
+      >
         {question.options?.map((option) => {
           const borderColor = getBorderColor(option);
           const icon = getIconForOption(option);
@@ -119,10 +127,13 @@ export default function SingleChoiceQuestion({
               }}
               onClick={() => !showResult && onChange(option.id)}
             >
-              <span className="flex-1 text-right pr-2" style={{
-                lineHeight: "1.4",
-                padding: isMobile ? "4px 0" : "8px 0"
-              }}>
+              <span
+                className="flex-1 text-right pr-2"
+                style={{
+                  lineHeight: "1.4",
+                  padding: isMobile ? "4px 0" : "8px 0",
+                }}
+              >
                 {option.text}
               </span>
               {icon && (

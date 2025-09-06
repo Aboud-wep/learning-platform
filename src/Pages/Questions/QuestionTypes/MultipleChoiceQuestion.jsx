@@ -11,12 +11,12 @@ export default function MultipleChoiceQuestion({
   onToggle,
   question,
   showResult,
-  isCorrect
+  isCorrect,
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -53,7 +53,6 @@ export default function MultipleChoiceQuestion({
     // After submission
     if (isSelected && isCorrect) return MChoiceTrue; // correct answer
     if (isSelected && !isCorrect) return MChoice_false; // wrong selection
-    if (!isSelected && isCorrect) return MChoice_Correction; // missed correct
     return null;
   };
 
@@ -88,24 +87,33 @@ export default function MultipleChoiceQuestion({
       : "scale(0.8)",
     transition: "opacity 0.4s ease, transform 0.4s ease",
   });
-  console.log(selectedOptions)
+  console.log(selectedOptions);
   return (
     <div className="w-full">
-      <Box className="text-right text-[#205DC7]"
-      sx={{textAlign: { xs: "center", md: "left" },color:"#205DC7"}}
-      style={{
-        fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
-        fontWeight: "bold",
-        marginBottom: isMobile ? "80px" : "24px",
-        padding: isMobile ? "0 8px" : "0"
-      }}>
+      <Box
+        className="text-right text-[#205DC7]"
+        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+        style={{
+          fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+          fontWeight: "bold",
+          marginBottom: isMobile ? "80px" : "24px",
+          padding: isMobile ? "0 8px" : "0",
+        }}
+      >
         {question.text}
       </Box>
 
-      <div className="flex justify-center" style={{
-        marginBottom: isMobile ? "40px" : isTablet ? "60px" : "90px"
-      }}>
-        <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-x-4 md:gap-x-8 lg:gap-x-[94px] gap-y-3 md:gap-y-[10px] w-full max-w-4xl px-4`}>
+      <div
+        className="flex justify-center"
+        style={{
+          marginBottom: isMobile ? "40px" : isTablet ? "60px" : "90px",
+        }}
+      >
+        <div
+          className={`grid ${
+            isMobile ? "grid-cols-1" : "grid-cols-2"
+          } gap-x-4 md:gap-x-8 lg:gap-x-[94px] gap-y-3 md:gap-y-[10px] w-full max-w-4xl px-4`}
+        >
           {options.map((opt) => {
             const borderColor = getBorderColor(opt);
             const icon = getIconForOption(opt);
@@ -125,11 +133,14 @@ export default function MultipleChoiceQuestion({
                   opt
                 )}`}
               >
-                <span className="flex-1 text-start" style={{
-                  fontSize: isMobile ? "16px" : "18px",
-                  padding: isMobile ? "8px 4px" : "8px",
-                  lineHeight: "1.4"
-                }}>
+                <span
+                  className="flex-1 text-start"
+                  style={{
+                    fontSize: isMobile ? "16px" : "18px",
+                    padding: isMobile ? "8px 4px" : "8px",
+                    lineHeight: "1.4",
+                  }}
+                >
                   {opt.text}
                 </span>
                 {icon && (

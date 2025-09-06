@@ -29,6 +29,7 @@
     "@reduxjs/toolkit": "^2.2.8",
     "antd": "^5.22.6",
     "axios": "^1.10.0",
+    "dompurify": "^3.2.6",
     "html-react-parser": "^5.2.6",
     "jwt-decode": "^4.0.0",
     "material-ui-popup-state": "^5.3.6",

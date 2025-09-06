@@ -118,7 +118,7 @@ const SubjectsList = () => {
         p: { xs: 2, md: 3 },
         display: "flex",
         flexDirection: { xs: "column", lg: "row" },
-        gap: 3,
+        gap: 2,
       }}
     >
       {/* Main Content */}

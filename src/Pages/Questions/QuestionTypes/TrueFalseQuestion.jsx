@@ -119,22 +119,20 @@ const TrueFalseQuestion = ({
 
   return (
     <div className="w-full">
-      <Box
-        className="text-right text-[#205DC7]"
-        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
-        style={{
-          fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
-          fontWeight: "bold",
-          marginBottom: isMobile ? "80px" : "24px",
-          padding: isMobile ? "0 8px" : "0",
-        }}
-      >
-        <div
-          dir="rtl"
-          style={{ lineHeight: 1.6 }}
-          dangerouslySetInnerHTML={{ __html: question.text }}
-        />
-      </Box>
+      <Typography
+  component="div"
+  dir="rtl"
+  sx={{
+    textAlign: { xs: "center", md: "left" },
+    color: "#205DC7",
+    fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+    fontWeight: "bold",
+    mb: isMobile ? "80px" : "24px",
+    px: isMobile ? 1 : 0,
+    lineHeight: 1.6,
+  }}
+  dangerouslySetInnerHTML={{ __html: question.text }}
+/>
 
       <div className="flex  justify-center gap-4 sm:gap-8 md:gap-12 lg:gap-[194px] text-right transition-all duration-700 ease-in-out">
         {displayedOptions.map((option) => {
