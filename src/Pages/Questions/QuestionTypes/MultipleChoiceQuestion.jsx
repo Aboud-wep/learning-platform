@@ -4,7 +4,8 @@ import MChoiceTrue from "../../../assets/Icons/MChoiceTrue.png";
 import MChoice_false from "../../../assets/Icons/MChoice_false.png";
 import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png";
 import MChoice_Blue from "../../../assets/Icons/MChoice_Blue.png";
-
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 export default function MultipleChoiceQuestion({
   options,
   selectedOptions,
@@ -100,7 +101,9 @@ export default function MultipleChoiceQuestion({
           padding: isMobile ? "0 8px" : "0",
         }}
       >
-        {question.text}
+        <div dir="rtl" style={{ lineHeight: 1.6 }}>
+          {parse(DOMPurify.sanitize(question.text))}
+        </div>
       </Box>
 
       <div

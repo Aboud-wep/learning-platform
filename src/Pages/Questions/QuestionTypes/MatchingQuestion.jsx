@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography, Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
 
-const MatchingQuestion = ({ question, handleSubmit,setIsCorrect }) => {
+const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   const options = question?.matching_columns;
 
   const {
@@ -170,37 +170,6 @@ const MatchingQuestion = ({ question, handleSubmit,setIsCorrect }) => {
         sx={{ gap: { xs: "10px", sm: "40px" } }}
       >
         {/* Right column */}
-        <Box className="flex flex-col gap-3 max-w-[45%]">
-          {options.right.map((item, index) => {
-            const isMatched = isRightMatched(item);
-            const leftItem = getLeftForRight(item);
-            const leftIndex = leftItem ? options.left.indexOf(leftItem) : -1;
-
-            const wrong =
-              isIndexWrong("right", index) || isIndexWrong("left", leftIndex);
-
-            const isSelected =
-              selected?.side === "right" && selected.index === index;
-
-            return (
-              <Box
-                key={index}
-                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
-                  {
-                    isMatched,
-                    wrong,
-                    isSelected,
-                  }
-                )}`}
-                onClick={() => {
-                  if (!isMatched && !wrong) tryMatch("right", item, index);
-                }}
-              >
-                {item}
-              </Box>
-            );
-          })}
-        </Box>
 
         {/* Left column */}
         <Box className="flex flex-col gap-3 max-w-[45%] min-w-[130px]">
@@ -228,6 +197,37 @@ const MatchingQuestion = ({ question, handleSubmit,setIsCorrect }) => {
                 )}`}
                 onClick={() => {
                   if (!isMatched && !wrong) tryMatch("left", item, index);
+                }}
+              >
+                {item}
+              </Box>
+            );
+          })}
+        </Box>
+        <Box className="flex flex-col gap-3 max-w-[45%]">
+          {options.right.map((item, index) => {
+            const isMatched = isRightMatched(item);
+            const leftItem = getLeftForRight(item);
+            const leftIndex = leftItem ? options.left.indexOf(leftItem) : -1;
+
+            const wrong =
+              isIndexWrong("right", index) || isIndexWrong("left", leftIndex);
+
+            const isSelected =
+              selected?.side === "right" && selected.index === index;
+
+            return (
+              <Box
+                key={index}
+                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
+                  {
+                    isMatched,
+                    wrong,
+                    isSelected,
+                  }
+                )}`}
+                onClick={() => {
+                  if (!isMatched && !wrong) tryMatch("right", item, index);
                 }}
               >
                 {item}

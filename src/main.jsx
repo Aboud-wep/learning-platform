@@ -28,7 +28,7 @@ const theme = createTheme({
 document.body.setAttribute("dir", "rtl");
 
 const clientId =
-  "593037642211-mc1l2kjgl0a6dppc7mb9hgi4p0l2j7b6.apps.googleusercontent.com";
+  "959657991397-bna1nmvurq1a0uhmmvevjhvheq8bp3da.apps.googleusercontent.com";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

@@ -84,7 +84,7 @@ const HexPlayButton = ({ stage }) => {
               <linearGradient
                 id={`hexStrokeGradient-${stage.id}`}
                 x1="100%" // Middle horizontally
-                y1="0%" // Start from top
+                y1="100%" // Start from top
                 x2="0%" // Middle horizontally
                 y2="100%" // End at bottom
                 gradientUnits="userSpaceOnUse"

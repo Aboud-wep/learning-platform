@@ -25,6 +25,7 @@ export default function Register() {
     password: "",
     account_enabled: true,
   });
+
   const handleGoogleLogin = async (tokenResponse) => {
     const { success, needs_username } = await loginWithGoogle(
       tokenResponse.access_token
@@ -42,6 +43,7 @@ export default function Register() {
     onSuccess: handleGoogleLogin,
     onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
   });
+  const [validationErrors, setValidationErrors] = useState({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,16 +55,40 @@ export default function Register() {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  const validateForm = () => {
+    const errors = {};
+    if (form.username.length < 3) {
+      errors.username = "اسم المستخدم يجب أن يحتوي على 3 أحرف على الأقل";
+    }
+    if (form.first_name.length < 3) {
+      errors.first_name = "الاسم الأول يجب أن يحتوي على 3 أحرف على الأقل";
+    }
+    if (form.last_name.length < 3) {
+      errors.last_name = "اسم العائلة يجب أن يحتوي على 3 أحرف على الأقل";
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\-]{8,}$/;
+    if (!passwordRegex.test(form.password)) {
+      errors.password =
+        "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
-    setLoading(true);
 
+    // 🛑 Validate first, before setting loading
+    if (!validateForm()) return;
+
+    setLoading(true);
     try {
       const data = await registerUser(form);
-
       navigate("/login", {
         replace: true,
         state: {
@@ -93,6 +119,8 @@ export default function Register() {
             onChange={handleChange}
             fullWidth
             required
+            error={!!validationErrors.username}
+            helperText={validationErrors.username}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
             sx={{
@@ -100,13 +128,16 @@ export default function Register() {
                 borderRadius: "20px",
                 px: 2,
                 "& input": { color: "#000" },
-                "& fieldset": { borderColor: "#205DC7", borderWidth: "2px" },
+                "& fieldset": {
+                  borderColor: validationErrors.username ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
                 "&:hover fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.username ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.username ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
               },
@@ -148,6 +179,8 @@ export default function Register() {
             onChange={handleChange}
             fullWidth
             required
+            error={!!validationErrors.first_name}
+            helperText={validationErrors.first_name}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
             sx={{
@@ -155,13 +188,16 @@ export default function Register() {
                 borderRadius: "20px",
                 px: 2,
                 "& input": { color: "#000" },
-                "& fieldset": { borderColor: "#205DC7", borderWidth: "2px" },
+                "& fieldset": {
+                  borderColor: validationErrors.first_name ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
                 "&:hover fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.first_name ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.first_name ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
               },
@@ -175,6 +211,8 @@ export default function Register() {
             onChange={handleChange}
             fullWidth
             required
+            error={!!validationErrors.last_name}
+            helperText={validationErrors.last_name}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
             sx={{
@@ -182,13 +220,16 @@ export default function Register() {
                 borderRadius: "20px",
                 px: 2,
                 "& input": { color: "#000" },
-                "& fieldset": { borderColor: "#205DC7", borderWidth: "2px" },
+                "& fieldset": {
+                  borderColor: validationErrors.last_name ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
                 "&:hover fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.last_name ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.last_name ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
               },
@@ -203,6 +244,8 @@ export default function Register() {
             onChange={handleChange}
             fullWidth
             required
+            error={!!validationErrors.password}
+            helperText={validationErrors.password}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
             sx={{
@@ -210,13 +253,16 @@ export default function Register() {
                 borderRadius: "20px",
                 px: 2,
                 "& input": { color: "#000" },
-                "& fieldset": { borderColor: "#205DC7", borderWidth: "2px" },
+                "& fieldset": {
+                  borderColor: validationErrors.password ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
                 "&:hover fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.password ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.password ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
               },

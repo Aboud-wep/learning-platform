@@ -51,15 +51,18 @@ const ViewProfile = () => {
       .then((res) => {
         const profileData = res.data.data;
         setUserProfile(profileData);
-        
+
         // ✅ Check if this user is already a friend
         if (profileData.is_friend !== undefined) {
           setIsFriend(profileData.is_friend);
         } else {
           // ✅ If is_friend is not provided, check against current user's followers
-          const isAlreadyFriend = followers.some(friend => 
-            friend.follower === profile.id && friend.following === profileData.id ||
-            friend.following === profile.id && friend.follower === profileData.id
+          const isAlreadyFriend = followers.some(
+            (friend) =>
+              (friend.follower === profile.id &&
+                friend.following === profileData.id) ||
+              (friend.following === profile.id &&
+                friend.follower === profileData.id)
           );
           setIsFriend(isAlreadyFriend);
         }
@@ -90,7 +93,7 @@ const ViewProfile = () => {
     await addFriend(userId, () => {
       // ✅ Refresh friend lists after successful addition
       refreshFriendData();
-      
+
       // ✅ Update local friend status
       setIsFriend(true);
     });
@@ -167,15 +170,6 @@ const ViewProfile = () => {
             </Typography>
           )}
 
-          {success && (
-            <Typography
-              color="green"
-              mt={1}
-              sx={{ fontSize: { xs: "14px", md: "16px" } }}
-            >
-              {success}
-            </Typography>
-          )}
           {error && (
             <Typography
               color="red"
