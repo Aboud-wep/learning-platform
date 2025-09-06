@@ -12,7 +12,7 @@ import { useOutletContext, useNavigate } from "react-router-dom";
 import { useSubjects } from "./Context/SubjectsContext";
 import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Image from "../../assets/images/Image.png";
+import Image from "../../assets/Images/Image.png";
 
 const MySubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -144,7 +144,6 @@ const MySubjects = () => {
               }}
             />
 
-            
             {/* Subject Content */}
             <Box
               sx={{

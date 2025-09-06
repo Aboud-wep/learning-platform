@@ -23,7 +23,7 @@ import MySubjectCard from "../../Component/Subject/MySubjectCard";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import Image from "../../assets/images/Image.png";
+import Image from "../../assets/Images/Image.png";
 
 const SubjectsList = () => {
   const { subjects, userProgress, loadingg, error } = useSubjects();

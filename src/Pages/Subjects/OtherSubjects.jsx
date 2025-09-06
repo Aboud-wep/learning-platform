@@ -15,7 +15,7 @@ import { useSubjects } from "./Context/SubjectsContext";
 import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SearchIcon from "@mui/icons-material/Search";
-import Image from "../../assets/images/Image.png";
+import Image from "../../assets/Images/Image.png";
 
 const OtherSubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -100,7 +100,7 @@ const OtherSubjects = () => {
               maxWidth: { xs: "100%", md: "438px" },
               "& .MuiOutlinedInput-root": {
                 borderRadius: "20px", // ✅ apply to input
-                backgroundColor:"white"
+                backgroundColor: "white",
               },
             }}
             InputProps={{
@@ -173,7 +173,7 @@ const OtherSubjects = () => {
               }}
             >
               {/* Progress Section */}
-              
+
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 {lastUpdatedSubject.name}
               </Typography>

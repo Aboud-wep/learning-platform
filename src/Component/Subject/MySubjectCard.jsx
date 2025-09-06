@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Image from "../../assets/images/Image.png";
+import Image from "../../assets/Images/Image.png";
 
 const MySubjectCard = ({ subject, progress }) => {
   const navigate = useNavigate();

@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../lip/axios";
 import PlacementModal from "../PlacementModal";
-import Image from "../../assets/images/Image.png";
+import Image from "../../assets/Images/Image.png";
 const OtherSubjectCard = ({ subject }) => {
   const navigate = useNavigate();
   const [isPlacementModalOpen, setIsPlacementModalOpen] = useState(false);
@@ -26,7 +26,7 @@ const OtherSubjectCard = ({ subject }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        padding: {xs:"10px",sm:"15"},
+        padding: { xs: "10px", sm: "15" },
         width: { xs: "142px", sm: "209px" }, // full width on mobile
         maxWidth: "209px",
         boxSizing: "border-box",

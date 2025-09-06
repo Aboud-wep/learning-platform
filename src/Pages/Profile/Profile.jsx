@@ -120,7 +120,6 @@ const Profile = () => {
           mx: { xs: "auto", md: "20px" },
         }}
       >
-       
         <Box textAlign="center" mb={4}>
           <Avatar
             src={profile.avatar || ""}
