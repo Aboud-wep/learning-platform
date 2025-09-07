@@ -40,9 +40,20 @@ const CompetitionsPage = () => {
   useEffect(() => {
     setPageTitle("المسابقات");
     if (competitionId) {
+      console.log(
+        "🔄 CompetitionsPage - Fetching competition for ID:",
+        competitionId
+      );
       fetchCompetition(competitionId);
+    } else {
+      console.log(
+        "🔄 CompetitionsPage - No competition ID available yet. Profile:",
+        !!profile,
+        "CompetitionId:",
+        competitionId
+      );
     }
-  }, [setPageTitle, competitionId, fetchCompetition]);
+  }, [setPageTitle, competitionId, fetchCompetition, profile]);
 
   // Combine all players from all zones and sort by XP
   const allPlayers = useMemo(() => {
@@ -102,6 +113,16 @@ const CompetitionsPage = () => {
   }, [competition]);
 
   if (loading) return <Typography>جاري التحميل...</Typography>;
+
+  // Show message if profile is not loaded yet
+  if (!profile) {
+    return <Typography>جاري تحميل البيانات...</Typography>;
+  }
+
+  // Show message if no competition ID is available
+  if (!competitionId) {
+    return <Typography>لا توجد مسابقة متاحة حالياً</Typography>;
+  }
 
   // Function to render a player row with global ranking
   const renderPlayerRow = (player, globalRank) => {
@@ -268,14 +289,26 @@ const CompetitionsPage = () => {
           </Box>
         )}
         {currentLevel && (
-          <Typography sx={{ textAlign: "center",fontSize:"32px",color:"#343F4E", fontWeight: "bold" }}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "32px",
+              color: "#343F4E",
+              fontWeight: "bold",
+            }}
+          >
             {currentLevel.name}
           </Typography>
         )}
         {/* 🟢 Remaining Days */}
         {remainingDays !== null && (
           <Typography
-            sx={{ textAlign: "center", fontWeight: "bold", fontSize: "25px",color:"#205DC7" }}
+            sx={{
+              textAlign: "center",
+              fontWeight: "bold",
+              fontSize: "25px",
+              color: "#205DC7",
+            }}
           >
             {remainingDays} أيام متبقية
           </Typography>

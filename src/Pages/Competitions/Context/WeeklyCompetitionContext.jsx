@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const WeeklyCompetitionContext = createContext();
 
 export const WeeklyCompetitionProvider = ({ children }) => {
-  const { profile } = useHome();
+  const { profile, loading: profileLoading } = useHome();
   const [competition, setCompetition] = useState(null);
   const [competitionLevels, setCompetitionLevels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,14 +40,26 @@ export const WeeklyCompetitionProvider = ({ children }) => {
       if (!authReady) return; // stop if not logged in
       if (!competitionId) return;
 
+      console.log(
+        "🔄 WeeklyCompetitionContext - Starting to fetch competition:",
+        competitionId
+      );
       setLoading(true);
       setError(null);
       try {
         const res = await axiosInstance.get(
           `/titles/weekly_competitions/website/WeeklyCompetition/${competitionId}`
         );
+        console.log(
+          "🔄 WeeklyCompetitionContext - Competition data received:",
+          res.data.data
+        );
         setCompetition(res.data.data);
       } catch (err) {
+        console.error(
+          "🔄 WeeklyCompetitionContext - Error fetching competition:",
+          err
+        );
         setError(err.response?.data || "Something went wrong");
       } finally {
         setLoading(false);
@@ -79,7 +91,24 @@ export const WeeklyCompetitionProvider = ({ children }) => {
   // ✅ Fetch competition only if logged in + profile exists
   useEffect(() => {
     if (authReady && profile?.weekly_competition?.id) {
+      console.log(
+        "🔄 WeeklyCompetitionContext - Fetching competition for ID:",
+        profile.weekly_competition.id
+      );
       fetchCompetition(profile.weekly_competition.id);
+    } else {
+      console.log(
+        "🔄 WeeklyCompetitionContext - Not fetching competition. AuthReady:",
+        authReady,
+        "Profile:",
+        !!profile,
+        "CompetitionId:",
+        profile?.weekly_competition?.id
+      );
+      // Reset competition data if no valid competition ID
+      if (!profile?.weekly_competition?.id) {
+        setCompetition(null);
+      }
     }
   }, [authReady, profile, fetchCompetition]);
 
@@ -88,9 +117,10 @@ export const WeeklyCompetitionProvider = ({ children }) => {
       value={{
         competition,
         competitionLevels,
-        loading,
+        loading: loading || profileLoading,
         error,
         fetchCompetition,
+        profileLoading,
       }}
     >
       {children}
@@ -98,5 +128,4 @@ export const WeeklyCompetitionProvider = ({ children }) => {
   );
 };
 
-export const useWeeklyCompetition = () =>
-  useContext(WeeklyCompetitionContext);
+export const useWeeklyCompetition = () => useContext(WeeklyCompetitionContext);
