@@ -22,6 +22,14 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
   const [hasStages, setHasStages] = useState(true); // assume true until we check
   const [loadingData, setLoadingData] = useState(false);
 
+  // Debug logging
+  console.log("🔍 PlacementModal props:", {
+    open,
+    subjectId,
+    selectedOption,
+    hasStages,
+  });
+
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -65,8 +73,10 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         console.warn(
           "❌ No stages available for this subject, skipping progress creation."
         );
-        return; // stop here, don’t call API
+        return; // stop here, don't call API
       }
+
+      console.log("🚀 Starting beginner flow with subjectId:", subjectId);
 
       try {
         setLoading(true);
@@ -78,12 +88,30 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         console.log("📦 API response:", response.data);
 
         if (subjectId) {
+          console.log("🚀 Navigating to levels-map with subjectId:", subjectId);
+          onClose(); // Close the modal first
           navigate(`/levels-map/${subjectId}`, { replace: true });
         } else {
-          console.error("❌ No subject ID in response.");
+          console.error("❌ No subject ID available for navigation.");
         }
       } catch (error) {
         console.error("❌ Error joining subject:", error);
+        console.error("❌ Error details:", error.response?.data);
+
+        // Check if it's a duplicate key error (user already has progress)
+        if (
+          error.response?.status === 400 &&
+          error.response?.data?.meta?.message?.includes("duplicate key")
+        ) {
+          console.log("✅ User already has progress, navigating to levels-map");
+          onClose(); // Close the modal first
+          navigate(`/levels-map/${subjectId}`, { replace: true });
+        } else {
+          console.error(
+            "❌ Failed to join subject:",
+            error.response?.data?.meta?.message
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -102,6 +130,7 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         console.log("📦 Placement test API response:", response.data);
 
         if (response.data?.data?.question?.id) {
+          onClose(); // Close the modal first
           navigate(`/test/${response.data.data.question.id}`, {
             state: {
               ...response.data.data,
@@ -261,7 +290,13 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
                 py: isMobile ? 1 : 1.5,
               }}
               disabled={!selectedOption || loading}
-              onClick={handleConfirm}
+              onClick={() => {
+                console.log(
+                  "🔘 Confirm button clicked with selectedOption:",
+                  selectedOption
+                );
+                handleConfirm();
+              }}
             >
               {loading ? (
                 <Skeleton variant="text" width={60} height={20} />
