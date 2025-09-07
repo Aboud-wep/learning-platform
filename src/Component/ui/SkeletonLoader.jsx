@@ -262,6 +262,231 @@ export const DailyLogSkeleton = () => (
   </Box>
 );
 
+// Competition Page Skeletons
+export const CompetitionPageSkeleton = () => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: { xs: "column", md: "row" },
+      justifyContent: "center",
+      alignItems: "flex-start",
+      my: { xs: 2, md: 4 },
+      gap: { xs: 3, md: 4 },
+      width: "100%",
+      mx: "auto",
+    }}
+  >
+    {/* Main Content */}
+    <Box sx={{ width: { xs: "100%", md: "70%" } }}>
+      {/* Competition Level Images */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Skeleton
+          variant="rectangular"
+          width={80}
+          height={80}
+          sx={{ borderRadius: 2 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          width={120}
+          height={120}
+          sx={{ borderRadius: 2 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          width={80}
+          height={80}
+          sx={{ borderRadius: 2 }}
+        />
+      </Box>
+
+      {/* Level Name */}
+      <Skeleton
+        variant="text"
+        width="40%"
+        height={40}
+        sx={{ mx: "auto", mb: 2 }}
+      />
+
+      {/* Remaining Days */}
+      <Skeleton
+        variant="text"
+        width="30%"
+        height={32}
+        sx={{ mx: "auto", mb: 4 }}
+      />
+
+      {/* Competition Zones */}
+      {[1, 2, 3].map((zone) => (
+        <Box key={zone} sx={{ mb: 3 }}>
+          {/* Zone Header */}
+          <Box
+            sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 2 }}
+          >
+            <Skeleton variant="rectangular" width={24} height={24} />
+            <Skeleton variant="text" width={120} height={24} />
+            <Skeleton variant="rectangular" width={24} height={24} />
+          </Box>
+
+          {/* Player Rows */}
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                p: 2,
+                backgroundColor: "#fff",
+                borderRadius: "12px",
+                mb: 1.5,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+                <Skeleton
+                  variant="circular"
+                  width={45}
+                  height={45}
+                  sx={{ mr: 2 }}
+                />
+                <Skeleton
+                  variant="circular"
+                  width={58}
+                  height={58}
+                  sx={{ mr: 2 }}
+                />
+                <Skeleton variant="text" width="60%" height={24} />
+              </Box>
+              <Skeleton variant="text" width={80} height={24} />
+            </Box>
+          ))}
+        </Box>
+      ))}
+    </Box>
+
+    {/* Profile Stats Section */}
+    <Box sx={{ minWidth: { xs: "100%", md: "300px" } }}>
+      <ProfileStatsSkeleton />
+    </Box>
+  </Box>
+);
+
+// Question Progress Skeleton
+export const QuestionProgressSkeleton = () => (
+  <Box
+    sx={{
+      backgroundColor: "#FFF3E0",
+      p: 2,
+      borderRadius: 2,
+      textAlign: "center",
+    }}
+  >
+    <Skeleton
+      variant="rectangular"
+      width={200}
+      height={24}
+      sx={{ mx: "auto", mb: 1 }}
+    />
+    <Skeleton variant="text" width="60%" height={20} sx={{ mx: "auto" }} />
+  </Box>
+);
+
+// Profile View Skeleton
+export const ProfileViewSkeleton = () => (
+  <Box sx={{ p: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Skeleton variant="circular" width={80} height={80} />
+      <Box sx={{ flex: 1 }}>
+        <Skeleton variant="text" width="60%" height={32} />
+        <Skeleton variant="text" width="40%" height={20} />
+      </Box>
+    </Box>
+
+    <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Box key={index} sx={{ textAlign: "center", flex: 1 }}>
+          <Skeleton variant="text" width="100%" height={24} />
+          <Skeleton variant="text" width="60%" height={16} />
+        </Box>
+      ))}
+    </Box>
+
+    <ListSkeleton count={5} height={80} />
+  </Box>
+);
+
+// Button Loading Skeleton
+export const ButtonSkeleton = ({ width = 120, height = 40 }) => (
+  <Skeleton
+    variant="rectangular"
+    width={width}
+    height={height}
+    sx={{ borderRadius: 2 }}
+  />
+);
+
+// Modal/Dialog Skeleton
+export const ModalSkeleton = () => (
+  <Box sx={{ p: 3, maxWidth: 400, mx: "auto" }}>
+    <Skeleton variant="text" width="70%" height={32} sx={{ mb: 3 }} />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+      <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+      <Skeleton
+        variant="rectangular"
+        height={40}
+        sx={{ borderRadius: 1, mt: 2 }}
+      />
+    </Box>
+  </Box>
+);
+
+// Levels Map Skeleton
+export const LevelsMapSkeleton = () => (
+  <Box sx={{ p: 3, textAlign: "center" }}>
+    <Skeleton variant="text" width="50%" height={32} sx={{ mb: 4 }} />
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 2,
+        flexWrap: "wrap",
+      }}
+    >
+      {Array.from({ length: 12 }).map((_, index) => (
+        <Skeleton
+          key={index}
+          variant="circular"
+          width={60}
+          height={60}
+          sx={{ mb: 2 }}
+        />
+      ))}
+    </Box>
+  </Box>
+);
+
+// Hex Button Skeleton
+export const HexButtonSkeleton = () => (
+  <Skeleton
+    variant="rectangular"
+    width={80}
+    height={80}
+    sx={{
+      borderRadius: "50%",
+      clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
+    }}
+  />
+);
+
 export default {
   PageSkeleton,
   CircularProgressSkeleton,
@@ -275,4 +500,11 @@ export default {
   LeaderboardSkeleton,
   FormSkeleton,
   DailyLogSkeleton,
+  CompetitionPageSkeleton,
+  QuestionProgressSkeleton,
+  ProfileViewSkeleton,
+  ButtonSkeleton,
+  ModalSkeleton,
+  LevelsMapSkeleton,
+  HexButtonSkeleton,
 };

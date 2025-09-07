@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Alert,
   Link,
+  Skeleton,
 } from "@mui/material";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
@@ -354,7 +355,11 @@ export default function Register() {
               "&:disabled": { backgroundColor: "#ccc" },
             }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : "تسجيل"}
+            {loading ? (
+              <Skeleton variant="text" width={60} height={24} />
+            ) : (
+              "تسجيل"
+            )}
           </Button>
           {/* <Button
             onClick={googleLoginButton} // <-- use renamed hook here

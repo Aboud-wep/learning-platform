@@ -11,6 +11,7 @@ import {
   Alert,
   Link,
   CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -230,7 +231,7 @@ export default function Login() {
             }}
           >
             {loading ? (
-              <CircularProgress size={24} color="inherit" />
+              <Skeleton variant="text" width={100} height={24} />
             ) : (
               "تسجيل الدخول"
             )}

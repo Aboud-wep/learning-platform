@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useStageStart } from "../../../Pages/Questions/Context/StageStartContext";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, useTheme, useMediaQuery } from "@mui/material";
+import { Box, Button, useTheme, useMediaQuery, Skeleton } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useStageSummary } from "../../../Pages/LevelsMap/Context/StageSummaryContext";
 import StageSummaryDialogJoy from "../../Levels/StageSummaryDialog";
@@ -219,11 +219,13 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
             onClick={handleStartClick}
             disabled={loading}
           >
-            {loading
-              ? "جاري التحميل..."
-              : firstItem?.item_type === "test"
-              ? "اختبار"
-              : "ابدأ"}
+            {loading ? (
+              <Skeleton variant="text" width={80} height={20} />
+            ) : firstItem?.item_type === "test" ? (
+              "اختبار"
+            ) : (
+              "ابدأ"
+            )}
             <ArrowBackIcon
               sx={{
                 fontSize: isMobile ? "18px" : "20px",

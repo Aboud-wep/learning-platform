@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
+import { QuestionProgressSkeleton } from "./ui/SkeletonLoader";
 
 const QuestionProgress = () => {
   const { progress } = useQuestion();
@@ -14,21 +15,7 @@ const QuestionProgress = () => {
 
   // Handle all edge cases
   if (!progress) {
-    return (
-      <Box
-        sx={{
-          backgroundColor: "#FFF3E0",
-          p: 2,
-          borderRadius: 2,
-          textAlign: "center",
-        }}
-      >
-        <CircularProgress size={24} />
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          جاري تحميل بيانات التقدم...
-        </Typography>
-      </Box>
-    );
+    return <QuestionProgressSkeleton />;
   }
 
   // Calculate effective total if API returns 0

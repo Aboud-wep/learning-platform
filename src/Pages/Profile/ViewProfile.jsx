@@ -18,6 +18,7 @@ import axiosInstance from "../../lip/axios";
 import { useHome } from "../Home/Context/HomeContext";
 import RecommendedFriendsDialog from "../../Component/RecommendedFriends/RecommendedFriendsDialog";
 import { useProfile } from "../Profile/Context/ProfileContext";
+import { ProfileViewSkeleton } from "../../Component/ui/SkeletonLoader";
 import { useFriends } from "./Context/FriendsContext";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -103,7 +104,7 @@ const ViewProfile = () => {
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
-  if (!userProfile) return <Typography>Loadinggg...</Typography>;
+  if (!userProfile) return <ProfileViewSkeleton />;
 
   return (
     <Box

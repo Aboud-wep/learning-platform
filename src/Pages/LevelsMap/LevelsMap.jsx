@@ -3,6 +3,7 @@ import { useLevels } from "./Context/LevelsContext";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import HexCheckButton from "../../Component/HexButton/HexCheckButton";
 import HexLockButton from "../../Component/HexButton/HexLockButton";
+import { LevelsMapSkeleton } from "../../Component/ui/SkeletonLoader";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
@@ -53,11 +54,7 @@ const LevelsMap = () => {
   }, [mySubjects, subjectId, navigate, loadingg]);
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={4}>
-        <CircularProgress />
-      </Box>
-    );
+    return <LevelsMapSkeleton />;
   }
 
   if (!levelsData) {

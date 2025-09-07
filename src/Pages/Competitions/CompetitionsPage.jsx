@@ -12,6 +12,7 @@ import { useWeeklyCompetition } from "./Context/WeeklyCompetitionContext";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
+import { CompetitionPageSkeleton } from "../../Component/ui/SkeletonLoader";
 import UPArrow from "../../assets/Icons/UPArrow.png";
 import DownArrow from "../../assets/Icons/DownArrow.png";
 import FirstIcon from "../../assets/Icons/First.png";
@@ -112,16 +113,16 @@ const CompetitionsPage = () => {
     return diff > 0 ? diff : 0;
   }, [competition]);
 
-  if (loading) return <Typography>جاري التحميل...</Typography>;
+  if (loading) return <CompetitionPageSkeleton />;
 
   // Show message if profile is not loaded yet
   if (!profile) {
-    return <Typography>جاري تحميل البيانات...</Typography>;
+    return <CompetitionPageSkeleton />;
   }
 
   // Show message if no competition ID is available
   if (!competitionId) {
-    return <Typography>لا توجد مسابقة متاحة حالياً</Typography>;
+    return <CompetitionPageSkeleton />;
   }
 
   // Function to render a player row with global ranking

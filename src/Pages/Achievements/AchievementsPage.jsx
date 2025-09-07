@@ -10,6 +10,7 @@ import {
   Button,
   useTheme,
   useMediaQuery,
+  Skeleton,
 } from "@mui/material";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import {
@@ -257,9 +258,11 @@ const AchievementsPage = () => {
                       onClick={() => claimReward(item.achievement.id)}
                       disabled={loadingId === item.achievement.id}
                     >
-                      {loadingId === item.achievement.id
-                        ? "جاري الاستلام..."
-                        : "احصل على جائزتك"}
+                      {loadingId === item.achievement.id ? (
+                        <Skeleton variant="text" width={100} height={20} />
+                      ) : (
+                        "احصل على جائزتك"
+                      )}
                     </Button>
                   )}
                 </Box>

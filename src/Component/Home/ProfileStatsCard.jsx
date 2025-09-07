@@ -8,6 +8,7 @@ import {
   Button,
   LinearProgress,
   Divider,
+  Skeleton,
 } from "@mui/material";
 import { useAchievements } from "./AchievementContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -101,7 +102,7 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Typography fontSize="12px">Loading...</Typography>
+              <Skeleton variant="text" width="60%" height={16} />
             )}
           </Box>
         </Grid>
@@ -135,7 +136,7 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Typography fontSize="12px">Loading...</Typography>
+              <Skeleton variant="text" width="60%" height={16} />
             )}
           </Box>
         </Grid>
@@ -169,7 +170,7 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Typography fontSize="12px">Loading...</Typography>
+              <Skeleton variant="text" width="60%" height={16} />
             )}
           </Box>
         </Grid>

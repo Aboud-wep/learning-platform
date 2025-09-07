@@ -8,6 +8,7 @@ import {
   useTheme,
   useMediaQuery,
   CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CompassIcon from "./ui/compass";
@@ -173,7 +174,12 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         )}
 
         {loadingData ? (
-          <CircularProgress />
+          <Skeleton
+            variant="rectangular"
+            width="100%"
+            height={200}
+            sx={{ borderRadius: 2 }}
+          />
         ) : !hasStages ? (
           <Typography color="text.secondary" fontSize="14px">
             لا يوجد محترى لهذه المادة بعد
@@ -258,7 +264,7 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
               onClick={handleConfirm}
             >
               {loading ? (
-                <CircularProgress size={20} color="inherit" />
+                <Skeleton variant="text" width={60} height={20} />
               ) : (
                 "تأكيد"
               )}
