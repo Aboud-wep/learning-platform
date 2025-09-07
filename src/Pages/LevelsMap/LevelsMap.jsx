@@ -12,7 +12,7 @@ import HexPlayButton from "../../Component/HexButton/HexPlayButton/HexPlayButton
 const LevelsMap = () => {
   const { levelsData, stagesStatus, loading } = useLevels();
   const { profile } = useHome();
-  const { subjects, loadingg,userProgress } = useSubjects();
+  const { subjects, loadingg, userProgress } = useSubjects();
   const { subjectId } = useParams();
   const { setPageTitle } = useOutletContext();
   const [selectedStage, setSelectedStage] = useState(null);
@@ -48,7 +48,7 @@ const LevelsMap = () => {
       navigate("/subjects");
     }
     console.log("VD");
-    console.log(stagesStatus);
+    console.log("stagesStatus", stagesStatus);
     console.log(levelsData);
   }, [mySubjects, subjectId, navigate, loadingg]);
 
@@ -105,7 +105,7 @@ const LevelsMap = () => {
             mx: "auto", // <-- centers the whole zig-zag box
           }}
         >
-          {stagesStatus.map(({ stage, isDone, isPlayable }, index) => {
+          {stagesStatus.map(({ stage, isDone, isPlayable, items }, index) => {
             const align =
               index % 4 === 0
                 ? "center"
@@ -117,7 +117,9 @@ const LevelsMap = () => {
 
             return (
               <Box key={stage.id} display="flex" justifyContent={align}>
-                {isDone ? (
+                {items.length === 0 ? (
+                  <HexLockButton label={stage.name} />
+                ) : isDone ? (
                   <HexCheckButton label={stage.name} />
                 ) : isPlayable ? (
                   <HexPlayButton stage={stage} />
@@ -132,9 +134,14 @@ const LevelsMap = () => {
 
       {/* Sidebar */}
       <Box
-        sx={{ display: { xs: "none", md: "block" } }}
-        maxWidth={{ md: "350px" }}
-        mx="auto"
+        sx={{
+          flexShrink: 0,
+          // flexBasis: { xs: "100%", lg: "30%" }, // take 100% on mobile, 30% on desktop
+          maxWidth: { lg: "320px" }, // limit max width on large screens
+          minWidth: { lg: "300px" }, // prevent collapsing too much
+          mt: { xs: 3, lg: 0 }, // stack below on mobile
+          display: { xs: "none", lg: "block" },
+        }}
       >
         <ProfileStatsCard profile={profile} mySubjects={mySubjects} />
       </Box>

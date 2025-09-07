@@ -20,8 +20,8 @@ import {
   EmojiEvents as EmojiEventsIcon,
   SportsKabaddi as SportsKabaddiIcon,
   Person as PersonIcon,
-  Settings as SettingsIcon,
   Logout as LogoutIcon,
+  Dashboard as DashboardIcon,
 } from "@mui/icons-material";
 import { Outlet, useNavigate, Navigate } from "react-router-dom";
 import Logo from "../../assets/Icons/logo.png";
@@ -45,7 +45,7 @@ const UserLayout = () => {
     loading: authLoading,
   } = useAuth(); // Get auth state
   const [bottomNav, setBottomNav] = useState(0);
-
+  const role = localStorage.getItem("userRole");
   // Debug logging for hearts
   console.log(
     "🔄 UserLayout - Current profile hearts:",
@@ -139,15 +139,17 @@ const UserLayout = () => {
           </ListItemIcon>
           <ListItemText primary="الملف الشخصي" />
         </ListItemButton>
-        <ListItemButton
-          component="a"
-          href="https://alibdaagroup.com/backend/metadata-admin-control/"
-        >
-          <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="الإعدادات" />
-        </ListItemButton>
+        {role === "admin" && (
+          <ListItemButton
+            component="a"
+            href="https://alibdaagroup.com/backend/metadata-admin-control/"
+          >
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="لوحة التحكم" />
+          </ListItemButton>
+        )}
 
         <ListItemButton onClick={handleLogout}>
           <ListItemIcon>
@@ -162,8 +164,7 @@ const UserLayout = () => {
   return (
     <Box className="flex" dir="rtl">
       <Box component="nav" className="flex-shrink-0">
-        {/* Mobile Drawer */}
-        <Drawer
+        {/* <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
@@ -174,9 +175,8 @@ const UserLayout = () => {
           }}
         >
           {drawer}
-        </Drawer>
+        </Drawer> */}
 
-        {/* Permanent Drawer */}
         <Drawer
           variant="permanent"
           sx={{
@@ -260,9 +260,9 @@ const UserLayout = () => {
                 color: "#666",
               }}
             >
-              <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+              {/* <Typography fontSize={{ xs: "12px", sm: "14px" }}>
                 جاري التحميل...
-              </Typography>
+              </Typography> */}
             </Box>
           ) : profile && profile.hearts !== undefined ? (
             <Box
@@ -373,24 +373,7 @@ const UserLayout = () => {
             </Box>
           ) : null}
         </Box>
-        <Divider sx={{ display: { xs: "flex", md: "none" } }} />
-        <Button
-          onClick={handleLogout}
-          variant="text"
-          color="error"
-          startIcon={<LogoutIcon />}
-          sx={{
-            display: { xs: "flex", md: "none" },
-            fontWeight: 600,
-            fontSize: "0.95rem",
-            textTransform: "none",
-            "&:hover": {
-              backgroundColor: "rgba(211, 47, 47, 0.1)",
-            },
-          }}
-        >
-          تسجيل الخروج
-        </Button>
+
         <Divider />
         <Box
           component="main"
@@ -402,6 +385,7 @@ const UserLayout = () => {
           <Outlet context={{ setPageTitle }} />
         </Box>
       </Box>
+
       {/* Bottom Navigation for Mobile / iPad */}
       <Box
         sx={{

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
-
+import DOMPurify from "dompurify";
+import parse from "html-react-parser";
 const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   const options = question?.matching_columns;
 
@@ -163,7 +164,9 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
         className="text-xl font-bold mb-6"
         sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
       >
-        {question.text}
+        <div dir="rtl" style={{ lineHeight: 1.6 }}>
+          {parse(DOMPurify.sanitize(question.text))}
+        </div>
       </Box>
       <Box
         className="flex justify-center flex-wrap my-[75px]"

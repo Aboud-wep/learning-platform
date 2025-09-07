@@ -10,6 +10,7 @@ import {
   useTheme,
   useMediaQuery,
   Divider,
+  Stack,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -23,6 +24,7 @@ import {
   AchievementSkeleton,
   ListSkeleton,
 } from "../../Component/ui/SkeletonLoader";
+import { Dashboard as DashboardIcon } from "@mui/icons-material";
 import RecommendedFriendsDialog from "../../Component/RecommendedFriends/RecommendedFriendsDialog";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import achievementImg from "../../assets/Images/achievement.png";
@@ -48,6 +50,7 @@ const Profile = () => {
   } = useAchievements();
   const { logout: authLogout } = useAuth();
   const theme = useTheme();
+  const role = localStorage.getItem("userRole");
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [loadingId, setLoadingId] = useState(null);
@@ -566,6 +569,62 @@ const Profile = () => {
           recommended={recommended}
         />
       </Box>
+      <Divider sx={{ display: { xs: "flex", md: "none" } }} />
+      <Box
+        sx={{
+          alignItems: "center",
+          display: { xs: "flex", md: "none" },
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "center",
+          gap: 1,
+          width: "100%",
+        }}
+      >
+        {/* لوحة التحكم */}
+        {role === "admin" && (
+          <Button
+            variant="contained"
+            startIcon={<DashboardIcon />}
+            onClick={() =>
+              (window.location.href =
+                "https://alibdaagroup.com/backend/metadata-admin-control/")
+            }
+            sx={{
+              flex: 1, // equal size
+              borderRadius: "20px",
+              backgroundColor: "#205DC7",
+              "&:hover": { backgroundColor: "#174ea6" },
+              order: { xs: 1, sm: 2 }, // above on column, left on row
+            }}
+          >
+            لوحة التحكم
+          </Button>
+        )}
+
+        {/* تسجيل الخروج */}
+        <Button
+          onClick={handleLogout}
+          variant="contained"
+          color="error"
+          startIcon={<LogoutIcon />}
+          sx={{
+            flex: 1, // equal size
+            borderRadius: "20px",
+            textTransform: "none",
+            fontWeight: 600,
+            px: 3,
+            py: 1,
+            boxShadow: 2,
+            ":hover": {
+              backgroundColor: "#d32f2f",
+            },
+            order: { xs: 2, sm: 1 }, // below on column, right on row
+          }}
+        >
+          تسجيل الخروج
+        </Button>
+      </Box>
+
       {/* Reward Dialogs */}
       <AchievementRewardXPDialog
         open={openXPDialog}

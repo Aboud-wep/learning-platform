@@ -15,16 +15,17 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useAuth } from "./AuthContext"; // Import the auth context
+import { useAuth } from "./AuthContext";
+import { loginWithGoogleApi } from "./AuthApi";
+import { GoogleLogin } from "@react-oauth/google";
 import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/home";
-  const { login, error, loading, setError } = useAuth(); // Use auth context
 
+  const { login, error, loading, setError } = useAuth();
   const successMessage = location.state?.successMessage;
 
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +35,8 @@ export default function Login() {
     remember: false,
   });
 
+  const [validationError, setValidationError] = useState(""); // for client-side validation
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -42,9 +45,36 @@ export default function Login() {
     }));
   };
 
+  // validation function
+  const validateForm = () => {
+    if (form.identifier.trim().length < 3) {
+      return "اسم المستخدم أو البريد الإلكتروني يجب أن يكون على الأقل 3 أحرف.";
+    }
+
+    const password = form.password;
+    if (password.length < 8) {
+      return "كلمة المرور يجب أن تكون 8 أحرف على الأقل.";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.";
+    }
+    if (!/[a-z]/.test(password)) {
+      return "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.";
+    }
+
+    return ""; // valid
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setValidationError("");
+
+    const validationMsg = validateForm();
+    if (validationMsg) {
+      setValidationError(validationMsg);
+      return;
+    }
 
     const success = await login({
       identifier: form.identifier,
@@ -53,35 +83,42 @@ export default function Login() {
 
     if (success) {
       navigate(from, { replace: true });
+    } else {
+      setError("اسم المستخدم أو البريد الإلكتروني أو كلمة المرور غير صحيحة.");
     }
   };
 
-  const handleGoogleLogin = async (tokenResponse) => {
-    const { success, needs_username } = await loginWithGoogle(
-      tokenResponse.access_token
-    );
+  const handleGoogleLogin = async (credentialResponse) => {
+    setError("");
+    try {
+      const idToken = credentialResponse.credential;
+      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
-    if (success) {
       if (needs_username) {
-        navigate("/choose-username", { replace: true });
-      } else {
-        navigate(from, { replace: true });
+        navigate("/set-username");
+      } else if (success) {
+        navigate("/dashboard");
       }
+    } catch (err) {
+      setError("فشل تسجيل الدخول باستخدام Google");
     }
   };
-
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: handleGoogleLogin,
-    onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
-  });
 
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
       <Box className="p-6 w-full max-w-[500px]">
-        {successMessage && <Alert severity="success">{successMessage}</Alert>}
-        {error && <Alert severity="error">{error}</Alert>}
-
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          {validationError && (
+            <Alert severity="error" sx={{ borderRadius: "12px" }}>
+              {validationError}
+            </Alert>
+          )}
+          {error && (
+            <Alert severity="error" sx={{ borderRadius: "12px" }}>
+              {error}
+            </Alert>
+          )}
+
           <TextField
             label="اسم المستخدم أو البريد الإلكتروني"
             name="identifier"
@@ -166,7 +203,9 @@ export default function Login() {
                   checked={form.remember}
                   onChange={handleChange}
                   name="remember"
-                  sx={{ "&.Mui-checked": { color: "#205DC7" } }}
+                  sx={{
+                    "&.Mui-checked": { color: "#205DC7" },
+                  }}
                 />
               }
               label="تذكرني"
@@ -197,7 +236,35 @@ export default function Login() {
             )}
           </Button>
 
-          <Button
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => setError("فشل تسجيل الدخول باستخدام Google")}
+          />
+
+          <Box className="flex justify-center pt-10">
+            <Typography
+              sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}
+            >
+              لست عضوا حتى الآن؟&nbsp;
+            </Typography>
+            <Link
+              href="/register"
+              sx={{
+                fontSize: { xs: "16px", sm: "20px" },
+                textDecoration: "none",
+              }}
+            >
+              سجل الآن
+            </Link>
+          </Box>
+        </form>
+      </Box>
+    </Box>
+  );
+}
+
+{
+  /* <Button
             onClick={loginWithGoogle}
             disabled={loading}
             startIcon={
@@ -239,26 +306,5 @@ export default function Login() {
             }}
           >
             تسجيل الدخول باستخدام Google
-          </Button>
-
-          <Box className="flex justify-center pt-10">
-            <Typography
-              sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}
-            >
-              لست عضوا حتى الآن؟&nbsp;
-            </Typography>
-            <Link
-              href="/register"
-              sx={{
-                fontSize: { xs: "16px", sm: "20px" },
-                textDecoration: "none",
-              }}
-            >
-              سجل الآن
-            </Link>
-          </Box>
-        </form>
-      </Box>
-    </Box>
-  );
+          </Button> */
 }

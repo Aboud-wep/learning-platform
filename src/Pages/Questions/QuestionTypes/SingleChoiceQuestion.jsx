@@ -60,8 +60,8 @@ export default function SingleChoiceQuestion({
       return isLiveSelected ? "#205DC7" : "#BFBFBF"; // blue or gray before submit
     }
 
-    if (isSelected && isCorrect) return "green";
-    if (isSelected && !isCorrect) return "red";
+    if (isSelected && isCorrect) return "#A0D400";
+    if (isSelected && !isCorrect) return "#FF4346";
     return "#BFBFBF";
   };
 

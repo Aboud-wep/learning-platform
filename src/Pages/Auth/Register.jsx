@@ -11,10 +11,13 @@ import {
   Alert,
   Link,
 } from "@mui/material";
-import { registerUser } from "./AuthApi";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
-
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { IconButton, InputAdornment } from "@mui/material";
+import { registerUser, loginWithGoogleApi } from "./AuthApi";
+import { GoogleLogin } from "@react-oauth/google";
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -23,26 +26,35 @@ export default function Register() {
     first_name: "",
     last_name: "",
     password: "",
+    confirmPassword: "",
     account_enabled: true,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+  const handleGoogleLogin = async (credentialResponse) => {
+    setLoading(true);
+    setError("");
+    try {
+      const idToken = credentialResponse.credential;
+      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
-  const handleGoogleLogin = async (tokenResponse) => {
-    const { success, needs_username } = await loginWithGoogle(
-      tokenResponse.access_token
-    );
-
-    if (success) {
       if (needs_username) {
-        navigate("/choose-username", { replace: true });
-      } else {
-        navigate(from, { replace: true });
+        navigate("/set-username");
+      } else if (success) {
+        navigate("/dashboard");
       }
+    } catch (err) {
+      setError("فشل التسجيل باستخدام Google");
+    } finally {
+      setLoading(false);
     }
   };
-  const googleLoginButton = useGoogleLogin({
-    onSuccess: handleGoogleLogin,
-    onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
-  });
+  // const googleLoginButton = useGoogleLogin({
+  //   onSuccess: handleGoogleLogin,
+  //   onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
+  // });
   const [validationErrors, setValidationErrors] = useState({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -66,9 +78,12 @@ export default function Register() {
     if (form.last_name.length < 3) {
       errors.last_name = "اسم العائلة يجب أن يحتوي على 3 أحرف على الأقل";
     }
+    if (form.password !== form.confirmPassword) {
+      errors.confirmPassword = "كلمة المرور غير متطابقة";
+    }
 
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\-]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&_\-]{8,}$/;
     if (!passwordRegex.test(form.password)) {
       errors.password =
         "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص";
@@ -239,7 +254,7 @@ export default function Register() {
           <TextField
             label="كلمة المرور"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={form.password}
             onChange={handleChange}
             fullWidth
@@ -248,6 +263,15 @@ export default function Register() {
             helperText={validationErrors.password}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleTogglePassword} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "20px",
@@ -263,6 +287,53 @@ export default function Register() {
                 },
                 "&.Mui-focused fieldset": {
                   borderColor: validationErrors.password ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
+              },
+            }}
+          />
+          <TextField
+            label="تأكيد كلمة المرور"
+            name="confirmPassword"
+            type={showPassword ? "text" : "password"}
+            value={form.confirmPassword}
+            onChange={handleChange}
+            fullWidth
+            required
+            error={!!validationErrors.confirmPassword}
+            helperText={validationErrors.confirmPassword}
+            variant="outlined"
+            InputLabelProps={{ sx: { color: "#888" } }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleTogglePassword} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "20px",
+                px: 2,
+                "& input": { color: "#000" },
+                "& fieldset": {
+                  borderColor: validationErrors.confirmPassword
+                    ? "red"
+                    : "#205DC7",
+                  borderWidth: "2px",
+                },
+                "&:hover fieldset": {
+                  borderColor: validationErrors.confirmPassword
+                    ? "red"
+                    : "#205DC7",
+                  borderWidth: "2px",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: validationErrors.confirmPassword
+                    ? "red"
+                    : "#205DC7",
                   borderWidth: "2px",
                 },
               },
@@ -285,7 +356,7 @@ export default function Register() {
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : "تسجيل"}
           </Button>
-          <Button
+          {/* <Button
             onClick={googleLoginButton} // <-- use renamed hook here
             disabled={loading}
             startIcon={
@@ -327,8 +398,11 @@ export default function Register() {
             }}
           >
             تسجيل الدخول باستخدام Google
-          </Button>
-
+          </Button> */}
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => setError("فشل التسجيل باستخدام Google")}
+          />
           <Box className="flex justify-center pt-6">
             <Typography
               sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}

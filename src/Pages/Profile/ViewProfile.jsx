@@ -201,7 +201,7 @@ const ViewProfile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                {profile.my_subjects_count}
+                {userProfile.my_subjects_count}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 عدد المواد التي أدرسها
@@ -227,7 +227,7 @@ const ViewProfile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                🔥 {profile.highest_streak}
+                🔥 {userProfile.highest_streak}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 أيام الحماسة
@@ -253,7 +253,7 @@ const ViewProfile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                {profile.xp} ⚡
+                {userProfile.xp} ⚡
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 إجمالي نقاط XP
@@ -279,7 +279,7 @@ const ViewProfile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                {profile.xp} ⚡
+                {userProfile.xp} ⚡
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 إجمالي نقاط XP

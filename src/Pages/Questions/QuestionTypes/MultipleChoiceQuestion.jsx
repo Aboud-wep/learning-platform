@@ -64,8 +64,8 @@ export default function MultipleChoiceQuestion({
 
     if (!showResult) return isSelected ? "#205DC7" : "#BFBFBF"; // pre-submit blue
 
-    if (isSelected && isCorrect) return "green"; // correct
-    if (isSelected && !isCorrect) return "red"; // wrong selection
+    if (isSelected && isCorrect) return "#A0D400"; // correct
+    if (isSelected && !isCorrect) return "#FF4346"; // wrong selection
     return "#BFBFBF";
   };
 
