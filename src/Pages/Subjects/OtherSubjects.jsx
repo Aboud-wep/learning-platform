@@ -16,11 +16,15 @@ import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SearchIcon from "@mui/icons-material/Search";
 import Image from "../../assets/Images/Image.png";
+import {
+  GridSkeleton,
+  ProfileStatsSkeleton,
+} from "../../Component/ui/SkeletonLoader";
 
 const OtherSubjects = () => {
   const { setPageTitle } = useOutletContext();
   const navigate = useNavigate();
-  const { subjects, userProgress } = useSubjects();
+  const { subjects, userProgress, loadingg } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -69,6 +73,39 @@ const OtherSubjects = () => {
       allItems.every((item) => item?.lesson?.is_passed === true)
     );
   }, [lastUpdatedSubject]);
+
+  // Show skeleton loading while data is loading
+  if (loadingg) {
+    return (
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+          p: { xs: 2, md: 3 },
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+        }}
+      >
+        {/* Main Content Skeleton */}
+        <Box sx={{ flex: 1, maxWidth: { md: 800 } }}>
+          {/* Search bar skeleton */}
+          <Box sx={{ mb: 3 }}>
+            <GridSkeleton columns={1} rows={1} itemHeight={56} />
+          </Box>
+          {/* Subjects grid skeleton */}
+          <GridSkeleton columns={2} rows={6} itemHeight={200} />
+        </Box>
+
+        {/* Sidebar Skeleton - Hidden on mobile */}
+        {isDesktop && (
+          <Box sx={{ width: { md: 324 } }}>
+            <ProfileStatsSkeleton />
+          </Box>
+        )}
+      </Box>
+    );
+  }
 
   return (
     <Box

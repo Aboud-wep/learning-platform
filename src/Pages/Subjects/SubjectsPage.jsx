@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
-  CircularProgress,
   Grid,
   Button,
   useMediaQuery,
