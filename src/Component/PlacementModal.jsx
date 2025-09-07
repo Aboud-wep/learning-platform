@@ -41,7 +41,7 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
         const subject = response.data?.data;
         console.log("📦 Subject info:", subject);
 
-        setHasPlacement(subject?.has_placement_test || false);
+        setHasPlacement(subject?.has_placement || false);
         setHasStages(
           subject?.levels?.some(
             (level) => level.stages && level.stages.length > 0

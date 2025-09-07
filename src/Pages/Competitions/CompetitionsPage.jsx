@@ -113,6 +113,15 @@ const CompetitionsPage = () => {
     return diff > 0 ? diff : 0;
   }, [competition]);
 
+  // 🟢 Calculate total users across all zones
+  const totalUsers =
+    (competition?.progress_zone?.length || 0) +
+    (competition?.zone?.length || 0) +
+    (competition?.retreat_zone?.length || 0);
+
+  // 🟢 Calculate half of them (rounded down)
+  const halfUsers = Math.floor(totalUsers / 2);
+
   if (loading) return <CompetitionPageSkeleton />;
 
   // Show message if profile is not loaded yet
@@ -253,7 +262,7 @@ const CompetitionsPage = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: 2,
+              gap: "40px",
             }}
           >
             {prevLevel && (
@@ -261,7 +270,7 @@ const CompetitionsPage = () => {
                 src={prevLevel.image}
                 alt={prevLevel.name}
                 style={{
-                  width: "80px",
+                  width: "60px",
                   height: "80px",
                   opacity: 0.5,
                   borderRadius: "12px",
@@ -272,7 +281,7 @@ const CompetitionsPage = () => {
             <img
               src={currentLevel.image}
               alt={currentLevel.name}
-              style={{ width: "120px", height: "120px", borderRadius: "16px" }}
+              style={{ borderRadius: "16px" }}
             />
 
             {nextLevel && (
@@ -280,7 +289,7 @@ const CompetitionsPage = () => {
                 src={nextLevel.image}
                 alt={nextLevel.name}
                 style={{
-                  width: "80px",
+                  width: "60px",
                   height: "80px",
                   opacity: 0.5,
                   borderRadius: "12px",
@@ -301,6 +310,20 @@ const CompetitionsPage = () => {
             {currentLevel.name}
           </Typography>
         )}
+        {halfUsers > 0 && (
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "20px",
+              color: "#2D3748",
+              fontWeight: "500",
+              my: 2,
+            }}
+          >
+            يتقدم الـ {halfUsers} الأوائل إلى المستوى التالي
+          </Typography>
+        )}
+
         {/* 🟢 Remaining Days */}
         {remainingDays !== null && (
           <Typography
