@@ -129,7 +129,7 @@ const ProfileStatsCard = ({
             {profile ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Typography fontSize={{ xs: "24px", sm: "40px" }}>
-                  {profile.highest_streak}
+                  {profile.streak}
                 </Typography>
                 <Typography fontSize={{ xs: "10px", sm: "14px" }}>
                   يوم

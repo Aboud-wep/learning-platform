@@ -228,7 +228,7 @@ const ViewProfile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                🔥 {userProfile.highest_streak}
+                🔥 {userProfile.streak}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 أيام الحماسة

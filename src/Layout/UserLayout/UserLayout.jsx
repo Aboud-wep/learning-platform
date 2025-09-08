@@ -307,7 +307,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.highest_streak}
+                  {profile.streak}
                 </Typography>
                 <Box
                   component="img"

@@ -190,7 +190,7 @@ const Profile = () => {
                 fontWeight="bold"
                 sx={{ fontSize: { xs: "28px", md: "40px" } }}
               >
-                🔥 {profile.highest_streak}
+                🔥 {profile.streak}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 أيام الحماسة
