@@ -35,6 +35,7 @@ const MainRoutes = () => (
     {/* Standalone routes that don't need authentication checks */}
     <Route path="/lesson-ended" element={<LessonEnded />} />
     <Route path="/daily-log" element={<DailyLog />} />
+    <Route path="no-hearts" element={<NoHeartsPage />} />
     <Route
       path="/rewarded-motivation-freezes"
       element={<RewardedMotivationFreezes />}
@@ -55,7 +56,7 @@ const MainRoutes = () => (
         <Route path="*" element={<Navigate to="/home" replace />} />
         <Route path="user-profile/:id" element={<ViewProfile />} />
         <Route path="leaderboard" element={<Leaderboard />} />
-        <Route path="no-hearts" element={<NoHeartsPage />} />
+        
         <Route path="home" element={<Home />} />
         <Route path="profile" element={<Profile />} />
         <Route path="settings" element={<Settings />} />

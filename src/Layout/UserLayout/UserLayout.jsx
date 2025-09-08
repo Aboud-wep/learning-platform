@@ -1,5 +1,5 @@
 // src/layouts/UserLayout.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Drawer,
@@ -23,7 +23,7 @@ import {
   Logout as LogoutIcon,
   Dashboard as DashboardIcon,
 } from "@mui/icons-material";
-import { Outlet, useNavigate, Navigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/Icons/logo.png";
 import Coin from "../../assets/Icons/coin.png";
 import Fire from "../../assets/Icons/fire.png";
@@ -38,12 +38,15 @@ const UserLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState("");
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
   const { profile, updateProfileStats, loading: profileLoading } = useHome(); // useHome reactive
   const {
     logout: authLogout,
     isAuthenticated,
     loading: authLoading,
   } = useAuth(); // Get auth state
+  const [activeNavItem, setActiveNavItem] = useState("/home");
+
   const [bottomNav, setBottomNav] = useState(0);
   const role = localStorage.getItem("userRole");
   // Debug logging for hearts
@@ -55,7 +58,37 @@ const UserLayout = () => {
     "Auth:",
     isAuthenticated
   );
+  // Update active navigation item based on URL
+  useEffect(() => {
+    const path = location.pathname;
+    setActiveNavItem(path);
 
+    // Also update bottom navigation based on URL
+    switch (path) {
+      case "/home":
+        setBottomNav(0);
+        break;
+      case "/subjects":
+        setBottomNav(1);
+        break;
+      case "/competitions":
+        setBottomNav(2);
+        break;
+      case "/achievements":
+        setBottomNav(3);
+        break;
+      case "/profile":
+        setBottomNav(4);
+        break;
+      default:
+        // For nested routes, try to match the parent
+        if (path.startsWith("/home")) setBottomNav(0);
+        else if (path.startsWith("/subjects")) setBottomNav(1);
+        else if (path.startsWith("/competitions")) setBottomNav(2);
+        else if (path.startsWith("/achievements")) setBottomNav(3);
+        else if (path.startsWith("/profile")) setBottomNav(4);
+    }
+  }, [location.pathname]);
   // Don't render if still loading authentication
   if (authLoading) {
     return (
@@ -108,41 +141,168 @@ const UserLayout = () => {
       </Box>
 
       <List>
-        <ListItemButton onClick={() => navigate("/home")}>
+        <ListItemButton
+          selected={activeNavItem === "/home"}
+          onClick={() => navigate("/home")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "#005DCA",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary="الرئيسية" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/subjects")}>
+
+        <ListItemButton
+          selected={activeNavItem === "/subjects"}
+          onClick={() => navigate("/subjects")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "#005DCA",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <MenuBookIcon />
           </ListItemIcon>
           <ListItemText primary="المواد" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/competitions")}>
+
+        <ListItemButton
+          selected={activeNavItem === "/competitions"}
+          onClick={() => navigate("/competitions")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "#005DCA",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <EmojiEventsIcon />
           </ListItemIcon>
           <ListItemText primary="المسابقات" />
         </ListItemButton>
-        <ListItemButton onClick={() => navigate("/achievements")}>
+
+        <ListItemButton
+          selected={activeNavItem === "/achievements"}
+          onClick={() => navigate("/achievements")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "#005DCA",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <SportsKabaddiIcon />
           </ListItemIcon>
           <ListItemText primary="التحديات" />
         </ListItemButton>
+
         <Divider />
-        <ListItemButton onClick={() => navigate("/profile")}>
+
+        <ListItemButton
+          selected={
+            activeNavItem === "/profile" ||
+            activeNavItem.startsWith("/user-profile/")
+          }
+          onClick={() => navigate("/profile")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "#005DCA",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary="الملف الشخصي" />
         </ListItemButton>
+
         {role === "admin" && (
           <ListItemButton
             component="a"
             href="https://alibdaagroup.com/backend/metadata-admin-control/"
+            selected={false}
+            sx={{
+              borderRadius: "10px",
+              width: "90%",
+              mx: "auto", // ✅ centers the whole item
+              "&.Mui-selected": {
+                backgroundColor: "#F2F2F2",
+                "& .MuiListItemIcon-root": {
+                  color: "#005DCA",
+                },
+                "&:hover": {
+                  backgroundColor: "#F2F2F2",
+                },
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            }}
           >
             <ListItemIcon>
               <DashboardIcon />
@@ -151,7 +311,26 @@ const UserLayout = () => {
           </ListItemButton>
         )}
 
-        <ListItemButton onClick={handleLogout}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto", // ✅ centers the whole item
+            "&.Mui-selected": {
+              backgroundColor: "#F2F2F2",
+              "& .MuiListItemIcon-root": {
+                color: "white",
+              },
+              "&:hover": {
+                backgroundColor: "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#F2F2F2",
+            },
+          }}
+        >
           <ListItemIcon>
             <LogoutIcon />
           </ListItemIcon>

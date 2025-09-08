@@ -1,70 +1,119 @@
-// src/pages/NoHeartsPage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import NoHeartsImg from "../assets/Icons/NoHearts.png"; // adjust path if needed
+import NoHeartsImg from "../assets/Icons/NoHearts.png";
 import { useHome } from "../Pages/Home/Context/HomeContext";
+import {
+  Box,
+  Typography,
+  Button,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 
 export default function NoHeartsPage() {
   const navigate = useNavigate();
   const { profile } = useHome();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         minHeight: "100vh",
         display: "flex",
-        justifyContent: "center",
+        flexDirection: "column",
         alignItems: "center",
-
+        justifyContent: "center",
+        backgroundColor: "white",
+        px: { xs: 2, sm: 4, md: 6, lg: "249px" },
+        py: { xs: 4, md: 0 },
         textAlign: "center",
-        width: "100%",
       }}
     >
-      <div
-        style={{
-          borderRadius: 12,
+      {/* Main content container */}
+
+      <Box
+        sx={{
           width: "100%",
-          padding: `0 249px`,
+          maxWidth: "800px",
         }}
       >
-        <h2 className="text-[20px] mb-[62px]">
+        <Typography
+          variant="h2"
+          sx={{
+            fontSize: { xs: "18px", sm: "20px" },
+            mb: { xs: 4, sm: 5, md: 6.2 },
+            fontWeight: "medium",
+            lineHeight: 1.5,
+          }}
+        >
           لا تيأس، لقد استنفذت جميع محاولاتك، عُد في وقتٍ لاحق
-        </h2>
+        </Typography>
 
         {/* Image between h2 and p */}
-        <img
+        <Box
+          component="img"
           src={NoHeartsImg}
           alt="No Hearts"
-          style={{
+          sx={{
             display: "block",
-            margin: "16px auto 45px auto",
+            margin: "16px auto",
+            mb: { xs: 3, sm: 4, md: 4.5 },
+            width: { xs: "70%", sm: "60%", md: "50%", lg: "40%" },
+            maxWidth: "300px",
+            height: "auto",
           }}
         />
 
-        <p
-          style={{
-            fontSize: "40px",
-            marginBottom: 24,
-            background: "linear-gradient(to left, #205CC7 , #31A9D6)",
+        <Typography
+          sx={{
+            fontSize: { xs: "28px", sm: "32px", md: "36px", lg: "40px" },
+            mb: { xs: 3, sm: 4 },
+            background: "linear-gradient(to left, #205CC7, #31A9D6)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            color: "transparent",
             fontWeight: "900",
+            lineHeight: 1.2,
           }}
         >
           استنفذت محاولاتك!
-        </p>
-        
-
-
-        <div style={{ textAlign: "left" }}>
-          <button
-            onClick={() => navigate("/home")}
-            className="bg-[#205DC7] text-white py-[8px] px-7 rounded-[1000px] text-[14px]"
-          >
-            أكمل
-          </button>
-        </div>
-      </div>
-    </div>
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: { xs: "center", md: "flex-end" },
+          px: { xs: 2, md: 0 },
+          position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
+          // position:"static",
+          bottom: { xs: 0, md: "auto" },
+          py: { xs: 2, md: "40px" },
+        }}
+      >
+        <Button
+          onClick={() => navigate("/home")}
+          sx={{
+            px: 4,
+            py: 1.5,
+            width: { xs: "100%", md: "auto" },
+            backgroundColor: "#205DC7",
+            color: "white",
+            borderRadius: "1000px",
+            fontSize: { xs: "14px", md: "16px" },
+            fontWeight: "bold",
+            minWidth: { xs: "120px", md: "auto" },
+            "&:hover": {
+              backgroundColor: "#1a4aa0",
+            },
+          }}
+        >
+          أكمل
+        </Button>
+      </Box>
+    </Box>
   );
 }

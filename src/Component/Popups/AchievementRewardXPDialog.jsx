@@ -70,7 +70,7 @@ const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
           )}
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={{ display: "flex", justifyContent: {xs:"center",sm:"flex-end"} }}>
           <Button
             onClick={onClose}
             sx={{
@@ -81,6 +81,7 @@ const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
               borderRadius: "1000px",
               fontSize: "14px",
               "&:hover": { backgroundColor: "#1a4aa0" },
+              width:{xs:"100%",sm:"auto"}
             }}
           >
             أكمل

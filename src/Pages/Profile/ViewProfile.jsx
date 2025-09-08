@@ -131,8 +131,8 @@ const ViewProfile = () => {
           <Avatar
             src={userProfile.avatar || ""}
             sx={{
-              width: "300px",
-              height: "300px",
+              width: { xs: "270px", sm: "300px" },
+              height: { xs: "270px", sm: "300px" },
               mx: "auto",
               mb: "10px",
             }}

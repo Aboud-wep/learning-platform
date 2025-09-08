@@ -189,31 +189,54 @@ const AchievementsPage = () => {
                     pr: { xs: 2.5, md: 0 },
                   }}
                 >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      color: "#2D2D2D",
-                      mb: 0.5,
-                    }}
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
                   >
-                    {item.achievement.name}
-                  </Typography>
+                    <Box>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "16px",
+                          color: "#2D2D2D",
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.achievement.name}
+                      </Typography>
 
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: 500,
-                      fontSize: "16px",
-                      color: "#2D2D2D",
-                      mb: 0.5,
-                    }}
-                  >
-                    {item.achievement.description}
-                  </Typography>
-
-                  {/* Progress bar */}
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: "16px",
+                          color: "#2D2D2D",
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.achievement.description}
+                      </Typography>
+                    </Box>
+                    {item.completion_percentage === 100 && (
+                      <Button
+                        variant="contained"
+                        sx={{
+                          mt: 2,
+                          borderRadius: "1000px",
+                          py: 1,
+                          backgroundColor: "#205DC7",
+                        }}
+                        onClick={() => claimReward(item.achievement.id)}
+                        disabled={loadingId === item.achievement.id}
+                      >
+                        {loadingId === item.achievement.id ? (
+                          <Skeleton variant="text" width={100} height={20} />
+                        ) : (
+                          "احصل على جائزتك"
+                        )}
+                      </Button>
+                    )}
+                  </Box>
                   <Box sx={{ position: "relative", mt: 2 }}>
                     <LinearProgress
                       variant="determinate"
@@ -247,24 +270,6 @@ const AchievementsPage = () => {
                         : `${item.completion_percentage}%`}
                     </Typography>
                   </Box>
-
-                  {/* Claim button */}
-                  {item.completion_percentage === 100 && (
-                    <Button
-                      variant="contained"
-                      color="success"
-                      fullWidth
-                      sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                      onClick={() => claimReward(item.achievement.id)}
-                      disabled={loadingId === item.achievement.id}
-                    >
-                      {loadingId === item.achievement.id ? (
-                        <Skeleton variant="text" width={100} height={20} />
-                      ) : (
-                        "احصل على جائزتك"
-                      )}
-                    </Button>
-                  )}
                 </Box>
               </Box>
             </Box>

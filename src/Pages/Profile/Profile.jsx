@@ -326,38 +326,71 @@ const Profile = () => {
                       <Box
                         sx={{
                           flex: 1,
-                          width: "100%",
+                          py: { xs: 2.5, md: 0 },
+                          pr: { xs: 2.5, md: 0 },
                         }}
                       >
-                        <Typography
-                          variant="body1"
+                        <Box
                           sx={{
-                            fontWeight: 500,
-                            fontSize: { xs: "14px", sm: "16px" },
-                            color: "#2D2D2D",
-                            mb: 0.5,
+                            display: "flex",
+                            justifyContent: "space-between",
                           }}
                         >
-                          {item.achievement.name}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 400,
-                            fontSize: { xs: "12px", sm: "14px" },
-                            color: "#6B6B6B",
-                            mb: 2,
-                          }}
-                        >
-                          {item.achievement.description}
-                        </Typography>
+                          <Box>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: "16px",
+                                color: "#2D2D2D",
+                                mb: 0.5,
+                              }}
+                            >
+                              {item.achievement.name}
+                            </Typography>
 
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: "16px",
+                                color: "#2D2D2D",
+                                mb: 0.5,
+                              }}
+                            >
+                              {item.achievement.description}
+                            </Typography>
+                          </Box>
+                          {item.completion_percentage === 100 && (
+                            <Button
+                              variant="contained"
+                              sx={{
+                                mt: 2,
+                                borderRadius: "1000px",
+                                py: 1,
+                                backgroundColor: "#205DC7",
+                              }}
+                              onClick={() => claimReward(item.achievement.id)}
+                              disabled={loadingId === item.achievement.id}
+                            >
+                              {loadingId === item.achievement.id ? (
+                                <Skeleton
+                                  variant="text"
+                                  width={100}
+                                  height={20}
+                                />
+                              ) : (
+                                "احصل على جائزتك"
+                              )}
+                            </Button>
+                          )}
+                        </Box>
                         <Box sx={{ position: "relative", mt: 2 }}>
                           <LinearProgress
                             variant="determinate"
                             value={item.completion_percentage}
                             sx={{
-                              height: { xs: 14, sm: 20, md: 24 },
+                              height: { xs: 14, sm: 24 },
                               borderRadius: "8px",
                               backgroundColor: "#F0F0F0",
                               "& .MuiLinearProgress-bar": {
@@ -366,6 +399,7 @@ const Profile = () => {
                               },
                             }}
                           />
+
                           <Typography
                             variant="caption"
                             sx={{
@@ -375,7 +409,7 @@ const Profile = () => {
                               transform: "translate(-50%, -50%)",
                               color: "black",
                               fontWeight: "bold",
-                              fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                              fontSize: "16px",
                               textShadow: "0 0 2px rgba(0,0,0,0.3)",
                             }}
                           >
@@ -384,21 +418,6 @@ const Profile = () => {
                               : `${item.completion_percentage}%`}
                           </Typography>
                         </Box>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          fullWidth
-                          sx={{ mt: 2, borderRadius: "12px", py: 1 }}
-                          onClick={() => claimReward(item.achievement.id)}
-                          disabled={
-                            item.completion_percentage !== 100 ||
-                            loadingId === item.achievement.id
-                          }
-                        >
-                          {loadingId === item.achievement.id
-                            ? "جاري الاستلام..."
-                            : "احصل على جائزتك"}
-                        </Button>
                       </Box>
                     </Box>
                   </Box>

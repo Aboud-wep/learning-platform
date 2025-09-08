@@ -98,13 +98,15 @@ export default function Register() {
     e.preventDefault();
     setMessage("");
     setError("");
+    setValidationErrors({}); // reset field errors first
 
-    // 🛑 Validate first, before setting loading
+    // 🛑 Validate client-side before sending
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       const data = await registerUser(form);
+
       navigate("/login", {
         replace: true,
         state: {
@@ -114,10 +116,28 @@ export default function Register() {
         },
       });
     } catch (err) {
-      setError(err.response?.data?.meta?.message || "حدث خطأ ما");
       console.error("Register error:", err);
-    } finally {
-      setLoading(false);
+
+      // check if backend sent field-level errors in meta.message
+      const backendMessages = err.response?.data?.meta?.message;
+
+      if (backendMessages && typeof backendMessages === "object") {
+        setValidationErrors(
+          Object.fromEntries(
+            Object.entries(backendMessages).map(([field, messages]) => [
+              field,
+              Array.isArray(messages) ? messages[0] : messages,
+            ])
+          )
+        );
+      } else {
+        // fallback: general error message
+        setError(
+          typeof backendMessages === "string"
+            ? backendMessages
+            : "حدث خطأ ما أثناء إنشاء الحساب، حاول مرة أخرى."
+        );
+      }
     }
   };
 
@@ -168,6 +188,8 @@ export default function Register() {
             onChange={handleChange}
             fullWidth
             required
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
             variant="outlined"
             InputLabelProps={{ sx: { color: "#888" } }}
             sx={{
@@ -175,13 +197,16 @@ export default function Register() {
                 borderRadius: "20px",
                 px: 2,
                 "& input": { color: "#000" },
-                "& fieldset": { borderColor: "#205DC7", borderWidth: "2px" },
+                "& fieldset": {
+                  borderColor: validationErrors.email ? "red" : "#205DC7",
+                  borderWidth: "2px",
+                },
                 "&:hover fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.email ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#205DC7",
+                  borderColor: validationErrors.email ? "red" : "#205DC7",
                   borderWidth: "2px",
                 },
               },
@@ -404,10 +429,10 @@ export default function Register() {
           >
             تسجيل الدخول باستخدام Google
           </Button> */}
-          <GoogleLogin
+          {/* <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => setError("فشل التسجيل باستخدام Google")}
-          />
+          /> */}
           <Box className="flex justify-center pt-6">
             <Typography
               sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}

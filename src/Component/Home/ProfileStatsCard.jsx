@@ -162,7 +162,7 @@ const ProfileStatsCard = ({
             </Typography>
             {profile ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Typography fontSize={{ xs: "24px", sm: "40px" }}>
+                <Typography fontSize={{ xs: "24px", sm: "30px" }}>
                   {profile.xp}
                 </Typography>
                 <Typography fontSize={{ xs: "10px", sm: "14px" }}>

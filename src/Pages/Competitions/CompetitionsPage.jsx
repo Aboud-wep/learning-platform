@@ -135,6 +135,7 @@ const CompetitionsPage = () => {
   }
 
   // Function to render a player row with global ranking
+  // Function to render a player row with global ranking
   const renderPlayerRow = (player, globalRank) => {
     const isTopThree = globalRank <= 3;
     const zoneColor =
@@ -144,6 +145,8 @@ const CompetitionsPage = () => {
         ? "#2196F3"
         : "#F44336";
 
+    const isMe = player.is_me;
+
     return (
       <Box
         key={player.id}
@@ -152,7 +155,7 @@ const CompetitionsPage = () => {
           alignItems: "center",
           justifyContent: "space-between",
           p: 2,
-          backgroundColor: "#fff",
+          backgroundColor: isMe ? "#C4DAFF" : "#fff", // 🔵 light highlight for me
           borderRadius: "12px",
           mb: 1.5,
         }}
@@ -186,9 +189,8 @@ const CompetitionsPage = () => {
               justifyContent: "center",
               mr: 2,
               fontWeight: "bold",
-
               fontSize: "20px",
-              textShadow: isTopThree ? "0 0 3px rgba(0,0,0,0.6)" : "none", // better contrast on icons
+              textShadow: isTopThree ? "0 0 3px rgba(0,0,0,0.6)" : "none",
             }}
           >
             {globalRank}
@@ -208,26 +210,25 @@ const CompetitionsPage = () => {
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Typography
               sx={{
-                fontWeight: 500,
+                fontWeight: isMe ? "bold" : 500, // bold name if it's me
                 fontSize: "16px",
-                color: "#2D3748",
+                color: isMe ? "#205DC7" : "#2D3748", // 🔵 change text color
               }}
             >
               {player.first_name} {player.last_name}
+              
             </Typography>
           </Box>
         </Box>
 
         {/* XP Badge */}
-        <Box
-          sx={{
-            textAlign: "center",
-          }}
-        >
+        <Box sx={{ textAlign: "center" }}>
           <Typography
             sx={{
               fontSize: "20px",
               direction: "rtl",
+              fontWeight: isMe ? "bold" : 400,
+              color: isMe ? "#205DC7" : "inherit",
             }}
           >
             {player.xp_per_week} XP

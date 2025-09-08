@@ -45,22 +45,23 @@ const AchievementRewardFreezeDialog = ({ open, onClose, rewards }) => {
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            onClick={onClose}
-            sx={{
-              backgroundColor: "#205DC7",
-              color: "white",
-              py: "8px",
-              px: "24px",
-              borderRadius: "1000px",
-              fontSize: "14px",
-              "&:hover": { backgroundColor: "#1a4aa0" },
-            }}
-          >
-            أكمل
-          </Button>
-        </Box>
+        <Box sx={{ display: "flex", justifyContent: {xs:"center",sm:"flex-end"} }}>
+                  <Button
+                    onClick={onClose}
+                    sx={{
+                      backgroundColor: "#205DC7",
+                      color: "white",
+                      py: "8px",
+                      px: "24px",
+                      borderRadius: "1000px",
+                      fontSize: "14px",
+                      "&:hover": { backgroundColor: "#1a4aa0" },
+                      width:{xs:"100%",sm:"auto"}
+                    }}
+                  >
+                    أكمل
+                  </Button>
+                </Box>
       </DialogContent>
     </Dialog>
   );
