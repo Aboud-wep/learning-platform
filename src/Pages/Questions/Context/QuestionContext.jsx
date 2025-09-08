@@ -114,11 +114,21 @@ export const QuestionProvider = ({ children }) => {
   };
 
   const startStageItem = async (stage_item_id) => {
+    if (!stage_item_id) {
+      console.warn(
+        "⚠️ startStageItem called without stage_item_id. Skipping API call."
+      );
+      return null;
+    }
+
+    // Persist the stage ID so page refresh can resume
+    localStorage.setItem("currentStageId", stage_item_id);
+
     setLoading(true);
     const token = localStorage.getItem("accessToken");
     if (!token) {
       navigate("/login", { replace: true });
-      return Promise.resolve(null);
+      return null;
     }
 
     try {
@@ -127,39 +137,27 @@ export const QuestionProvider = ({ children }) => {
         "subjects/lessons/website/start-item",
         { stage_item_id }
       );
-      console.log("✅ Full API response:", res);
 
       const data = res.data?.data;
       if (!data) {
         console.error("⚠️ No data in response:", res);
-        return;
+        return null;
       }
 
-      // Check if this is a test or lesson
       const isTestItem = data.item_type === "test";
-      console.log("🔍 API response item_type:", data.item_type);
-      console.log("🔍 Detected isTestItem:", isTestItem);
-      console.log("🔍 Full data object:", data);
 
       setIsTest(isTestItem);
 
       if (isTestItem) {
         setTestLogId(data.test_log_id);
         setTestId(data.test_id);
-        setLessonLogId(null); // Clear lesson log ID for tests
-        // For placement tests, use dedicated hearts from API without touching profile hearts
-        if (typeof data.hearts === "number") {
-          setHearts(data.hearts);
-        }
+        setLessonLogId(null);
+        if (typeof data.hearts === "number") setHearts(data.hearts);
       } else {
-        console.log("📚 Starting lesson - lesson_log_id:", data.lesson_log_id);
         setLessonLogId(data.lesson_log_id);
-        setTestLogId(null); // Clear test log ID for lessons
+        setTestLogId(null);
         setTestId(null);
-        // For lessons, initialize hearts from profile if available
-        if (profile?.hearts !== undefined) {
-          setHearts(profile.hearts);
-        }
+        if (profile?.hearts !== undefined) setHearts(profile.hearts);
       }
 
       setProgress((prev) => ({
@@ -171,17 +169,10 @@ export const QuestionProvider = ({ children }) => {
         number: data.question_number || 1,
       }));
 
-      console.log(
-        isTestItem ? "Test started" : "Lesson started",
-        "- total questions:",
-        data.question_count
-      );
-
       setCurrentQuestion(data.question);
       setQuestionGroupId(data.question_group_id);
       setAnswerId(null);
 
-      // Return the data so QuestionPage can store it
       return data;
     } catch (err) {
       console.error("❌ Failed to start stage item:", err.response || err);
@@ -190,6 +181,7 @@ export const QuestionProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
   const openVideoDialog = (url) => {
     setVideoUrl(url);
     setVideoDialogOpen(true);

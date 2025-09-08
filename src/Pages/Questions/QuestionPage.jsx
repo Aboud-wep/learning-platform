@@ -33,8 +33,11 @@ const QuestionPage = ({ type }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
-  const [pageNumber, setPageNumber] = useState(1);
+  const persistedStageId = localStorage.getItem("currentStageId");
+  const [pageNumber, setPageNumber] = useState(() => {
+    const saved = localStorage.getItem(`pageNumber-${id}`);
+    return saved ? parseInt(saved, 10) : 1;
+  });
   const [questionCount, setQuestionCount] = useState(1);
   const {
     currentQuestion,
@@ -106,39 +109,52 @@ const QuestionPage = ({ type }) => {
 
   // Fetch question on load if not passed via navigation
   useEffect(() => {
+    const idToStart = id || persistedStageId;
+
     if (!location.state?.question) {
-      startStageItem(id)
+      if (!idToStart) {
+        console.warn("⚠️ No stage ID available to start question.");
+        return;
+      }
+
+      startStageItem(idToStart)
         .then((res) => {
           console.log("🔍 QuestionPage - API response:", res);
-          console.log("🔍 QuestionPage - item_type:", res?.item_type);
-          console.log("🔍 QuestionPage - Full response object:", res);
-
-          // Store the API response locally
           setApiResponse(res);
-          console.log("✅ QuestionPage - API response stored in state");
+          if (res?.question) {
+            setCurrentQuestion(res.question);
+          }
 
-          // Update context with latest questionGroupId if needed
           if (res?.question_group_id) {
             setQuestionGroupId(res.question_group_id);
           }
-          // Note: QuestionContext already handles setting test/lesson log IDs
         })
         .catch((err) => {
           console.error("Failed to start stage item:", err);
         });
     } else {
       setCurrentQuestion(location.state.question);
-      // Handle test vs lesson log IDs from navigation state
+
       if (location.state.test_log_id) {
         setTestLogId(location.state.test_log_id);
-        setIsTest(true); // Mark as test
+        setIsTest(true);
       } else {
         setLessonLogId(location.state.lesson_log_id);
-        setIsTest(false); // Mark as lesson
+        setIsTest(false);
       }
       setQuestionGroupId(location.state.question_group_id);
     }
-  }, [id, startStageItem, location.state, setTestLogId, setLessonLogId]);
+  }, [
+    id,
+    persistedStageId,
+    location.state,
+    startStageItem,
+    setCurrentQuestion,
+    setTestLogId,
+    setLessonLogId,
+    setQuestionGroupId,
+    setIsTest,
+  ]);
 
   useEffect(() => {
     if (!progress) return;
@@ -277,6 +293,12 @@ const QuestionPage = ({ type }) => {
       console.error("Error submitting answer:", error);
     }
   };
+  useEffect(() => {
+    setPageNumber(1);
+  }, [id]);
+  useEffect(() => {
+    localStorage.setItem(`pageNumber-${id}`, pageNumber);
+  }, [pageNumber, id]);
 
   const handleNext = () => {
     if (isCorrect) {
@@ -293,6 +315,17 @@ const QuestionPage = ({ type }) => {
           rewards.motivationFreezes && rewards.motivationFreezes > 0;
 
         if (hasXPOrCoins && hasMotivationFreeze) {
+          localStorage.setItem(
+            "questionState",
+            JSON.stringify({
+              question: nextQuestionData,
+              lesson_log_id: !isTest ? lessonLogId : null,
+              test_log_id: isTest ? testLogId : null,
+              question_group_id: nextQuestionData?.question_group_id,
+              isTest,
+            })
+          );
+
           navigate("/lesson-ended", {
             state: { nextPage: "/rewarded-motivation-freezes" },
           });

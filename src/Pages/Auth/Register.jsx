@@ -116,28 +116,10 @@ export default function Register() {
         },
       });
     } catch (err) {
+      setError(err.response?.data?.meta?.message || "حدث خطأ ما");
       console.error("Register error:", err);
-
-      // check if backend sent field-level errors in meta.message
-      const backendMessages = err.response?.data?.meta?.message;
-
-      if (backendMessages && typeof backendMessages === "object") {
-        setValidationErrors(
-          Object.fromEntries(
-            Object.entries(backendMessages).map(([field, messages]) => [
-              field,
-              Array.isArray(messages) ? messages[0] : messages,
-            ])
-          )
-        );
-      } else {
-        // fallback: general error message
-        setError(
-          typeof backendMessages === "string"
-            ? backendMessages
-            : "حدث خطأ ما أثناء إنشاء الحساب، حاول مرة أخرى."
-        );
-      }
+    } finally {
+      setLoading(false);
     }
   };
 
