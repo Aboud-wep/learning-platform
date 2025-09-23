@@ -10,6 +10,10 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
+    // Inject Accept-Language header from persisted app language
+    const appLanguage = localStorage.getItem("appLanguage") || "ar";
+    const acceptLanguage = appLanguage === "en" ? "en" : "ar";
+    config.headers["Accept-Language"] = acceptLanguage;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // fix template literal here
     }

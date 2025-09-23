@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../../Context/LanguageContext";
 import { useLocation, useParams } from "react-router-dom";
 import {
   Card,
@@ -29,6 +30,7 @@ import HeartIcon from "../../assets/Icons/heart.png";
 
 const QuestionPage = ({ type }) => {
   const location = useLocation();
+  const { t } = useLanguage();
   const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -411,7 +413,7 @@ const QuestionPage = ({ type }) => {
   // }
 
   if (!currentQuestion && !showResult) {
-    return <Box className="text-center mt-8">لا يوجد سؤال</Box>;
+    return <Box className="text-center mt-8">{t("no_question")}</Box>;
   }
 
   const renderQuestionByType = () => {

@@ -2,6 +2,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { LanguageProvider } from "./Context/LanguageContext";
 import "./index.css";
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -36,7 +37,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ThemeProvider theme={theme}>
         <GoogleOAuthProvider clientId={clientId}>
           <CssBaseline />
-          <App />
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
         </GoogleOAuthProvider>
       </ThemeProvider>
     </CacheProvider>

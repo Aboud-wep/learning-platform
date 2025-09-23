@@ -29,6 +29,7 @@ import Coin from "../../assets/Icons/coin.png";
 import Fire from "../../assets/Icons/fire.png";
 import Heart from "../../assets/Icons/heart.png";
 import { useHome } from "../../Pages/Home/Context/HomeContext";
+import { useLanguage } from "../../Context/LanguageContext";
 import { useAuth } from "../../Pages/Auth/AuthContext";
 import axiosInstance from "../../lip/axios";
 
@@ -46,6 +47,7 @@ const UserLayout = () => {
     loading: authLoading,
   } = useAuth(); // Get auth state
   const [activeNavItem, setActiveNavItem] = useState("/home");
+  const { language, isRTL, toggleLanguage, t } = useLanguage();
 
   const [bottomNav, setBottomNav] = useState(0);
   const role = localStorage.getItem("userRole");
@@ -101,7 +103,7 @@ const UserLayout = () => {
           fontSize: "18px",
         }}
       >
-        جاري التحقق من تسجيل الدخول...
+        {t("loadingAuth")}
       </div>
     );
   }
@@ -136,7 +138,7 @@ const UserLayout = () => {
       >
         <img src={Logo} alt="Logo" style={{ height: 40 }} />
         <Typography fontSize="24px" fontWeight="bold">
-          تعلمنا
+          {t("appName")}
         </Typography>
       </Box>
 
@@ -165,7 +167,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <HomeIcon />
           </ListItemIcon>
-          <ListItemText primary="الرئيسية" />
+          <ListItemText primary={t("nav_home")} />
         </ListItemButton>
 
         <ListItemButton
@@ -192,7 +194,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <MenuBookIcon />
           </ListItemIcon>
-          <ListItemText primary="المواد" />
+          <ListItemText primary={t("nav_subjects")} />
         </ListItemButton>
 
         <ListItemButton
@@ -219,7 +221,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <EmojiEventsIcon />
           </ListItemIcon>
-          <ListItemText primary="المسابقات" />
+          <ListItemText primary={t("nav_competitions")} />
         </ListItemButton>
 
         <ListItemButton
@@ -246,7 +248,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <SportsKabaddiIcon />
           </ListItemIcon>
-          <ListItemText primary="التحديات" />
+          <ListItemText primary={t("nav_challenges")} />
         </ListItemButton>
 
         <Divider />
@@ -278,7 +280,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <PersonIcon />
           </ListItemIcon>
-          <ListItemText primary="الملف الشخصي" />
+          <ListItemText primary={t("nav_profile")} />
         </ListItemButton>
 
         {role === "admin" && (
@@ -307,7 +309,7 @@ const UserLayout = () => {
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
-            <ListItemText primary="لوحة التحكم" />
+            <ListItemText primary={t("nav_admin")} />
           </ListItemButton>
         )}
 
@@ -334,7 +336,7 @@ const UserLayout = () => {
           <ListItemIcon>
             <LogoutIcon />
           </ListItemIcon>
-          <ListItemText primary="تسجيل الخروج" />
+          <ListItemText primary={t("nav_logout")} />
         </ListItemButton>
       </List>
     </div>
@@ -424,7 +426,7 @@ const UserLayout = () => {
                   fontSize: { xs: "16px", sm: "24px", md: "24px" }, // responsive text size
                 }}
               >
-                تعلمنا
+                {t("appName")}
               </Typography>
             </Box>
           </Box>
@@ -551,6 +553,18 @@ const UserLayout = () => {
               </Box>
             </Box>
           ) : null}
+
+          {/* Language Toggle */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={toggleLanguage}
+              sx={{ minWidth: 48 }}
+            >
+              {language === "ar" ? t("lang_en") : t("lang_ar")}
+            </Button>
+          </Box>
         </Box>
 
         <Divider />
