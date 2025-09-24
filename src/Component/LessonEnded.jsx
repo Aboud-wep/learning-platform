@@ -4,6 +4,7 @@ import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
 import XPRewards from "../assets/Icons/XPRewards.png";
 import Coin from "../assets/Icons/coin.png";
 import { useTheme, useMediaQuery, Box, Typography, Button } from "@mui/material";
+import { useLanguage } from "../Context/LanguageContext";
 
 const LessonEnded = () => {
   const { rewards, dailyLog } = useQuestion();
@@ -14,6 +15,7 @@ const LessonEnded = () => {
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const isTest = location.state?.isTest || false;
+  const { t } = useLanguage();
 
   const handleContinue = () => {
     // Check if daily log should be shown
@@ -67,7 +69,7 @@ const LessonEnded = () => {
           lineHeight: 1.2
         }}
       >
-        {isTest ? "أنهيت الاختبار!" : "أنهيت الدرس!"}
+        {isTest ? t("test_finished") : t("lesson_finished")}
       </Typography>
 
       <Box
@@ -84,7 +86,7 @@ const LessonEnded = () => {
           lineHeight: 1.1
         }}
       >
-        أحســــــــــنت !
+        {t("great_job")}
       </Box>
 
       <Box sx={{ textAlign: "center", mb: { xs: 4, md: 8 } }}>
@@ -168,7 +170,7 @@ const LessonEnded = () => {
             }
           }}
         >
-          أكمل
+          {t("reward_continue")}
         </Button>
       </Box>
     </Box>

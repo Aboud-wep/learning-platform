@@ -1,9 +1,11 @@
 import React from "react";
 import { Dialog, DialogContent, Box, Typography, Button } from "@mui/material";
 import FreezesRewards from "../../assets/Icons/FreezesRewards.png";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const AchievementRewardFreezeDialog = ({ open, onClose, rewards }) => {
   const freezes = rewards?.motivation_freezes || 0;
+  const { t } = useLanguage();
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -16,7 +18,7 @@ const AchievementRewardFreezeDialog = ({ open, onClose, rewards }) => {
             fontWeight: 700,
           }}
         >
-          مبارك! لقد حصلت على:
+          {t("reward_congrats")}
         </Typography>
 
         <Box sx={{ textAlign: "center", mb: 4 }}>
@@ -41,7 +43,7 @@ const AchievementRewardFreezeDialog = ({ open, onClose, rewards }) => {
               fontWeight: 900,
             }}
           >
-            {freezes > 1 ? `تجميد الحماسة × ${freezes}` : "تجميد الحماسة"}
+            {freezes > 1 ? t("freeze_multiple")(freezes) : t("freeze_single")}
           </Typography>
         </Box>
 
@@ -59,7 +61,7 @@ const AchievementRewardFreezeDialog = ({ open, onClose, rewards }) => {
                       width:{xs:"100%",sm:"auto"}
                     }}
                   >
-                    أكمل
+                    {t("reward_continue")}
                   </Button>
                 </Box>
       </DialogContent>

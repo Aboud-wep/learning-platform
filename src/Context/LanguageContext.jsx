@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import axiosInstance from "../lip/axios";
 
 const STORAGE_KEY = "appLanguage"; // "ar" | "en"
 
@@ -76,6 +77,18 @@ const TRANSLATIONS = {
     subjects_all_subjects: "جميع المواد",
     subjects_view_more: "عرض المزيد",
     subjects_no_matches: "لا توجد مواد مطابقة لبحثك.",
+
+    // Rewards / Popups / Buttons
+    reward_congrats: "مبارك! لقد حصلت على:",
+    reward_continue: "أكمل",
+    lesson_finished: "أنهيت الدرس!",
+    test_finished: "أنهيت الاختبار!",
+    great_job: "أحســــــــــنت !",
+    freeze_single: "تجميد الحماسة",
+    freeze_multiple: (n) => `تجميد الحماسة × ${n}`,
+    stage_summary_title: "شرح المرحلة",
+    stage_summary_no_title: "العنوان",
+    stage_summary_no_desc: "لا يوجد وصف",
   },
   en: {
     appName: "Taallemna",
@@ -142,6 +155,18 @@ const TRANSLATIONS = {
     subjects_all_subjects: "All subjects",
     subjects_view_more: "View more",
     subjects_no_matches: "No subjects match your search.",
+
+    // Rewards / Popups / Buttons
+    reward_congrats: "Congrats! You earned:",
+    reward_continue: "Continue",
+    lesson_finished: "You finished the lesson!",
+    test_finished: "You finished the test!",
+    great_job: "Great job!",
+    freeze_single: "Motivation Freeze",
+    freeze_multiple: (n) => `Motivation Freezes × ${n}`,
+    stage_summary_title: "Stage Summary",
+    stage_summary_no_title: "Title",
+    stage_summary_no_desc: "No description",
   },
 };
 
@@ -152,6 +177,8 @@ export const LanguageProvider = ({ children }) => {
     localStorage.setItem(STORAGE_KEY, language);
     const isRTL = language === "ar";
     // document.body.setAttribute("dir", isRTL ? "rtl" : "ltr");
+    // Ensure all subsequent requests use the updated language immediately
+    axiosInstance.defaults.headers.common["Accept-Language"] = language === "en" ? "en" : "ar";
   }, [language]);
 
   const value = useMemo(() => {

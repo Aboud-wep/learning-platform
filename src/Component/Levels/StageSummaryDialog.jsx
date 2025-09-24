@@ -6,6 +6,7 @@ import DialogTitle from "@mui/joy/DialogTitle";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import ReactMarkdown from "react-markdown";
+import { useLanguage } from "../../Context/LanguageContext";
 
 export default function StageSummaryDialogJoy({
   open,
@@ -13,6 +14,7 @@ export default function StageSummaryDialogJoy({
   stageSummaries,
 }) {
   if (!stageSummaries) return null;
+  const { t } = useLanguage();
 
   return (
     <div style={{ zIndex: 3001 }}>
@@ -43,10 +45,10 @@ export default function StageSummaryDialogJoy({
               p: 2,
             }}
           >
-            شرح المرحلة
+            {t("stage_summary_title")}
           </DialogTitle>
 
-          <Stack>{stageSummaries.title || "العنوان"}</Stack>
+          <Stack>{stageSummaries.title || t("stage_summary_no_title")}</Stack>
 
           {/* Scrollable content */}
           <Stack
@@ -75,7 +77,7 @@ export default function StageSummaryDialogJoy({
           >
             <div
               dangerouslySetInnerHTML={{
-                __html: stageSummaries.text || "لا يوجد وصف",
+                __html: stageSummaries.text || t("stage_summary_no_desc"),
               }}
             />
           </Stack>

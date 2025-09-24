@@ -3,10 +3,12 @@ import { Dialog, DialogContent, Box, Typography, Button } from "@mui/material";
 import XPRewards from "../../assets/Icons/XPRewards.png";
 import Coin from "../../assets/Icons/coin.png";
 import { borderRadius } from "@mui/system";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
   const xp = rewards?.xp || 0;
   const coins = rewards?.coins || 0;
+  const { t } = useLanguage();
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -19,7 +21,7 @@ const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
             fontWeight: 700,
           }}
         >
-          مبارك! لقد حصلت على:
+          {t("reward_congrats")}
         </Typography>
 
         <Box sx={{ textAlign: "center", mb: 4 }}>
@@ -84,7 +86,7 @@ const AchievementRewardXPDialog = ({ open, onClose, rewards }) => {
               width:{xs:"100%",sm:"auto"}
             }}
           >
-            أكمل
+            {t("reward_continue")}
           </Button>
         </Box>
       </DialogContent>
