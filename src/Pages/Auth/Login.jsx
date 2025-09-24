@@ -20,6 +20,7 @@ import { useAuth } from "./AuthContext";
 import { loginWithGoogleApi } from "./AuthApi";
 import { GoogleLogin } from "@react-oauth/google";
 import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
+import { useLanguage } from "../../Context/LanguageContext";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export default function Login() {
 
   const { login, error, loading, setError } = useAuth();
   const successMessage = location.state?.successMessage;
+  const { t } = useLanguage();
 
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
@@ -49,18 +51,18 @@ export default function Login() {
   // validation function
   const validateForm = () => {
     if (form.identifier.trim().length < 3) {
-      return "اسم المستخدم أو البريد الإلكتروني يجب أن يكون على الأقل 3 أحرف.";
+      return t("login_validation_identifier_short");
     }
 
     const password = form.password;
     if (password.length < 8) {
-      return "كلمة المرور يجب أن تكون 8 أحرف على الأقل.";
+      return t("login_validation_password_short");
     }
     if (!/[A-Z]/.test(password)) {
-      return "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.";
+      return t("login_validation_password_upper");
     }
     if (!/[a-z]/.test(password)) {
-      return "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.";
+      return t("login_validation_password_lower");
     }
 
     return ""; // valid
@@ -85,7 +87,7 @@ export default function Login() {
     if (success) {
       navigate(from, { replace: true });
     } else {
-      setError("اسم المستخدم أو البريد الإلكتروني أو كلمة المرور غير صحيحة.");
+      setError(t("login_invalid_credentials"));
     }
   };
 
@@ -101,7 +103,7 @@ export default function Login() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError("فشل تسجيل الدخول باستخدام Google");
+      setError(t("login_google_failed"));
     }
   };
 
@@ -211,10 +213,10 @@ export default function Login() {
                   }}
                 />
               }
-              label="تذكرني"
+              label={t("login_remember_me")}
             />
             <Link href="/forgot-password" underline="none">
-              هل نسيت كلمة السر؟
+              {t("login_forgot_password")}
             </Link>
           </Box>
 
@@ -235,7 +237,7 @@ export default function Login() {
             {loading ? (
               <Skeleton variant="text" width={100} height={24} />
             ) : (
-              "تسجيل الدخول"
+              t("login_submit")
             )}
           </Button>
 
@@ -248,7 +250,7 @@ export default function Login() {
             <Typography
               sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}
             >
-              لست عضوا حتى الآن؟&nbsp;
+              {t("login_not_member")} &nbsp;
             </Typography>
             <Link
               href="/register"
@@ -257,7 +259,7 @@ export default function Login() {
                 textDecoration: "none",
               }}
             >
-              سجل الآن
+              {t("login_register_now")}
             </Link>
           </Box>
         </form>

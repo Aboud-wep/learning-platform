@@ -2,6 +2,7 @@ import { Box, Typography, CircularProgress, Grid, Button } from "@mui/material";
 import { useHome } from "./Context/HomeContext";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../Context/LanguageContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import {
   ProfileStatsSkeleton,
@@ -27,6 +28,7 @@ const Home = () => {
   } = useSubjects();
 
   const { setPageTitle } = useOutletContext();
+  const { t } = useLanguage();
   const [showWelcome, setShowWelcome] = useState(true);
 
   const navigate = useNavigate();
@@ -47,8 +49,8 @@ const Home = () => {
     : null;
 
   useEffect(() => {
-    setPageTitle("الرئيسية");
-  }, [setPageTitle]);
+    setPageTitle(t("home_title"));
+  }, [setPageTitle, t]);
 
   if (homeError || subjectsError) {
     return (
@@ -142,7 +144,7 @@ const Home = () => {
             fontWeight="bold"
             mb={2}
           >
-            مؤخرا
+            {t("home_recent")}
           </Typography>
 
           {lastSubject && (
@@ -166,7 +168,7 @@ const Home = () => {
               fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
               fontWeight="bold"
             >
-              موادي
+              {t("home_my_subjects")}
             </Typography>
             <Button
               onClick={() => navigate("/subjects/my-subjects")}
@@ -178,14 +180,14 @@ const Home = () => {
                 gap: "6px",
               }}
             >
-              عرض المزيد
+              {t("home_view_more")}
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>
 
           {mySubjects.length === 0 ? (
             <Typography fontSize={{ xs: "14px", sm: "15px" }}>
-              لم تبدأ أي مادة بعد.
+              {t("home_no_started_subjects")}
             </Typography>
           ) : (
             mySubjects.slice(0, 2).map((subject) => (
@@ -214,7 +216,7 @@ const Home = () => {
               fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
               fontWeight="bold"
             >
-              مواد أخرى
+              {t("home_other_subjects")}
             </Typography>
             <Button
               onClick={() => navigate("/subjects/other-subjects")}
@@ -226,7 +228,7 @@ const Home = () => {
                 gap: "6px",
               }}
             >
-              عرض المزيد
+              {t("home_view_more")}
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>

@@ -5,7 +5,9 @@ import MChoice_false from "../../../assets/Icons/MChoice_false.png";
 import MChoice_Correction from "../../../assets/Icons/MChoice_Correction.png";
 import MChoice_Blue from "../../../assets/Icons/MChoice_Blue.png";
 import DOMPurify from "dompurify";
+
 import parse from "html-react-parser";
+import { useLanguage } from "../../../Context/LanguageContext";
 export default function MultipleChoiceQuestion({
   options,
   selectedOptions,
@@ -17,6 +19,7 @@ export default function MultipleChoiceQuestion({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const { t, isRTL } = useLanguage();
 
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -90,20 +93,20 @@ export default function MultipleChoiceQuestion({
   });
   console.log(selectedOptions);
   return (
-    <div className="w-full">
+    <div className="w-full" dir={isRTL ? "rtl" : "ltr"}>
       <Box
-        className="text-right text-[#205DC7]"
-        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+        dir={isRTL ? "rtl" : "ltr"}
+        className="text-[#205DC7]"
+        sx={{ color: "#205DC7" }}
         style={{
           fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
           fontWeight: "bold",
           marginBottom: isMobile ? "80px" : "24px",
           padding: isMobile ? "0 8px" : "0",
+          lineHeight: 1.6,
         }}
       >
-        <div dir="rtl" style={{ lineHeight: 1.6 }}>
-          {parse(DOMPurify.sanitize(question.text))}
-        </div>
+        {parse(DOMPurify.sanitize(question.text))}
       </Box>
 
       <div

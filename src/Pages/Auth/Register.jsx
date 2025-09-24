@@ -19,8 +19,10 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { IconButton, InputAdornment } from "@mui/material";
 import { registerUser, loginWithGoogleApi } from "./AuthApi";
 import { GoogleLogin } from "@react-oauth/google";
+import { useLanguage } from "../../Context/LanguageContext";
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -47,7 +49,7 @@ export default function Register() {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError("فشل التسجيل باستخدام Google");
+      setError(t("register_google_failed"));
     } finally {
       setLoading(false);
     }
@@ -71,23 +73,22 @@ export default function Register() {
   const validateForm = () => {
     const errors = {};
     if (form.username.length < 3) {
-      errors.username = "اسم المستخدم يجب أن يحتوي على 3 أحرف على الأقل";
+      errors.username = t("register_validation_username");
     }
     if (form.first_name.length < 3) {
-      errors.first_name = "الاسم الأول يجب أن يحتوي على 3 أحرف على الأقل";
+      errors.first_name = t("register_validation_first_name");
     }
     if (form.last_name.length < 3) {
-      errors.last_name = "اسم العائلة يجب أن يحتوي على 3 أحرف على الأقل";
+      errors.last_name = t("register_validation_last_name");
     }
     if (form.password !== form.confirmPassword) {
-      errors.confirmPassword = "كلمة المرور غير متطابقة";
+      errors.confirmPassword = t("register_validation_passwords_mismatch");
     }
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&_\-]{8,}$/;
     if (!passwordRegex.test(form.password)) {
-      errors.password =
-        "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص";
+      errors.password = t("register_validation_password_rules");
     }
 
     setValidationErrors(errors);
@@ -111,12 +112,11 @@ export default function Register() {
         replace: true,
         state: {
           successMessage:
-            data.meta?.message ||
-            "تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل تسجيل الدخول.",
+            data.meta?.message || t("register_success_message"),
         },
       });
     } catch (err) {
-      setError(err.response?.data?.meta?.message || "حدث خطأ ما");
+      setError(err.response?.data?.meta?.message || t("register_error_generic"));
       console.error("Register error:", err);
     } finally {
       setLoading(false);
@@ -365,7 +365,7 @@ export default function Register() {
             {loading ? (
               <Skeleton variant="text" width={60} height={24} />
             ) : (
-              "تسجيل"
+              t("register_submit")
             )}
           </Button>
           {/* <Button
@@ -419,7 +419,7 @@ export default function Register() {
             <Typography
               sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}
             >
-              لديك حساب بالفعل؟&nbsp;
+              {t("register_have_account")} &nbsp;
             </Typography>
             <Link
               href="/login"
@@ -428,7 +428,7 @@ export default function Register() {
                 textDecoration: "none",
               }}
             >
-              تسجيل الدخول
+              {t("register_login")}
             </Link>
           </Box>
         </form>

@@ -23,6 +23,7 @@ import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import Image from "../../assets/Images/Image.png";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const SubjectsList = () => {
   const { subjects, userProgress, loadingg, error } = useSubjects();
@@ -31,13 +32,14 @@ const SubjectsList = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const isTablet = useMediaQuery(theme.breakpoints.up("md"));
+  const { t } = useLanguage();
 
   // 🔎 Search state
   const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
-    setPageTitle("المواد");
-  }, [setPageTitle]);
+    setPageTitle(t("subjects_title"));
+  }, [setPageTitle, t]);
 
   // ✅ hooks first
   const userSubjects = userProgress
@@ -132,7 +134,7 @@ const SubjectsList = () => {
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="اكتب هنا للبحث"
+            placeholder={t("subjects_search_placeholder")}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             sx={{
@@ -163,7 +165,7 @@ const SubjectsList = () => {
           }}
         >
           <Typography variant="h5" fontWeight="bold">
-            جميع المواد
+            {t("subjects_all_subjects")}
           </Typography>
           {!isTablet && (
             <Button
@@ -175,7 +177,7 @@ const SubjectsList = () => {
                 gap: 1,
               }}
             >
-              عرض المزيد
+              {t("subjects_view_more")}
               <ArrowBackIcon fontSize="small" />
             </Button>
           )}
@@ -190,7 +192,7 @@ const SubjectsList = () => {
             ))
           ) : (
             <Typography textAlign="center" width="100%" py={4}>
-              لا توجد مواد مطابقة لبحثك.
+              {t("subjects_no_matches")}
             </Typography>
           )}
         </Grid>
@@ -208,7 +210,7 @@ const SubjectsList = () => {
           }}
         >
           <Typography variant="h5" fontWeight="bold">
-            موادي
+            {t("home_my_subjects")}
           </Typography>
           <Button
             onClick={() => navigate("/subjects/my-subjects")}
@@ -219,14 +221,14 @@ const SubjectsList = () => {
               gap: 1,
             }}
           >
-            عرض المزيد
+            {t("home_view_more")}
             <ArrowBackIcon fontSize="small" />
           </Button>
         </Box>
 
         {userSubjects.length === 0 ? (
           <Typography textAlign="center" py={4}>
-            لم تبدأ أي مادة بعد.
+            {t("home_no_started_subjects")}
           </Typography>
         ) : (
           <Grid>

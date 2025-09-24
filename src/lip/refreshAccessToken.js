@@ -8,9 +8,12 @@ const refreshAccessToken = async () => {
   console.log("step3");
   try {
     console.log("step4");
+    const appLanguage = localStorage.getItem("appLanguage") || "ar";
+    const acceptLanguage = appLanguage === "en" ? "en" : "ar";
     const response = await axios.post(
       "https://alibdaagroup.com/backend/api/v1/users/auth/dashboard/refresh",
-      { refresh: refreshToken }
+      { refresh: refreshToken },
+      { headers: { "Accept-Language": acceptLanguage } }
     );
     console.log("RAmiiiiiiiiii", response.data);
     const { access, refresh: newRefreshToken, expires_in } = response.data.data;

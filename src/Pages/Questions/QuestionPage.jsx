@@ -30,7 +30,7 @@ import HeartIcon from "../../assets/Icons/heart.png";
 
 const QuestionPage = ({ type }) => {
   const location = useLocation();
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -496,6 +496,7 @@ const QuestionPage = ({ type }) => {
   return (
     <>
       <Box
+        dir={isRTL ? "rtl" : "ltr"}
         sx={{
           display: "flex",
           justifyContent: { xs: "normal", md: "center" },
