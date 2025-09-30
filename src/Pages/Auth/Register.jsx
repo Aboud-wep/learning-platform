@@ -411,10 +411,10 @@ export default function Register() {
           >
             تسجيل الدخول باستخدام Google
           </Button> */}
-          {/* <GoogleLogin
+          <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => setError("فشل التسجيل باستخدام Google")}
-          /> */}
+          />
           <Box className="flex justify-center pt-6">
             <Typography
               sx={{ fontSize: { xs: "16px", sm: "20px" }, color: "#343F4E" }}

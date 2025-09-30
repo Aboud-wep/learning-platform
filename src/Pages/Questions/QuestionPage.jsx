@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLanguage } from "../../Context/LanguageContext";
 import { useLocation, useParams } from "react-router-dom";
 import {
@@ -24,7 +24,8 @@ import { useNavigate } from "react-router-dom";
 import CorrectIcon from "../../assets/Icons/Correct_Answer.png";
 import WrongIcon from "../../assets/Icons/Wrong_Answer.png";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-
+import correctAnswer from "../../assets/Sounds/correctAnswer.mp3";
+import wrongAnswer from "../../assets/Sounds/wrongAnswer.mp3";
 import CircularCounter from "../../Component/CircularCounter";
 import HeartIcon from "../../assets/Icons/heart.png";
 
@@ -88,7 +89,16 @@ const QuestionPage = ({ type }) => {
 
   // Store the API response locally to ensure we have the correct item type
   const [apiResponse, setApiResponse] = useState(null);
+  const correctAudioRef = useRef(new Audio(correctAnswer));
+  const wrongAudioRef = useRef(new Audio(wrongAnswer));
 
+  useEffect(() => {
+    if (isCorrect === true) {
+      correctAudioRef.current.play().catch(() => {});
+    } else if (isCorrect === false) {
+      wrongAudioRef.current.play().catch(() => {});
+    }
+  }, [isCorrect]);
   // Handle browser/mobile back button: exit to home from tests/lessons
   useEffect(() => {
     const handlePopState = (event) => {

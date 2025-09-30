@@ -26,11 +26,12 @@ const OtherSubjectCard = ({ subject }) => {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        padding: { xs: "10px", sm: "15" },
-        width: { xs: "142px", sm: "209px" }, // full width on mobile
-        maxWidth: "209px",
+        padding: { xs: "10px", sm: "15px" },
+        width: "100%", // always take full width of Grid item
+        maxWidth: { sm: "161px", md: "209px" }, // limit at larger screens
         boxSizing: "border-box",
         backgroundColor: "#ffffff",
+        alignItems: "center",
       }}
     >
       <CardMedia

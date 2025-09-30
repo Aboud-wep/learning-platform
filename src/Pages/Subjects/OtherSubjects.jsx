@@ -116,6 +116,7 @@ const OtherSubjects = () => {
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         gap: 3,
+        justifyContent: "center",
       }}
     >
       {/* Main Content - Other Subjects */}
@@ -123,6 +124,10 @@ const OtherSubjects = () => {
         sx={{
           flex: 1,
           maxWidth: { md: 800 },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          justifyItems: "center",
         }}
       >
         {/* 🔎 Search bar */}
@@ -155,13 +160,24 @@ const OtherSubjects = () => {
             لا توجد مواد أخرى مطابقة لبحثك.
           </Typography>
         ) : (
-          <Grid container spacing={2}>
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              justifyContent: { xs: "center", md: "flex-start" },
+              width: "100%",
+            }}
+          >
             {filteredOtherSubjects.map((subject) => (
-              <Grid item xs={12} sm={6} key={subject.id}>
-                <OtherSubjectCard
-                  subject={subject}
-                  onJoin={(id) => console.log("Joining subject:", id)}
-                />
+              <Grid
+                item
+                xs={12} // full width on extra small
+                sm={6} // 2 per row on small
+                md="auto" // auto width on medium and up
+                key={subject.id}
+                sx={{ display: "flex", justifyContent: "center" }} // keep card centered
+              >
+                <OtherSubjectCard subject={subject} />
               </Grid>
             ))}
           </Grid>

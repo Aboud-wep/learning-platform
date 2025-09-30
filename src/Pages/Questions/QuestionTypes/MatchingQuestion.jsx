@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Typography, Box } from "@mui/material";
 import { useQuestion } from "../Context/QuestionContext";
 import DOMPurify from "dompurify";
+import correctAnswer from "../../../assets/Sounds/correctAnswer.mp3";
+import wrongAnswer from "../../../assets/Sounds/wrongAnswer.mp3";
 import parse from "html-react-parser";
 const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   const options = question?.matching_columns;
@@ -50,7 +52,8 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   // Helpers to check matched and wrong status
   const isLeftMatched = (item) => Object.keys(matchedPairs).includes(item);
   const isRightMatched = (item) => Object.values(matchedPairs).includes(item);
-
+  const correctAudioRef = useRef(new Audio(correctAnswer));
+  const wrongAudioRef = useRef(new Audio(wrongAnswer));
   // Reverse lookup: given right item, get left
   const getLeftForRight = (rightItem) =>
     Object.entries(matchedPairs).find(
@@ -130,19 +133,26 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
 
     const response = await submitAnswer(payload);
 
-    if (response?.is_correct === false) {
-      const leftIndex = side === "left" ? index : selected.index;
-      const rightIndex = side === "right" ? index : selected.index;
+   if (response?.is_correct === false) {
+  const leftIndex = side === "left" ? index : selected.index;
+  const rightIndex = side === "right" ? index : selected.index;
 
-      setSelected(null);
-      setWrongPairs([[leftIndex, rightIndex]]);
-      setTimeout(() => setWrongPairs([]), 800);
-      // Don't update matched pairs for wrong answers
-    } else {
-      // ✅ Keep the green highlight until next question
-      setMatchedPairs(structured_answer);
-      setSelected(null);
-    }
+  setSelected(null);
+  setWrongPairs([[leftIndex, rightIndex]]);
+  setTimeout(() => setWrongPairs([]), 800);
+
+  // 🔊 Play wrong sound
+  wrongAudioRef.current.currentTime = 0;
+  wrongAudioRef.current.play().catch(() => {});
+} else {
+  setMatchedPairs(structured_answer);
+  setSelected(null);
+
+  // 🔊 Play correct sound
+  correctAudioRef.current.currentTime = 0;
+  correctAudioRef.current.play().catch(() => {});
+}
+
 
     if (response?.answer_id && !answerId) {
       setAnswerId(response.answer_id);

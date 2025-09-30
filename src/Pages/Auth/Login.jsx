@@ -241,10 +241,10 @@ export default function Login() {
             )}
           </Button>
 
-          {/* <GoogleLogin
+           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => setError("فشل تسجيل الدخول باستخدام Google")}
-          /> */}
+          />
 
           <Box className="flex justify-center pt-10">
             <Typography
