@@ -17,6 +17,7 @@ import OtherSubjectCard from "../../Component/Subject/OtherSubjectCard";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import WelcomeBanner from "../../Component/Subject/WelcomeBanner";
 import LastSubjectCard from "../../Component/Subject/LastSubjectCard";
+import HomeSkeleton from "./HomeSkeleton";
 
 const Home = () => {
   const { profile, loading: homeLoading, error: homeError } = useHome();
@@ -61,48 +62,11 @@ const Home = () => {
   }
 
   // Show skeleton loading while data is loading
-  if (homeLoading || subjectsLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          my: { xs: 2, sm: 3, lg: 4 },
-          gap: { xs: 2, sm: 3, lg: 4 },
-          flexWrap: { xs: "wrap", lg: "nowrap" },
-          width: "100%",
-          px: { xs: 1.5, sm: 3, lg: 4 },
-        }}
-      >
-        {/* Left Side Skeleton */}
-        <Box
-          sx={{
-            flexGrow: 1,
-            minWidth: { xs: "100%", lg: "400px" },
-            maxWidth: { lg: "800px" },
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: { xs: 2, sm: 3 },
-          }}
-        >
-          <GridSkeleton columns={1} rows={3} itemHeight={200} />
-        </Box>
-
-        {/* Right Side Skeleton */}
-        <Box
-          sx={{
-            minWidth: { xs: "100%", lg: "300px" },
-            maxWidth: { lg: "400px" },
-            display: { xs: "none", lg: "block" },
-          }}
-        >
-          <ProfileStatsSkeleton />
-        </Box>
-      </Box>
-    );
-  }
+  // Show skeleton loading while data is loading
+if (homeLoading || subjectsLoading) {
+  console.log("Showing skeleton loader");
+  return <HomeSkeleton />;
+}
 
   if (!profile) return null;
 

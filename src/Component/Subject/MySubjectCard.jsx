@@ -11,9 +11,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Image from "../../assets/Images/Image.png";
+import { useQuestion } from "../../Pages/Questions/Context/QuestionContext"; // Import the QuestionContext
 
 const MySubjectCard = ({ subject, progress }) => {
   const navigate = useNavigate();
+  const { hearts } = useQuestion(); // Get hearts from QuestionContext
 
   const allItems =
     subject?.levels?.flatMap((level) =>
@@ -23,6 +25,18 @@ const MySubjectCard = ({ subject, progress }) => {
   const isCompleted =
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
+
+  // Function to handle navigation
+  const handleNavigateToSubject = () => {
+    // Check if user has hearts left
+    if (hearts !== null && hearts <= 0) {
+      // No hearts left, navigate to no-hearts page
+      navigate("/no-hearts");
+    } else {
+      // Has hearts, navigate to subject
+      navigate(`/levels-map/${subject.id}`);
+    }
+  };
 
   return (
     <Box
@@ -140,10 +154,11 @@ const MySubjectCard = ({ subject, progress }) => {
         }}
         variant="contained"
         size="small"
-        onClick={() => navigate(`/levels-map/${subject.id}`)}
+        onClick={handleNavigateToSubject} // Use the new handler
         endIcon={<ArrowBackIcon fontSize="small" />}
+        disabled={hearts !== null && hearts <= 0} // Optional: disable button when no hearts
       >
-        أكمل التعلم
+        {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
       </Button>
     </Box>
   );

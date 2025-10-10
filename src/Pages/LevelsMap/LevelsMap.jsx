@@ -3,12 +3,13 @@ import { useLevels } from "./Context/LevelsContext";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import HexCheckButton from "../../Component/HexButton/HexCheckButton";
 import HexLockButton from "../../Component/HexButton/HexLockButton";
-import { LevelsMapSkeleton } from "../../Component/ui/SkeletonLoader";
+
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import HexPlayButton from "../../Component/HexButton/HexPlayButton/HexPlayButton";
+import LevelsMapSkeletonReall from "./LevelsMapSkeleton";
 
 const LevelsMap = () => {
   const { levelsData, stagesStatus, loading } = useLevels();
@@ -54,7 +55,7 @@ const LevelsMap = () => {
   }, [mySubjects, subjectId, navigate, loadingg]);
 
   if (loading) {
-    return <LevelsMapSkeleton />;
+    return <LevelsMapSkeletonReall />;
   }
 
   if (!levelsData) {

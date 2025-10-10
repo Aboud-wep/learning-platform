@@ -17,10 +17,13 @@ import {
   GridSkeleton,
   ProfileStatsSkeleton,
 } from "../../Component/ui/SkeletonLoader";
+import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
+import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const MySubjects = () => {
   const { setPageTitle } = useOutletContext();
   const navigate = useNavigate();
+  const { hearts } = useQuestion();
   const { subjects, userProgress, loadingg } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
@@ -69,30 +72,8 @@ const MySubjects = () => {
 
   // Show skeleton loading while data is loading
   if (loadingg) {
-    return (
-      <Box
-        sx={{
-          mx: "auto",
-          p: { xs: 2, md: 3 },
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
-        }}
-      >
-        {/* Main Content Skeleton */}
-        <Box sx={{ flex: 1 }}>
-          <GridSkeleton columns={1} rows={4} itemHeight={200} />
-        </Box>
-
-        {/* Sidebar Skeleton - Hidden on mobile */}
-        {isDesktop && (
-          <Box sx={{ width: { md: 324 } }}>
-            <ProfileStatsSkeleton />
-          </Box>
-        )}
-      </Box>
-    );
-  }
+  return <SubjectsPageSkeleton />;
+}
 
   return (
     <Box
@@ -222,8 +203,9 @@ const MySubjects = () => {
                   borderRadius: "20px",
                   py: 1,
                 }}
+                disabled={hearts !== null && hearts <= 0}
               >
-                أكمل التعلم
+               {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
               </Button>
             </Box>
           </Box>

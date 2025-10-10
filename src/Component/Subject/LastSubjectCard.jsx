@@ -1,6 +1,7 @@
 import { Box, Avatar, Typography, LinearProgress, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
 
 const LastSubjectCard = ({ subject, progress }) => {
   const allItems =
@@ -12,6 +13,7 @@ const LastSubjectCard = ({ subject, progress }) => {
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
   const navigate = useNavigate();
+  const { hearts } = useQuestion();
   return (
     <Box
       sx={{
@@ -137,8 +139,9 @@ const LastSubjectCard = ({ subject, progress }) => {
           variant="contained"
           size="small"
           onClick={() => navigate(`/levels-map/${subject.id}`)}
+          disabled={hearts !== null && hearts <= 0}
         >
-          أكمل التعلم
+          {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
           <ArrowBackIcon fontSize="small" sx={{ mx: "14px" }} />
         </Button>
       </Box>

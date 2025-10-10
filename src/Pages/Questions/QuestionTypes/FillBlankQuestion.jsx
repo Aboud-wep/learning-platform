@@ -57,14 +57,15 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
           <span
             key={idx}
             style={{
-              display: "inline-block",
-              position: "relative",
+              display: "inline-flex", // changed from inline-block
+              justifyContent: "center",
+              alignItems: "center",
               minWidth: isMobile ? 80 : isTablet ? 100 : 120,
               minHeight: isMobile ? 60 : isTablet ? 75 : 80,
-              // verticalAlign: "bottom",
-              textAlign: "center",
               margin: "0 4px",
               cursor: blanks[idx] && !showResult ? "pointer" : "default",
+              borderBottom: "2px solid #BFBFBF", // optional underline for blank
+              position: "relative",
             }}
             onClick={() => blanks[idx] && !showResult && handleClear(idx)}
           >
@@ -82,43 +83,43 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
             </span>
 
             <AnimatePresence>
-            {blanks[idx] && (
-              <motion.div
-                layoutId={`option-${blanks[idx]}`}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.5, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 50, damping: 10 }}
-                style={{
-                  position: "absolute",
-                  top: "0%",
-                  left: "20%",
-                  transform: "translate(-50%, -50%)",
-                  pointerEvents: "auto",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    color: "black",
-                    border: "1px solid #BFBFBF",
-                    boxShadow: "0px 2px 0px 0px #BFBFBF",
-                    borderRadius: "20px",
-                    fontSize: isMobile ? "14px" : "20px",
-                    backgroundColor: "white",
-                    minWidth: "auto",
-                    padding: isMobile ? "2px 8px" : "4px 12px",
-                    whiteSpace: "nowrap",
-                    maxWidth: isMobile ? "70px" : isTablet ? "90px" : "none",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+              {blanks[idx] && (
+                <motion.div
+                  layoutId={`option-${blanks[idx]}`}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 50, damping: 10 }}
+                  style={{
+                    display: "inline-flex", // use flex for centering
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: "100%", // fill the blank
+                    height: "100%",
+                    pointerEvents: "auto",
                   }}
                 >
-                  {blanks[idx]}
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      color: "black",
+                      border: "1px solid #BFBFBF",
+                      boxShadow: "0px 2px 0px 0px #BFBFBF",
+                      borderRadius: "20px",
+                      fontSize: isMobile ? "14px" : "20px",
+                      backgroundColor: "white",
+                      minWidth: "auto",
+                      padding: isMobile ? "2px 8px" : "4px 12px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {blanks[idx]}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </span>
         );
       }

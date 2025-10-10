@@ -24,6 +24,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import Image from "../../assets/Images/Image.png";
 import { useLanguage } from "../../Context/LanguageContext";
+import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
+import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const SubjectsList = () => {
   const { subjects, userProgress, loadingg, error } = useSubjects();
@@ -33,7 +35,7 @@ const SubjectsList = () => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const isTablet = useMediaQuery(theme.breakpoints.up("md"));
   const { t } = useLanguage();
-
+const { hearts } = useQuestion();
   // 🔎 Search state
   const [searchValue, setSearchValue] = useState("");
 
@@ -87,26 +89,10 @@ const SubjectsList = () => {
     );
   }, [lastUpdatedSubject]);
 
-  // ✅ after hooks, handle loading & error
-  if (loadingg) {
-    return (
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 1200,
-          mx: "auto",
-          px: { xs: 2, sm: 3, lg: 4 },
-          py: { xs: 2, sm: 3 },
-        }}
-      >
-        <GridSkeleton
-          columns={isDesktop ? 3 : isTablet ? 2 : 1}
-          rows={6}
-          itemHeight={200}
-        />
-      </Box>
-    );
-  }
+  // Replace the loading section in your SubjectsPage component:
+if (loadingg) {
+  return <SubjectsPageSkeleton />;
+}
 
   if (error) return <Typography color="error">خطأ: {error}</Typography>;
 
@@ -160,51 +146,6 @@ const SubjectsList = () => {
             justifyContent: "space-between",
             alignItems: "center",
             pb: 2,
-            mb: 2,
-            borderBottom: "1px solid #eee",
-          }}
-        >
-          <Typography variant="h5" fontWeight="bold">
-            {t("subjects_all_subjects")}
-          </Typography>
-          {!isTablet && (
-            <Button
-              onClick={() => navigate("/subjects/other-subjects")}
-              sx={{
-                fontWeight: "bold",
-                color: "#205DC7",
-                textTransform: "none",
-                gap: 1,
-              }}
-            >
-              {t("subjects_view_more")}
-              <ArrowBackIcon fontSize="small" />
-            </Button>
-          )}
-        </Box>
-
-        <Grid container spacing={2} mb={4}>
-          {filteredOtherSubjects.length > 0 ? (
-            filteredOtherSubjects.map((subject) => (
-              <Grid item key={subject.id} xs={12} sm={6} md={4}>
-                <OtherSubjectCard subject={subject} />
-              </Grid>
-            ))
-          ) : (
-            <Typography textAlign="center" width="100%" py={4}>
-              {t("subjects_no_matches")}
-            </Typography>
-          )}
-        </Grid>
-
-        {/* Keep موادي section same */}
-        <Divider sx={{ display: { xs: "block", lg: "none" } }} />
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            pb: 2,
             my: 2,
             borderBottom: "1px solid #eee",
           }}
@@ -239,6 +180,49 @@ const SubjectsList = () => {
             ))}
           </Grid>
         )}
+        {/* Keep موادي section same */}
+        <Divider sx={{ display: { xs: "block", lg: "none" } }} />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            pb: 2,
+            mb: 2,
+            borderBottom: "1px solid #eee",
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold">
+            {t("subjects_all_subjects")}
+          </Typography>
+
+          <Button
+            onClick={() => navigate("/subjects/other-subjects")}
+            sx={{
+              fontWeight: "bold",
+              color: "#205DC7",
+              textTransform: "none",
+              gap: 1,
+            }}
+          >
+            {t("subjects_view_more")}
+            <ArrowBackIcon fontSize="small" />
+          </Button>
+        </Box>
+
+        <Grid container spacing={2} mb={4}>
+          {filteredOtherSubjects.length > 0 ? (
+            filteredOtherSubjects.map((subject) => (
+              <Grid item key={subject.id} xs={12} sm={6} md={4}>
+                <OtherSubjectCard subject={subject} />
+              </Grid>
+            ))
+          ) : (
+            <Typography textAlign="center" width="100%" py={4}>
+              {t("subjects_no_matches")}
+            </Typography>
+          )}
+        </Grid>
       </Box>
 
       {/* Last Updated Subject Panel - Show on desktop and tablet */}
@@ -331,8 +315,9 @@ const SubjectsList = () => {
                   py: 1,
                   fontWeight: "bold",
                 }}
+                disabled={hearts !== null && hearts <= 0}
               >
-                أكمل التعلم
+               {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
               </Button>
             </Box>
           </Box>

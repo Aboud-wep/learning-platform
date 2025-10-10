@@ -81,6 +81,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
 
   if (!open || !stage || !anchorEl || !position) return null;
 
+  // In your StagePopperCustom or wherever you navigate to questions
   const handleStartClick = async () => {
     const firstItem = stage?.items?.find((item) => !item.lesson?.is_passed);
     if (firstItem) {
@@ -90,15 +91,38 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
         console.log("Stage item result:", result);
 
         if (result?.question?.id) {
-          // Pass the appropriate log ID based on whether it's a test or lesson
           const logIdKey =
             result.item_type === "test" ? "test_log_id" : "lesson_log_id";
           const logId = result[logIdKey];
+
+          // ✅ FIX: Get the specific lesson data for the firstItem
+          // If firstItem is a lesson, use its lesson data directly
+          const lessonData =
+            firstItem.item_type === "lesson" ? firstItem.lesson : null;
+
+          // If firstItem is not a lesson but we're in a lesson context, find any lesson in stage
+          if (!lessonData) {
+            const lessonItem = stage.items.find(
+              (item) => item.item_type === "lesson" && item.lesson
+            );
+            lessonData = lessonItem?.lesson;
+          }
+
+          console.log("🔍 Lesson data found:", lessonData);
+
+          // ✅ FIX: Make sure subjectId is properly extracted
+          const subjectId =
+            stage?.level?.subject ||
+            stage?.subject ||
+            result.subject?.id ||
+            location.state?.subjectId;
 
           navigate(`/questions/${result.question.id}`, {
             state: {
               ...result,
               [logIdKey]: logId,
+              lesson: lessonData,
+              subjectId: subjectId,
             },
           });
         }
@@ -108,7 +132,10 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
     }
   };
 
-  const handleOpenSummary = (summary) => {
+  const handleOpenSummary = (stage) => {
+    const summary = stageSummaries?.find(
+      (s) => s.stage === stage.id || s.stage_id === stage.id
+    );
     setSelectedSummary(summary);
     setSummaryOpen(true);
   };
@@ -162,18 +189,18 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
             >
               {stage.description}
             </p>
-            <p
-              style={{
-                color: "#fff",
-                marginBottom: 16,
-                fontSize: isMobile ? 16 : 20,
-                lineHeight: 1.3,
-              }}
-            >
-              الدرس {passed} من {total}
-            </p>
           </Box>
         )}
+        <p
+          style={{
+            color: "#fff",
+            marginBottom: 16,
+            fontSize: isMobile ? 16 : 20,
+            lineHeight: 1.3,
+          }}
+        >
+          الدرس {passed} من {total}
+        </p>
 
         <div
           style={{
@@ -193,7 +220,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
               width: isMobile ? "100%" : "auto",
               marginBottom: isMobile ? "8px" : 0,
             }}
-            onClick={() => handleOpenSummary(stageSummaries[0])}
+            onClick={() => handleOpenSummary(stage)} // ✅ pass the clicked stage
           >
             <InfoOutlinedIcon
               sx={{

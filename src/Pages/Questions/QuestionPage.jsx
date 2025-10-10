@@ -8,14 +8,12 @@ import {
   useTheme,
   useMediaQuery,
   Button,
+  IconButton,
 } from "@mui/material";
 import bgImage from "../../assets/Images/Question_BG.png";
 import { useQuestion } from "./Context/QuestionContext";
 import QuestionVideoDialog from "../../Component/Popups/QuestionVideoDialog";
-// import { QuestionSkeleton } from "../../Component/ui/SkeletonLoader";
-// Import all question type components
 import SingleChoiceQuestion from "./QuestionTypes/SingleChoiceQuestion";
-
 import MultipleChoiceQuestion from "./QuestionTypes/MultipleChoiceQuestion";
 import TrueFalseQuestion from "./QuestionTypes/TrueFalseQuestion";
 import FillBlankQuestion from "./QuestionTypes/FillBlankQuestion";
@@ -28,15 +26,19 @@ import correctAnswer from "../../assets/Sounds/correctAnswer.mp3";
 import wrongAnswer from "../../assets/Sounds/wrongAnswer.mp3";
 import CircularCounter from "../../Component/CircularCounter";
 import HeartIcon from "../../assets/Icons/heart.png";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import LessonDescriptionDialogJoy from "./LessonDescriptionDialogJoy";
 
 const QuestionPage = ({ type }) => {
   const location = useLocation();
   const { t, isRTL } = useLanguage();
+  const subjectId = location.state?.subjectId;
   const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const persistedStageId = localStorage.getItem("currentStageId");
+  const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
   const [pageNumber, setPageNumber] = useState(() => {
     const saved = localStorage.getItem(`pageNumber-${id}`);
     return saved ? parseInt(saved, 10) : 1;
@@ -51,29 +53,26 @@ const QuestionPage = ({ type }) => {
     questionGroupId,
     setCurrentQuestion,
     setLessonLogId,
-    setTestLogId, // Add test log setter
-    setTestId, // Add test ID setter
+    setTestLogId,
+    setTestId,
     setQuestionGroupId,
     lessonLogId,
-    testLogId, // Add test log ID
-    isTest, // Add test flag
-    testId, // Add test ID
+    testLogId,
+    isTest,
+    testId,
     answerId,
     nextQuestionId,
     setNextQuestionId,
     nextQuestionData,
     setNextQuestionData,
     lessonComplete,
-    testComplete, // Add test complete flag
+    testComplete,
     hearts,
     rewards,
     progress,
     setProgress,
     setIsTest,
   } = useQuestion();
-
-  // const [nextQuestionId, setNextQuestionId] = useState(null);
-  // const [nextQuestionData, setNextQuestionData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -85,12 +84,90 @@ const QuestionPage = ({ type }) => {
     { left: "لاعب ٢", right: "" },
   ]);
   const [showResult, setShowResult] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(null); // true/false/null
+  const [isCorrect, setIsCorrect] = useState(null);
 
   // Store the API response locally to ensure we have the correct item type
   const [apiResponse, setApiResponse] = useState(null);
   const correctAudioRef = useRef(new Audio(correctAnswer));
   const wrongAudioRef = useRef(new Audio(wrongAnswer));
+
+  // Get lesson data from multiple possible sources (similar to StagePopperCustom)
+  // In QuestionPage component - Enhanced getLessonData function
+  // Enhanced getLessonData function specifically for your API structure
+  const getLessonData = () => {
+    console.log("🔍 getLessonData - Searching for lesson data...");
+
+    // Priority 1: Check location.state (this is where your data actually is)
+    if (location.state?.item_type === "lesson") {
+      console.log("✅ Found lesson context in location.state");
+      // We have a lesson, but we need to get the lesson details from somewhere
+      // Since location.state has lesson_id, we need to fetch or find the lesson details
+    }
+
+    // Priority 2: Check if we have the lesson data in apiResponse
+    if (apiResponse?.lesson) {
+      console.log("✅ Found lesson data in apiResponse.lesson");
+      return {
+        name: apiResponse.lesson.name,
+        description: apiResponse.lesson.description,
+      };
+    }
+
+    // Priority 3: Check if we have lesson_id and can get details from context
+    const lessonId = location.state?.lesson_id || apiResponse?.lesson_id;
+    if (lessonId) {
+      console.log(
+        "🔍 Have lesson_id, need to find lesson details for:",
+        lessonId
+      );
+      // You'll need to get this from your subjects context or make an API call
+    }
+
+    console.log("❌ No lesson data found in any source");
+    console.log("🔍 Available apiResponse:", apiResponse);
+    console.log("🔍 Available location.state:", location.state);
+
+    return null;
+  };
+  const lessonData = getLessonData();
+  // Enhanced shouldShowLessonDescription with better conditions
+  const shouldShowLessonDescription = React.useMemo(() => {
+    const hasLessonData =
+      lessonData && (lessonData.name || lessonData.description);
+    const isLesson = !isTest && apiResponse?.item_type === "lesson";
+    const shouldShow = hasLessonData && isLesson;
+
+    console.log("🔍 shouldShowLessonDescription:", {
+      hasLessonData,
+      isLesson,
+      shouldShow,
+      lessonData,
+      isTest,
+      itemType: apiResponse?.item_type,
+      hasName: lessonData?.name,
+      hasDescription: lessonData?.description,
+    });
+
+    return shouldShow;
+  }, [lessonData, isTest, apiResponse?.item_type]);
+
+  useEffect(() => {
+    console.log("🔍 Lesson Data Debug:", {
+      lessonData: getLessonData(),
+      apiResponse,
+      locationState: location.state,
+      currentQuestion,
+      shouldShowLessonDescription,
+      isTest,
+      itemType: apiResponse?.item_type,
+    });
+  }, [
+    apiResponse,
+    location.state,
+    currentQuestion,
+    isTest,
+    shouldShowLessonDescription,
+  ]);
 
   useEffect(() => {
     if (isCorrect === true) {
@@ -99,27 +176,8 @@ const QuestionPage = ({ type }) => {
       wrongAudioRef.current.play().catch(() => {});
     }
   }, [isCorrect]);
-  // Handle browser/mobile back button: exit to home from tests/lessons
-  useEffect(() => {
-    const handlePopState = (event) => {
-      // Always redirect out of the question flow when back is pressed
-      navigate("/home", { replace: true });
-    };
 
-    // Push a dummy state so that the first back triggers popstate
-    try {
-      window.history.pushState(null, "", window.location.href);
-    } catch (e) {
-      // no-op if pushState fails
-    }
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [navigate]);
-
-  // Fetch question on load if not passed via navigation
+  // Handle browser/mobile back button
   useEffect(() => {
     const idToStart = id || persistedStageId;
 
@@ -131,8 +189,11 @@ const QuestionPage = ({ type }) => {
 
       startStageItem(idToStart)
         .then((res) => {
-          console.log("🔍 QuestionPage - API response:", res);
-          setApiResponse(res);
+          console.log(
+            "🔍 QuestionPage - FULL API response from startStageItem:",
+            res
+          );
+          setApiResponse(res); // ✅ This should set the apiResponse
           if (res?.question) {
             setCurrentQuestion(res.question);
           }
@@ -145,6 +206,9 @@ const QuestionPage = ({ type }) => {
           console.error("Failed to start stage item:", err);
         });
     } else {
+      console.log("🔍 Using location.state data:", location.state);
+      // ✅ When using location.state, also set it as apiResponse
+      setApiResponse(location.state);
       setCurrentQuestion(location.state.question);
 
       if (location.state.test_log_id) {
@@ -199,6 +263,7 @@ const QuestionPage = ({ type }) => {
     console.log("🔍 apiResponse?.item_type:", apiResponse?.item_type);
     console.log("🔍 apiResponse?.test_log_id:", apiResponse?.test_log_id);
     console.log("🔍 apiResponse?.lesson_log_id:", apiResponse?.lesson_log_id);
+    console.log("🔍 Lesson data found:", getLessonData());
   }, [apiResponse]);
 
   const handleFillChange = (index, value) => {
@@ -246,13 +311,13 @@ const QuestionPage = ({ type }) => {
 
     // Add the appropriate log ID field based on whether it's a test or lesson
     if (isTestFromContext) {
-      payload.test_log_id = logId; // Use test_log_id for tests
-      payload.test_id = testId; // Use context testId
-      payload.item_type = "test"; // Explicitly mark as test
+      payload.test_log_id = logId;
+      payload.test_id = testId;
+      payload.item_type = "test";
       console.log("✅ Setting test payload fields");
     } else {
-      payload.lesson_log_id = logId; // Use lesson_log_id for lessons
-      payload.item_type = "lesson"; // Explicitly mark as lesson
+      payload.lesson_log_id = logId;
+      payload.item_type = "lesson";
       console.log("✅ Setting lesson payload fields");
     }
 
@@ -291,7 +356,6 @@ const QuestionPage = ({ type }) => {
     try {
       const res = await submitAnswer(payload);
 
-      // Only run this if there are hearts
       setIsCorrect(res?.is_correct);
       setShowResult(true);
       setQuestionCount(res.question_count);
@@ -305,9 +369,11 @@ const QuestionPage = ({ type }) => {
       console.error("Error submitting answer:", error);
     }
   };
+
   useEffect(() => {
     setPageNumber(1);
   }, [id]);
+
   useEffect(() => {
     localStorage.setItem(`pageNumber-${id}`, pageNumber);
   }, [pageNumber, id]);
@@ -318,7 +384,6 @@ const QuestionPage = ({ type }) => {
     }
 
     if (lessonComplete || testComplete) {
-      // Handle lesson completion
       if (lessonComplete) {
         const hasXPOrCoins =
           (rewards.xp && rewards.xp > 0) ||
@@ -335,22 +400,21 @@ const QuestionPage = ({ type }) => {
               test_log_id: isTest ? testLogId : null,
               question_group_id: nextQuestionData?.question_group_id,
               isTest,
+              subjectId, // ✅ added
             })
           );
 
           navigate("/lesson-ended", {
-            state: { nextPage: "/rewarded-motivation-freezes" },
+            state: { nextPage: "/rewarded-motivation-freezes", subjectId }, // ✅ added
           });
         } else if (hasXPOrCoins) {
-          navigate("/lesson-ended");
+          navigate("/lesson-ended", { state: { subjectId } }); // ✅ added
         } else if (hasMotivationFreeze) {
-          navigate("/rewarded-motivation-freezes");
+          navigate("/rewarded-motivation-freezes", { state: { subjectId } }); // ✅ added
         } else {
-          navigate("/lesson-ended");
+          navigate("/lesson-ended", { state: { subjectId } }); // ✅ added
         }
-      }
-      // Handle test completion
-      else if (testComplete) {
+      } else if (testComplete) {
         const hasXPOrCoins =
           (rewards.xp && rewards.xp > 0) ||
           (rewards.coins && rewards.coins > 0);
@@ -363,6 +427,7 @@ const QuestionPage = ({ type }) => {
               nextPage: "/rewarded-motivation-freezes",
               isTest: true,
               testCompleted: true,
+              subjectId, // ✅ added
             },
           });
         } else if (hasXPOrCoins) {
@@ -370,6 +435,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
+              subjectId, // ✅ added
             },
           });
         } else if (hasMotivationFreeze) {
@@ -377,6 +443,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
+              subjectId, // ✅ added
             },
           });
         } else {
@@ -384,6 +451,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
+              subjectId, // ✅ added
             },
           });
         }
@@ -394,7 +462,6 @@ const QuestionPage = ({ type }) => {
         return;
       }
 
-      // Pass the appropriate log ID based on whether it's a test or lesson
       const isTestFromContext = isTest;
       const logId = isTestFromContext ? testLogId : lessonLogId;
       const logIdKey = isTestFromContext ? "test_log_id" : "lesson_log_id";
@@ -404,11 +471,14 @@ const QuestionPage = ({ type }) => {
           question: nextQuestionData,
           [logIdKey]: logId,
           question_group_id: nextQuestionData.question_group_id,
+          subjectId, // ✅ added
         },
       });
+
       setShowResult(false);
       setIsCorrect(null);
     }
+
     setSelectedOption(null);
     setSelectedOptions([]);
     setMatchingAnswers([
@@ -416,11 +486,6 @@ const QuestionPage = ({ type }) => {
       { left: "لاعب ٢", right: "" },
     ]);
   };
-
-  // Show skeleton loading while loading
-  // if (loading) {
-  //   return <QuestionSkeleton />;
-  // }
 
   if (!currentQuestion && !showResult) {
     return <Box className="text-center mt-8">{t("no_question")}</Box>;
@@ -511,7 +576,7 @@ const QuestionPage = ({ type }) => {
           display: "flex",
           justifyContent: { xs: "normal", md: "center" },
           alignItems: { xs: "normal", md: "center" },
-          minHeight: "100vh", // ✅ equivalent to min-h-screen
+          minHeight: "100vh",
           backgroundImage: {
             xs: "none",
             md: `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
@@ -525,10 +590,76 @@ const QuestionPage = ({ type }) => {
         <Box className="w-full max-w-[1010px] opacity-90">
           <Box
             sx={{
+              display: { xs: "flex", md: "none" },
+              justifyContent: "space-between",
+              alignItems: "center",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              // backgroundColor: "white",
+              padding: "8px 16px",
+              // boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              zIndex: 9999,
+              height: "56px",
+            }}
+          >
+            {/* Info Button on Mobile */}
+            {shouldShowLessonDescription && (
+              <IconButton
+                onClick={() => setLessonDialogOpen(true)}
+                sx={{
+                  color: "#205DC7",
+                  backgroundColor: "white",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    backgroundColor: "#f5f5f5",
+                  },
+                  width: 40,
+                  height: 40,
+                }}
+              >
+                <InfoOutlinedIcon />
+              </IconButton>
+            )}
+
+            {/* Hearts on Mobile */}
+            {((isTest && apiResponse?.hearts !== undefined) ||
+              (hearts !== null && hearts !== undefined)) && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: "white",
+                  borderRadius: "50px",
+                  px: "16px",
+                  py: "6px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                <Typography fontSize="14px" fontWeight="bold">
+                  {isTest && apiResponse?.hearts !== undefined
+                    ? apiResponse.hearts
+                    : hearts}
+                </Typography>
+                <Box
+                  component="img"
+                  src={HeartIcon}
+                  alt="heart"
+                  sx={{ width: 20, height: "auto" }}
+                />
+              </Box>
+            )}
+          </Box>
+
+          <Box
+            sx={{
               display: "flex",
               justifyContent: "center",
               mb: "16px",
-              my: { xs: 8, md: 0 }, // ✅ push down on xs
+              my: { xs: 8, md: 0 },
             }}
           >
             <CircularCounter
@@ -537,7 +668,7 @@ const QuestionPage = ({ type }) => {
               percentage={
                 (pageNumber === 1 ? 0 : (pageNumber - 1) / questionCount) * 100
               }
-              isCorrect={isCorrect} // Pass the correctness state
+              isCorrect={isCorrect}
             />
           </Box>
 
@@ -546,19 +677,49 @@ const QuestionPage = ({ type }) => {
               sx={{
                 paddingX: { xs: "10px", sm: "32px", md: "64px", lg: "114px" },
                 paddingTop: { xs: "0px", md: "50px" },
+                position: "relative", // Needed for absolute positioning of icon
               }}
             >
+              {/* Lesson Description Button - Similar to StagePopperCustom pattern */}
+              {shouldShowLessonDescription && (
+                <>
+                  <IconButton
+                    onClick={() => setLessonDialogOpen(true)}
+                    sx={{
+                      color: "#205DC7",
+                      position: "absolute",
+                      top: 16,
+                      left: 16,
+                      zIndex: 1,
+                      backgroundColor: "white",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                      "&:hover": {
+                        backgroundColor: "#f5f5f5",
+                      },
+                      width: 40,
+                      height: 40,
+                      display: { xs: "none", md: "flex" }, // Hide on mobile, show on desktop
+                    }}
+                  >
+                    <InfoOutlinedIcon />
+                  </IconButton>
+
+                  <LessonDescriptionDialogJoy
+                    open={lessonDialogOpen}
+                    onClose={() => setLessonDialogOpen(false)}
+                    lesson={lessonData}
+                  />
+                </>
+              )}
+
+              {/* Hearts - Desktop only */}
               {((isTest && apiResponse?.hearts !== undefined) ||
                 (hearts !== null && hearts !== undefined)) && (
                 <Box
                   sx={{
-                    display: "flex",
-                    justifyContent: { xs: "flex-start", md: "flex-end" }, // ✅ different alignment
-                    mb: { xs: 0, md: 1.5 },
-                    position: { xs: "absolute", md: "static" }, // ✅ absolute on xs
-                    top: { xs: "20px", md: "auto" }, // ✅ small offset from top
-                    right: "15px", // ✅ stick to right on xs
-                    // width: "fit-content",
+                    display: { xs: "none", md: "flex" }, // Hide on mobile, show on desktop
+                    justifyContent: "flex-end",
+                    mb: 1.5,
                   }}
                 >
                   <Box
@@ -568,12 +729,12 @@ const QuestionPage = ({ type }) => {
                       gap: 1,
                       bgcolor: "white",
                       borderRadius: "50px",
-                      px: { xs: "10px", sm: "20px" },
+                      px: "20px",
                       py: "5px",
                       boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
                     }}
                   >
-                    <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                    <Typography fontSize="14px">
                       {isTest && apiResponse?.hearts !== undefined
                         ? apiResponse.hearts
                         : hearts}
@@ -582,82 +743,11 @@ const QuestionPage = ({ type }) => {
                       component="img"
                       src={HeartIcon}
                       alt="heart"
-                      sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                      sx={{ width: 22, height: "auto" }}
                     />
                   </Box>
                 </Box>
               )}
-
-              {/* Test Indicator Banner */}
-              {/* {isTest && (
-                <Box
-                  sx={{
-                    backgroundColor: "#FF6B35",
-                    color: "white",
-                    padding: "12px 20px",
-                    borderRadius: "12px",
-                    marginBottom: "16px",
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                >
-                  🧪 اختبار - Test Mode
-                </Box>
-              )}
-
-              {isTest && progress && (
-                <Box
-                  sx={{
-                    marginBottom: "16px",
-                    padding: "8px 16px",
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: "8px",
-                    border: "1px solid #e0e0e0",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      تقدم الاختبار
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {progress.number || 1} / {progress.totalQuestions || 1}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "8px",
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "4px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: `${
-                          ((progress.number || 1) /
-                            (progress.totalQuestions || 1)) *
-                          100
-                        }%`,
-                        height: "100%",
-                        backgroundColor: "#FF6B35",
-                        transition: "width 0.3s ease",
-                      }}
-                    />
-                  </Box>
-                </Box>
-              )} */}
 
               <Box
                 className="mb-3 text-[#205DC7]"
@@ -665,6 +755,7 @@ const QuestionPage = ({ type }) => {
                   fontSize: isMobile ? "18px" : "20px",
                   textAlign: { xs: "center", md: "left" },
                   fontWeight: "bold",
+                  mt: shouldShowLessonDescription ? 6 : 0, // Add margin top if button is shown
                 }}
               >
                 {questionTypeNames[currentQuestion.type] ||
@@ -676,12 +767,11 @@ const QuestionPage = ({ type }) => {
               <Box
                 className="pb-[40px] flex flex-col sm:flex-row justify-between items-center gap-4 mt-4"
                 sx={{
-                  position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
-                  // position:"static",
+                  position: { xs: "fixed", md: "static" },
                   bottom: { xs: 0, md: "auto" },
                   left: { xs: 0, md: "auto" },
                   width: { xs: "100%", md: "auto" },
-                  px: { xs: 2, md: 0 }, // padding from screen edges on xs
+                  px: { xs: 2, md: 0 },
                   py: { xs: 2, md: "40px" },
                   backgroundColor: { xs: "white", md: "transparent" },
                 }}

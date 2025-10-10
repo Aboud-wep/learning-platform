@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../lip/axios";
 
@@ -13,28 +19,29 @@ export const ProfileProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const navigate = useNavigate();
+  // new states for profile update
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [updatedProfile, setUpdatedProfile] = useState(null);
 
+  const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const headers = { Authorization: `Bearer ${token}` };
 
   // Redirect if no token
   useEffect(() => {
     if (!token) {
-      // REGISTER PROBLEM
       // navigate("/login", { replace: true });
     }
   }, [token, navigate]);
 
-  // Fetch followers on mount
+  // Fetch followers
   const fetchFollowers = useCallback(async () => {
     if (!token) return;
-
     try {
-      const res = await axiosInstance.get(
-        "friends/friends/website/Follower",
-        { headers }
-      );
+      const res = await axiosInstance.get("friends/friends/website/Follower", {
+        headers,
+      });
       setFollowers(res.data.data.items || []);
     } catch (err) {
       console.error("❌ Followers fetch error:", err);
@@ -42,14 +49,15 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Fetch recommended users on mount
+  // Fetch recommended
   const fetchRecommended = useCallback(async () => {
     if (!token) return;
-
     try {
       const res = await axiosInstance.get(
         "friends/friends/website/recommended-followers",
-        { headers }
+        {
+          headers,
+        }
       );
       setRecommended(res.data.data.items.slice(0, 5) || []);
     } catch (err) {
@@ -58,25 +66,24 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [token]);
 
-  // ✅ Function to refresh all friend data
+  // Refresh both
   const refreshFriendData = useCallback(async () => {
     await Promise.all([fetchFollowers(), fetchRecommended()]);
   }, [fetchFollowers, fetchRecommended]);
 
-  // ✅ Function to update followers locally
-  const updateFollowers = useCallback((newFollowers) => {
-    setFollowers(newFollowers);
-  }, []);
+  // Update followers/recommended locally
+  const updateFollowers = useCallback(
+    (newFollowers) => setFollowers(newFollowers),
+    []
+  );
+  const updateRecommended = useCallback(
+    (newRecommended) => setRecommended(newRecommended),
+    []
+  );
 
-  // ✅ Function to update recommended locally
-  const updateRecommended = useCallback((newRecommended) => {
-    setRecommended(newRecommended);
-  }, []);
-
-  // Fetch search results when search changes
+  // Search logic
   useEffect(() => {
     if (!token) return;
-
     if (search.trim() === "") {
       setSearchResults([]);
       return;
@@ -85,16 +92,9 @@ export const ProfileProvider = ({ children }) => {
     const fetchSearchResults = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const query = {
-          and: [
-            {
-              name: "user__username",
-              value: search,
-              lookup: "icontains",
-            },
-          ],
+          and: [{ name: "user__username", value: search, lookup: "icontains" }],
           or: [],
           order_by: { value: ["-updated_at"] },
         };
@@ -117,8 +117,8 @@ export const ProfileProvider = ({ children }) => {
       }
     };
 
-    const delayDebounce = setTimeout(fetchSearchResults, 300);
-    return () => clearTimeout(delayDebounce);
+    const delay = setTimeout(fetchSearchResults, 300);
+    return () => clearTimeout(delay);
   }, [search, token]);
 
   // Initial fetch
@@ -129,9 +129,54 @@ export const ProfileProvider = ({ children }) => {
     }
   }, [token, fetchFollowers, fetchRecommended]);
 
+  // ✅ PATCH: Update user profile
+  const updateUserProfile = useCallback(
+    async (formData) => {
+      setUpdateLoading(true);
+      setError(null);
+      setUpdateSuccess(false);
+
+      try {
+        const isFormData = formData instanceof FormData;
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": isFormData
+              ? "multipart/form-data"
+              : "application/json",
+          },
+        };
+
+        const response = await axiosInstance.patch(
+          "/profiles/profiles/dashboard/user-profile",
+          formData,
+          config
+        );
+
+        if (response.data?.meta?.success) {
+          setUpdatedProfile(response.data.data);
+          setUpdateSuccess(true);
+        } else {
+          setError(response.data?.meta?.message || "Failed to update profile");
+        }
+      } catch (err) {
+        console.error("❌ Update profile error:", err);
+        setError(
+          err.response?.data?.meta?.message ||
+            err.message ||
+            "An error occurred while updating profile"
+        );
+      } finally {
+        setUpdateLoading(false);
+      }
+    },
+    [token]
+  );
+
   return (
     <ProfileContext.Provider
       value={{
+        // existing
         followers,
         recommended,
         searchResults,
@@ -144,6 +189,13 @@ export const ProfileProvider = ({ children }) => {
         refreshFriendData,
         updateFollowers,
         updateRecommended,
+
+        // new
+        updateUserProfile,
+        updateLoading,
+        updateSuccess,
+        updatedProfile,
+        setUpdateSuccess,
       }}
     >
       {children}

@@ -459,6 +459,7 @@ const UserLayout = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  height:{xs:"35px",sm:"46px"},
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
@@ -481,6 +482,7 @@ const UserLayout = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  height:{xs:"35px",sm:"46px"},
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
@@ -503,6 +505,7 @@ const UserLayout = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  height:{xs:"35px",sm:"46px"},
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
@@ -530,8 +533,8 @@ const UserLayout = () => {
                     src={profile.avatar}
                     alt="avatar"
                     sx={{
-                      width: { xs: 28, sm: 36, md: 44 },
-                      height: { xs: 28, sm: 36, md: 44 },
+                      width: { xs: 35, sm: 45 , md: 60 },
+                      height: { xs: 35, sm: 45 , md: 60 },
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}
@@ -539,8 +542,8 @@ const UserLayout = () => {
                 ) : (
                   <Avatar
                     sx={{
-                      width: { xs: 28, sm: 36, md: 44 },
-                      height: { xs: 28, sm: 36, md: 44 },
+                      width: { xs: 35, sm: 45 , md: 60 },
+                      height: { xs: 35, sm: 45 , md: 60 },
                       bgcolor: "#1976d2",
                       fontSize: { xs: "12px", sm: "14px" },
                     }}

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import axiosInstance from "../lip/axios";
 
 const STORAGE_KEY = "appLanguage"; // "ar" | "en"
@@ -45,11 +51,16 @@ const TRANSLATIONS = {
     login_submit: "تسجيل الدخول",
     login_not_member: "لست عضوا حتى الآن؟",
     login_register_now: "سجل الآن",
-    login_invalid_credentials: "اسم المستخدم أو البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-    login_validation_identifier_short: "اسم المستخدم أو البريد الإلكتروني يجب أن يكون على الأقل 3 أحرف.",
-    login_validation_password_short: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
-    login_validation_password_upper: "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
-    login_validation_password_lower: "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
+    login_invalid_credentials:
+      "اسم المستخدم أو البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    login_validation_identifier_short:
+      "اسم المستخدم أو البريد الإلكتروني يجب أن يكون على الأقل 3 أحرف.",
+    login_validation_password_short:
+      "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
+    login_validation_password_upper:
+      "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
+    login_validation_password_lower:
+      "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
     login_google_failed: "فشل تسجيل الدخول باستخدام Google",
 
     // Register
@@ -63,13 +74,31 @@ const TRANSLATIONS = {
     register_have_account: "لديك حساب بالفعل؟",
     register_login: "تسجيل الدخول",
     register_google_failed: "فشل التسجيل باستخدام Google",
-    register_success_message: "تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل تسجيل الدخول.",
+    register_success_message:
+      "تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل تسجيل الدخول.",
     register_error_generic: "حدث خطأ ما",
-    register_validation_username: "اسم المستخدم يجب أن يحتوي على 3 أحرف على الأقل",
-    register_validation_first_name: "الاسم الأول يجب أن يحتوي على 3 أحرف على الأقل",
-    register_validation_last_name: "اسم العائلة يجب أن يحتوي على 3 أحرف على الأقل",
+
+    // ✅ new ones for backend error cases
+    register_error_email_exists: "هذا البريد الإلكتروني مستخدم بالفعل",
+    register_error_username_exists: "اسم المستخدم مستخدم بالفعل",
+    register_error_fields_invalid:
+      "تحقق من الحقول المدخلة، هناك خطأ في بعض البيانات.",
+
+    // ✅ validation messages
+    register_validation_username:
+      "اسم المستخدم يجب أن يحتوي على 3 أحرف على الأقل",
+    register_validation_first_name:
+      "الاسم الأول يجب أن يحتوي على 3 أحرف على الأقل",
+    register_validation_last_name:
+      "اسم العائلة يجب أن يحتوي على 3 أحرف على الأقل",
     register_validation_passwords_mismatch: "كلمة المرور غير متطابقة",
-    register_validation_password_rules: "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص",
+    register_validation_password_rules:
+      "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص",
+    register_error_email_exists: "هذا البريد الإلكتروني مستخدم بالفعل",
+    register_error_username_exists: "اسم المستخدم مستخدم بالفعل",
+    register_error_fields_invalid:
+      "تحقق من الحقول المدخلة، هناك خطأ في بعض البيانات.",
+    register_error_generic: "حدث خطأ ما",
 
     // Subjects
     subjects_title: "المواد",
@@ -124,10 +153,13 @@ const TRANSLATIONS = {
     login_not_member: "Not a member yet?",
     login_register_now: "Register now",
     login_invalid_credentials: "Invalid username/email or password.",
-    login_validation_identifier_short: "Username or email must be at least 3 characters.",
+    login_validation_identifier_short:
+      "Username or email must be at least 3 characters.",
     login_validation_password_short: "Password must be at least 8 characters.",
-    login_validation_password_upper: "Password must include at least one uppercase letter.",
-    login_validation_password_lower: "Password must include at least one lowercase letter.",
+    login_validation_password_upper:
+      "Password must include at least one uppercase letter.",
+    login_validation_password_lower:
+      "Password must include at least one lowercase letter.",
     login_google_failed: "Google sign-in failed",
 
     // Register
@@ -141,13 +173,15 @@ const TRANSLATIONS = {
     register_have_account: "Already have an account?",
     register_login: "Login",
     register_google_failed: "Google sign-up failed",
-    register_success_message: "Account created. Please verify your email before logging in.",
+    register_success_message:
+      "Account created. Please verify your email before logging in.",
     register_error_generic: "Something went wrong",
     register_validation_username: "Username must be at least 3 characters",
     register_validation_first_name: "First name must be at least 3 characters",
     register_validation_last_name: "Last name must be at least 3 characters",
     register_validation_passwords_mismatch: "Passwords do not match",
-    register_validation_password_rules: "Password must have 8+ chars, upper, lower, number, special",
+    register_validation_password_rules:
+      "Password must have 8+ chars, upper, lower, number, special",
 
     // Subjects
     subjects_title: "Subjects",
@@ -171,26 +205,32 @@ const TRANSLATIONS = {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(() => localStorage.getItem(STORAGE_KEY) || "ar");
+  const [language, setLanguage] = useState(
+    () => localStorage.getItem(STORAGE_KEY) || "ar"
+  );
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language);
     const isRTL = language === "ar";
     // document.body.setAttribute("dir", isRTL ? "rtl" : "ltr");
     // Ensure all subsequent requests use the updated language immediately
-    axiosInstance.defaults.headers.common["Accept-Language"] = language === "en" ? "en" : "ar";
+    axiosInstance.defaults.headers.common["Accept-Language"] =
+      language === "en" ? "en" : "ar";
   }, [language]);
 
   const value = useMemo(() => {
     const isRTL = language === "ar";
     const t = (key) => TRANSLATIONS[language]?.[key] ?? key;
-    const toggleLanguage = () => setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
+    const toggleLanguage = () =>
+      setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
     return { language, isRTL, setLanguage, toggleLanguage, t };
   }, [language]);
 
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
 };
 
 export const useLanguage = () => useContext(LanguageContext);
-
-

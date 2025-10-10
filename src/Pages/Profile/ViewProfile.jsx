@@ -24,6 +24,14 @@ import { useAchievements } from "../../Component/Home/AchievementContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import achievementImg from "../../assets/Images/achievement.png";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import {
+  BloodtypeOutlined,
+  BoltOutlined,
+  EmojiEmotionsOutlined,
+  EmojiEventsOutlined,
+  MenuBook as MenuBookIcon,
+  Whatshot,
+} from "@mui/icons-material";
 const ViewProfile = () => {
   const { id } = useParams();
   const [userProfile, setUserProfile] = useState(null);
@@ -181,7 +189,7 @@ const ViewProfile = () => {
             </Typography>
           )}
         </Box>
-
+        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
         {/* Stats */}
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item xs={12} sm={6} md={3}>
@@ -200,38 +208,18 @@ const ViewProfile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
+                <MenuBookIcon sx={{ fontSize: { xs: 30, sm: 40 } }} />
                 {userProfile.my_subjects_count}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 عدد المواد التي أدرسها
-              </Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Box
-              sx={{
-                width: { xs: "197px", lg: "320px" },
-                height: "96px",
-                borderRadius: "12px",
-                bgcolor: "#F4A32C",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                paddingLeft: "20px",
-                color: "#fff",
-              }}
-            >
-              <Typography
-                fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
-              >
-                🔥 {userProfile.streak}
-              </Typography>
-              <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                أيام الحماسة
               </Typography>
             </Box>
           </Grid>
@@ -252,12 +240,50 @@ const ViewProfile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
-                {userProfile.xp} ⚡
+                <BoltOutlined sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {userProfile.xp}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                إجمالي نقاط XP
+                إجمالي نقاط ال XP
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Box
+              sx={{
+                width: { xs: "197px", lg: "320px" },
+                height: "96px",
+                borderRadius: "12px",
+                bgcolor: "#F4A32C",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingLeft: "20px",
+                color: "#fff",
+              }}
+            >
+              <Typography
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Whatshot sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {userProfile.streak}
+              </Typography>
+              <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
+                أيام الحماسة
               </Typography>
             </Box>
           </Grid>
@@ -278,12 +304,18 @@ const ViewProfile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
-                {userProfile.xp} ⚡
+                <EmojiEventsOutlined sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {userProfile.xp}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                إجمالي نقاط XP
+                المستوى الذي وصلت له
               </Typography>
             </Box>
           </Grid>
@@ -484,7 +516,7 @@ const ViewProfile = () => {
           ))}
           <TextField
             fullWidth
-            placeholder="Search for a friend..."
+            placeholder="ابحث عن أصدقاء"
             variant="outlined"
             onClick={handleOpenDialog}
             InputProps={{

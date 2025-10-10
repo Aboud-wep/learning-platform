@@ -20,6 +20,8 @@ import {
   GridSkeleton,
   ProfileStatsSkeleton,
 } from "../../Component/ui/SkeletonLoader";
+import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
+import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const OtherSubjects = () => {
   const { setPageTitle } = useOutletContext();
@@ -27,7 +29,7 @@ const OtherSubjects = () => {
   const { subjects, userProgress, loadingg } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-
+const { hearts } = useQuestion();
   // 🔎 Search state
   const [searchValue, setSearchValue] = useState("");
 
@@ -76,36 +78,8 @@ const OtherSubjects = () => {
 
   // Show skeleton loading while data is loading
   if (loadingg) {
-    return (
-      <Box
-        sx={{
-          maxWidth: 1200,
-          mx: "auto",
-          p: { xs: 2, md: 3 },
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          gap: 3,
-        }}
-      >
-        {/* Main Content Skeleton */}
-        <Box sx={{ flex: 1, maxWidth: { md: 800 } }}>
-          {/* Search bar skeleton */}
-          <Box sx={{ mb: 3 }}>
-            <GridSkeleton columns={1} rows={1} itemHeight={56} />
-          </Box>
-          {/* Subjects grid skeleton */}
-          <GridSkeleton columns={2} rows={6} itemHeight={200} />
-        </Box>
-
-        {/* Sidebar Skeleton - Hidden on mobile */}
-        {isDesktop && (
-          <Box sx={{ width: { md: 324 } }}>
-            <ProfileStatsSkeleton />
-          </Box>
-        )}
-      </Box>
-    );
-  }
+  return <SubjectsPageSkeleton />;
+}
 
   return (
     <Box
@@ -246,8 +220,9 @@ const OtherSubjects = () => {
                   borderRadius: "20px",
                   py: 1,
                 }}
+                disabled={hearts !== null && hearts <= 0}
               >
-                أكمل التعلم
+                {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
               </Button>
             </Box>
           </Box>

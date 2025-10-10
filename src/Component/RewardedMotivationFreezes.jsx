@@ -2,15 +2,21 @@ import React from "react";
 import { useQuestion } from "../Pages/Questions/Context/QuestionContext";
 import FreezesRewards from "../assets/Icons/FreezesRewards.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTheme, useMediaQuery, Box, Typography, Button } from "@mui/material";
+import {
+  useTheme,
+  useMediaQuery,
+  Box,
+  Typography,
+  Button,
+} from "@mui/material";
 
-const RewardedMotivationFreezes = () => {
+const RewardedMotivationFreezes = ({ subject }) => {
   const { rewards, dailyLog } = useQuestion();
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   const isTest = location.state?.isTest || false;
   const freezeCount = rewards?.motivationFreezes || 0;
@@ -32,7 +38,12 @@ const RewardedMotivationFreezes = () => {
     if (shouldShowDailyLog()) {
       navigate("/daily-log");
     } else {
-      navigate("/home");
+      // ✅ FIX: Make sure subject prop has id
+      if (subject?.id) {
+        navigate(`/levels-map/${subject.id}`);
+      } else {
+        navigate("/home"); // fallback
+      }
     }
   };
 
@@ -46,7 +57,7 @@ const RewardedMotivationFreezes = () => {
         justifyContent: "center",
         backgroundColor: "white",
         px: { xs: 2, sm: 4, md: 6, lg: "249px" },
-        py: { xs: 4, md: 0 }
+        py: { xs: 4, md: 0 },
       }}
     >
       <Typography
@@ -55,7 +66,7 @@ const RewardedMotivationFreezes = () => {
           fontSize: { xs: "18px", sm: "20px" },
           fontWeight: "medium",
           textAlign: "center",
-          lineHeight: 1.5
+          lineHeight: 1.5,
         }}
       >
         {isTest
@@ -74,7 +85,7 @@ const RewardedMotivationFreezes = () => {
           mb: { xs: 3, md: 4.5 },
           width: { xs: "70%", sm: "50%", md: "40%", lg: "30%" },
           maxWidth: "300px",
-          height: "auto"
+          height: "auto",
         }}
       />
 
@@ -89,43 +100,45 @@ const RewardedMotivationFreezes = () => {
           color: "transparent",
           fontWeight: "900",
           textAlign: "center",
-          lineHeight: 1.2
+          lineHeight: 1.2,
         }}
       >
         {freezeCount > 1 ? `تجميد الحماسة × ${freezeCount}` : "تجميد الحماسة"}
       </Typography>
 
       {/* Button container aligned to the right */}
-      <Box sx={{ 
-              width: "100%", 
-              display: "flex", 
-              justifyContent: { xs: "center", md: "flex-end" },
-              px: { xs: 2, md: 0 },
-              position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
-                        // position:"static",
-                        bottom: { xs: 0, md: "auto" },
-                        py: { xs: 2, md: "40px" },
-            }}>
-              <Button
-                onClick={handleContinue}
-                sx={{
-                  px: 4,
-                  py: 1.5,
-                  width:{xs:"100%",md:"auto"},
-                  backgroundColor: "#205DC7",
-                  color: "white",
-                  borderRadius: "1000px",
-                  fontSize: { xs: "14px", md: "16px" },
-                  fontWeight: "bold",
-                  minWidth: { xs: "120px", md: "auto" },
-                  '&:hover': {
-                    backgroundColor: "#1a4aa0"
-                  }
-                }}
-              >
-                أكمل
-              </Button>
-            </Box>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: { xs: "center", md: "flex-end" },
+          px: { xs: 2, md: 0 },
+          position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
+          // position:"static",
+          bottom: { xs: 0, md: "auto" },
+          py: { xs: 2, md: "40px" },
+        }}
+      >
+        <Button
+          onClick={handleContinue}
+          sx={{
+            px: 4,
+            py: 1.5,
+            width: { xs: "100%", md: "auto" },
+            backgroundColor: "#205DC7",
+            color: "white",
+            borderRadius: "1000px",
+            fontSize: { xs: "14px", md: "16px" },
+            fontWeight: "bold",
+            minWidth: { xs: "120px", md: "auto" },
+            "&:hover": {
+              backgroundColor: "#1a4aa0",
+            },
+          }}
+        >
+          أكمل
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -99,7 +99,7 @@ export default function Register() {
     e.preventDefault();
     setMessage("");
     setError("");
-    setValidationErrors({}); // reset field errors first
+    setValidationErrors({}); // reset field errors
 
     // 🛑 Validate client-side before sending
     if (!validateForm()) return;
@@ -111,13 +111,38 @@ export default function Register() {
       navigate("/login", {
         replace: true,
         state: {
-          successMessage:
-            data.meta?.message || t("register_success_message"),
+          successMessage: data.meta?.message || t("register_success_message"),
         },
       });
-    } catch (err) {
-      setError(err.response?.data?.meta?.message || t("register_error_generic"));
-      console.error("Register error:", err);
+    } catch (error) {
+      console.error("Registration error:", error);
+
+      // The error object has both data and meta at the same level
+      const backendMessage = error.meta?.message;
+
+      console.log("Backend message:", backendMessage);
+
+      if (backendMessage && typeof backendMessage === "object") {
+        // Handle object with field errors (like {email: ["Email already registered"]})
+        if (backendMessage.email) {
+          // Use Arabic translation instead of English backend message
+          setError(t("register_error_email_exists"));
+        } else if (backendMessage.username) {
+          // Use Arabic translation instead of English backend message
+          setError(t("register_error_username_exists"));
+        } else {
+          // For other field errors, use the generic fields invalid message in Arabic
+          setError(t("register_error_fields_invalid"));
+        }
+      }
+      // Handle string message directly - use generic error in Arabic
+      else if (typeof backendMessage === "string") {
+        setError(t("register_error_generic"));
+      }
+      // Fallback to generic error in Arabic
+      else {
+        setError(t("register_error_generic"));
+      }
     } finally {
       setLoading(false);
     }
@@ -131,7 +156,7 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <TextField
-            label="اسم المستخدم"
+            label={t("register_username")}
             name="username"
             value={form.username}
             onChange={handleChange}
@@ -163,7 +188,7 @@ export default function Register() {
           />
 
           <TextField
-            label="البريد الإلكتروني"
+            label={t("register_email")}
             name="email"
             type="email"
             value={form.email}
@@ -196,7 +221,7 @@ export default function Register() {
           />
 
           <TextField
-            label="الاسم الأول"
+            label={t("register_first_name")}
             name="first_name"
             value={form.first_name}
             onChange={handleChange}
@@ -228,7 +253,7 @@ export default function Register() {
           />
 
           <TextField
-            label="اسم العائلة"
+            label={t("register_last_name")}
             name="last_name"
             value={form.last_name}
             onChange={handleChange}
@@ -260,7 +285,7 @@ export default function Register() {
           />
 
           <TextField
-            label="كلمة المرور"
+            label={t("register_password")}
             name="password"
             type={showPassword ? "text" : "password"}
             value={form.password}
@@ -301,7 +326,7 @@ export default function Register() {
             }}
           />
           <TextField
-            label="تأكيد كلمة المرور"
+            label={t("register_confirm_password")}
             name="confirmPassword"
             type={showPassword ? "text" : "password"}
             value={form.confirmPassword}
@@ -413,7 +438,7 @@ export default function Register() {
           </Button> */}
           <GoogleLogin
             onSuccess={handleGoogleLogin}
-            onError={() => setError("فشل التسجيل باستخدام Google")}
+            onError={() => setError(t("register_google_failed"))}
           />
           <Box className="flex justify-center pt-6">
             <Typography

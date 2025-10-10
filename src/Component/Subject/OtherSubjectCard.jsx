@@ -11,10 +11,11 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../lip/axios";
 import PlacementModal from "../PlacementModal";
 import Image from "../../assets/Images/Image.png";
+import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
 const OtherSubjectCard = ({ subject }) => {
   const navigate = useNavigate();
   const [isPlacementModalOpen, setIsPlacementModalOpen] = useState(false);
-
+const { hearts } = useQuestion();
   const handleJoin = () => {
     setIsPlacementModalOpen(true);
   };
@@ -27,8 +28,8 @@ const OtherSubjectCard = ({ subject }) => {
         display: "flex",
         flexDirection: "column",
         padding: { xs: "10px", sm: "15px" },
-        width: "100%", // always take full width of Grid item
-        maxWidth: { sm: "161px", md: "209px" }, // limit at larger screens
+        width: "209px", // always take full width of Grid item
+        maxWidth: { xs: "209px", md: "209px" }, // limit at larger screens
         boxSizing: "border-box",
         backgroundColor: "#ffffff",
         alignItems: "center",
@@ -39,7 +40,7 @@ const OtherSubjectCard = ({ subject }) => {
         image={subject.image || Image}
         alt={subject.name}
         sx={{
-          width: { xs: "175px", sm: "100%" }, // fill card width
+          width: { xs: "100%", sm: "175px" }, // fill card width
           height: { xs: "115px", sm: "115px" }, // auto height on mobile
           borderRadius: "20px",
           objectFit: "cover",
@@ -75,8 +76,9 @@ const OtherSubjectCard = ({ subject }) => {
         color="primary"
         onClick={handleJoin}
         sx={{ mt: "auto", borderRadius: "1000px" }}
+        disabled={hearts !== null && hearts <= 0}
       >
-        ابدأ التعلم
+        {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "ابدأ التعلم"}
       </Button>
 
       <PlacementModal

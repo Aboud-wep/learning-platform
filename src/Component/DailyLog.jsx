@@ -16,7 +16,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 const weekdaysArabic = ["أ", "إ", "ث", "أ", "خ", "ج", "س"];
 
-const DailyLog = () => {
+const DailyLog = ({ subject }) => {
   const { dailyLog } = useQuestion();
   const { profile, loading: profileLoading } = useHome();
   const navigate = useNavigate();
@@ -252,7 +252,14 @@ const DailyLog = () => {
           }}
         >
           <Button
-            onClick={() => navigate("/home")}
+            onClick={() => {
+              // ✅ FIX: Make sure subject prop has id
+              if (subject?.id) {
+                navigate(`/levels-map/${subject.id}`);
+              } else {
+                navigate("/home"); // fallback
+              }
+            }}
             sx={{
               px: 4,
               py: 1.5,
@@ -277,11 +284,6 @@ const DailyLog = () => {
 };
 
 export default DailyLog;
-
-
-
-
-
 
 // // src/layouts/UserLayout.jsx
 // import { useState, useEffect } from "react";
@@ -337,7 +339,7 @@ export default DailyLog;
 //   useEffect(() => {
 //     const path = location.pathname;
 //     setActiveNavItem(path);
-    
+
 //     // Also update bottom navigation based on URL
 //     switch(path) {
 //       case "/home":
@@ -450,10 +452,10 @@ export default DailyLog;
 //             <ListItemText primary={item.text} />
 //           </ListItemButton>
 //         ))}
-        
+
 //         <Divider />
-        
-//         <ListItemButton 
+
+//         <ListItemButton
 //           onClick={() => navigate("/profile")}
 //           selected={activeNavItem.startsWith("/profile")}
 //           sx={{
@@ -475,7 +477,7 @@ export default DailyLog;
 //           </ListItemIcon>
 //           <ListItemText primary="الملف الشخصي" />
 //         </ListItemButton>
-        
+
 //         {role === "admin" && (
 //           <ListItemButton
 //             component="a"

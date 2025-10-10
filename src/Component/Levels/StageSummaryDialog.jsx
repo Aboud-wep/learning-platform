@@ -12,7 +12,7 @@ export default function StageSummaryDialogJoy({
   open,
   onClose,
   stageSummaries,
-}) {
+}) { 
   if (!stageSummaries) return null;
   const { t } = useLanguage();
 

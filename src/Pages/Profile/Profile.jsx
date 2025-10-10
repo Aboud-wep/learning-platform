@@ -11,6 +11,7 @@ import {
   useMediaQuery,
   Divider,
   Stack,
+  CircularProgress,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -18,7 +19,14 @@ import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useProfile } from "./Context/ProfileContext";
 import React, { useEffect, useState } from "react";
-import { Logout as LogoutIcon } from "@mui/icons-material";
+
+import {
+  BoltOutlined as BoltOutlinedIcon,
+  Whatshot as WhatshotIcon,
+  Logout as LogoutIcon,
+  MenuBook as MenuBookIcon,
+  EmojiEventsOutlined,
+} from "@mui/icons-material";
 import {
   ProfileStatsSkeleton,
   AchievementSkeleton,
@@ -37,8 +45,21 @@ import { useAuth } from "../Auth/AuthContext";
 const Profile = () => {
   const { profile, updateProfileStats } = useHome();
   const { userProgress } = useSubjects();
-  const { followers, recommended } = useProfile();
+  const {
+    followers,
+    recommended,
+    updateUserProfile,
+    updateLoading,
+    updateSuccess,
+    error,
+    setUpdateSuccess,
+  } = useProfile();
   const [openDialog, setOpenDialog] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [firstName, setFirstName] = useState(profile?.first_name || "");
+  const [lastName, setLastName] = useState(profile?.last_name || "");
+  const [avatar, setAvatar] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(profile?.avatar || "");
   const { setPageTitle } = useOutletContext();
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
@@ -57,16 +78,88 @@ const Profile = () => {
   const [dialogRewards, setDialogRewards] = useState(null);
   const [openXPDialog, setOpenXPDialog] = useState(false);
   const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
+
+  // Add logout function
+  const logoutUser = async () => {
+    try {
+      await axiosInstance.post("/auth/logout/");
+    } catch (err) {
+      console.error("Logout API call failed:", err);
+    }
+  };
+
   const handleLogout = async () => {
     try {
-      await logoutUser(); // calls backend logout
+      await logoutUser();
     } catch (err) {
       console.error("Logout failed:", err);
     } finally {
-      authLogout(); // clear context/local state
+      authLogout();
       navigate("/login");
     }
   };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadAvatar = async (file) => {
+    const formData = new FormData();
+    formData.append("original_img", file); // backend expects this field name
+
+    const response = await axiosInstance.post(
+      "media-handlerimage-avatar/dashboard/image-profile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data.data; // should contain the avatar UUID
+  };
+  const existingAvatarId = profile?.avatar?.id;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      let avatarUuid = null;
+
+      // Upload new avatar if selected
+      if (avatar instanceof File) {
+        const uploadResponse = await uploadAvatar(avatar);
+        avatarUuid = uploadResponse?.id; // string UUID
+      }
+
+      // Use existing avatar if no new file is selected
+      else if (profile?.avatar?.id) {
+        avatarUuid = profile.avatar.id;
+      }
+
+      // Prepare payload
+      const payload = {
+        first_name: firstName,
+        last_name: lastName,
+      };
+
+      // Only include avatar if we have a valid UUID
+      if (avatarUuid) {
+        payload.avatar = avatarUuid;
+      }
+
+      await updateUserProfile(payload);
+      setEditMode(false);
+    } catch (error) {
+      console.error("Profile update failed:", error);
+    }
+  };
+
   const claimReward = async (achievementId) => {
     try {
       setLoadingId(achievementId);
@@ -76,13 +169,11 @@ const Profile = () => {
       if (response.data.meta.success) {
         const rewards = response.data.data.rewards || {};
         const updatedProfile = response.data.data.updated_profile || {};
-        // Use updateProfileStats to refresh locally
         await updateProfileStats(updatedProfile, true);
         setDialogRewards(rewards);
         if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0)
           setOpenXPDialog(true);
         if ((rewards.motivation_freezes || 0) > 0) setOpenFreezeDialog(true);
-        // Refresh achievements so UI reflects completion and disappearance
         refreshAchievements();
       }
     } catch (e) {
@@ -100,7 +191,30 @@ const Profile = () => {
     setPageTitle("الرئيسية");
   }, [setPageTitle]);
 
-  if (!profile) return null;
+  // Update form fields when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || "");
+      setLastName(profile.last_name || "");
+      setAvatarPreview(profile.avatar || "");
+    }
+  }, [profile]);
+
+  // Show loading state while profile is null
+  if (!profile) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -110,7 +224,6 @@ const Profile = () => {
         mt: { xs: 2, md: "30px" },
         gap: { xs: 3, md: 2 },
         px: { xs: 2, sm: 3, md: 4 },
-        // maxWidth: "1200",
         mx: "auto",
       }}
     >
@@ -125,7 +238,7 @@ const Profile = () => {
       >
         <Box textAlign="center" mb={4}>
           <Avatar
-            src={profile.avatar || ""}
+            src={avatarPreview || ""}
             sx={{
               width: { xs: "270px", sm: "300px" },
               height: { xs: "270px", sm: "300px" },
@@ -133,13 +246,103 @@ const Profile = () => {
               mb: "10px",
             }}
           >
-            {!profile.avatar && (
+            {!avatarPreview && (
               <PersonIcon sx={{ fontSize: { xs: 40, md: 60 } }} />
             )}
           </Avatar>
-          <Typography variant="h5" fontWeight="bold" sx={{ fontSize: "48px" }}>
-            {profile.first_name} {profile.last_name}
-          </Typography>
+
+          {editMode && (
+            <Button
+              component="label"
+              variant="contained"
+              color="primary"
+              size="small"
+              sx={{
+                position: "absolute",
+                bottom: 15,
+                right: 15,
+                borderRadius: "50px",
+                fontSize: "12px",
+              }}
+            >
+              تغيير الصورة
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={handleAvatarChange}
+              />
+            </Button>
+          )}
+          {!editMode ? (
+            <>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                sx={{ fontSize: "48px", mb: 2 }}
+              >
+                {profile.first_name} {profile.last_name}
+              </Typography>
+
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => {
+                  setEditMode(true);
+                  setUpdateSuccess(false);
+                }}
+              >
+                تعديل الملف الشخصي
+              </Button>
+            </>
+          ) : (
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
+            >
+              <TextField
+                label="الاسم الأول"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                fullWidth
+              />
+              <TextField
+                label="الاسم الأخير"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                fullWidth
+              />
+
+              <Box display="flex" justifyContent="center" gap={2}>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  disabled={updateLoading}
+                >
+                  {updateLoading ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    "حفظ التغييرات"
+                  )}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setEditMode(false)}
+                >
+                  إلغاء
+                </Button>
+              </Box>
+
+              {updateSuccess && (
+                <Typography color="success.main">
+                  ✅ تم التحديث بنجاح
+                </Typography>
+              )}
+              {error && <Typography color="error.main">❌ {error}</Typography>}
+            </Box>
+          )}
           <Typography color="textSecondary" sx={{ fontSize: "24px" }}>
             {profile.title || "بدون لقب"}
           </Typography>
@@ -162,38 +365,18 @@ const Profile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
-                {profile.my_subjects_count}
+                <MenuBookIcon sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {profile.my_subjects_count || 0}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 عدد المواد التي أدرسها
-              </Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            <Box
-              sx={{
-                width: { xs: "197px", lg: "320px" },
-                height: "96px",
-                borderRadius: "12px",
-                bgcolor: "#F4A32C",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                paddingLeft: "20px",
-                color: "#fff",
-              }}
-            >
-              <Typography
-                fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
-              >
-                🔥 {profile.streak}
-              </Typography>
-              <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                أيام الحماسة
               </Typography>
             </Box>
           </Grid>
@@ -214,12 +397,50 @@ const Profile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
-                {profile.xp} ⚡
+                <BoltOutlinedIcon sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {profile.xp || 0}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 إجمالي نقاط XP
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Box
+              sx={{
+                width: { xs: "197px", lg: "320px" },
+                height: "96px",
+                borderRadius: "12px",
+                bgcolor: "#F4A32C",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                paddingLeft: "20px",
+                color: "#fff",
+              }}
+            >
+              <Typography
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <WhatshotIcon sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {profile.streak || 0}
+              </Typography>
+              <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
+                أيام الحماسة
               </Typography>
             </Box>
           </Grid>
@@ -240,12 +461,18 @@ const Profile = () => {
             >
               <Typography
                 fontWeight="bold"
-                sx={{ fontSize: { xs: "28px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "28px", md: "40px" },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
               >
-                {profile.xp} ⚡
+                <EmojiEventsOutlined sx={{ fontSize: { xs: 30, sm: 40 } }} />
+                {profile.highest_competition_level.name || "الذهبي"}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                إجمالي نقاط XP
+                المستوى الذي وصلت له
               </Typography>
             </Box>
           </Grid>
@@ -374,11 +601,7 @@ const Profile = () => {
                               disabled={loadingId === item.achievement.id}
                             >
                               {loadingId === item.achievement.id ? (
-                                <Skeleton
-                                  variant="text"
-                                  width={100}
-                                  height={20}
-                                />
+                                <CircularProgress size={20} />
                               ) : (
                                 "احصل على جائزتك"
                               )}
@@ -426,6 +649,7 @@ const Profile = () => {
           </Box>
         </Box>
       </Box>
+      {/* sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
       <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
       {/* Sidebar - Friends Section */}
       <Box
@@ -557,7 +781,7 @@ const Profile = () => {
           ))}
           <TextField
             fullWidth
-            placeholder="Search for a friend..."
+            placeholder="ابحث عن أصدقاء"
             variant="outlined"
             onClick={handleOpenDialog}
             InputProps={{
@@ -609,11 +833,11 @@ const Profile = () => {
                 "https://alibdaagroup.com/backend/metadata-admin-control/")
             }
             sx={{
-              flex: 1, // equal size
+              flex: 1,
               borderRadius: "20px",
               backgroundColor: "#205DC7",
               "&:hover": { backgroundColor: "#174ea6" },
-              order: { xs: 1, sm: 2 }, // above on column, left on row
+              order: { xs: 1, sm: 2 },
             }}
           >
             لوحة التحكم
@@ -627,7 +851,7 @@ const Profile = () => {
           color="error"
           startIcon={<LogoutIcon />}
           sx={{
-            flex: 1, // equal size
+            flex: 1,
             borderRadius: "20px",
             textTransform: "none",
             fontWeight: 600,
@@ -637,7 +861,7 @@ const Profile = () => {
             ":hover": {
               backgroundColor: "#d32f2f",
             },
-            order: { xs: 2, sm: 1 }, // below on column, right on row
+            order: { xs: 2, sm: 1 },
           }}
         >
           تسجيل الخروج
@@ -659,17 +883,156 @@ const Profile = () => {
   );
 };
 
-const boxStyle = (bgcolor) => ({
-  bgcolor,
-  color: "white",
-  width: "100%",
-  height: { xs: 90, sm: 100, md: 106 },
-  borderRadius: "20px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  paddingLeft: { xs: "20px", md: "30px" },
-  textAlign: { xs: "center", sm: "left" },
-});
-
 export default Profile;
+
+// import React, { useState } from "react";
+// import {
+//   Box,
+//   Avatar,
+//   Typography,
+//   Button,
+//   TextField,
+//   CircularProgress,
+// } from "@mui/material";
+// import PersonIcon from "@mui/icons-material/Person";
+// import { useProfile } from "../../Context/ProfileContext";
+
+// const ProfileHeader = ({ profile }) => {
+//   const {
+//     updateUserProfile,
+//     updateLoading,
+//     updateSuccess,
+//     error,
+//     setUpdateSuccess,
+//   } = useProfile();
+
+//   const [editMode, setEditMode] = useState(false);
+//   const [firstName, setFirstName] = useState(profile.first_name || "");
+//   const [lastName, setLastName] = useState(profile.last_name || "");
+//   const [avatar, setAvatar] = useState(null);
+//   const [avatarPreview, setAvatarPreview] = useState(profile.avatar || "");
+
+//   const handleAvatarChange = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       setAvatar(file);
+//       setAvatarPreview(URL.createObjectURL(file));
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     const formData = new FormData();
+//     formData.append("first_name", firstName);
+//     formData.append("last_name", lastName);
+//     if (avatar) formData.append("avatar", avatar);
+
+//     await updateUserProfile(formData);
+//     setEditMode(false);
+//   };
+
+//   return (
+//     <Box textAlign="center" mb={4}>
+//       <Box position="relative" display="inline-block">
+//         <Avatar
+//           src={avatarPreview || ""}
+//           sx={{
+//             width: { xs: "270px", sm: "300px" },
+//             height: { xs: "270px", sm: "300px" },
+//             mx: "auto",
+//             mb: "10px",
+//           }}
+//         >
+//           {!avatarPreview && (
+//             <PersonIcon sx={{ fontSize: { xs: 40, md: 60 } }} />
+//           )}
+//         </Avatar>
+
+//         {editMode && (
+//           <Button
+//             component="label"
+//             variant="contained"
+//             color="primary"
+//             size="small"
+//             sx={{
+//               position: "absolute",
+//               bottom: 15,
+//               right: 15,
+//               borderRadius: "50px",
+//               fontSize: "12px",
+//             }}
+//           >
+//             تغيير الصورة
+//             <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+//           </Button>
+//         )}
+//       </Box>
+
+//       {!editMode ? (
+//         <>
+//           <Typography
+//             variant="h5"
+//             fontWeight="bold"
+//             sx={{ fontSize: "48px", mb: 2 }}
+//           >
+//             {profile.first_name} {profile.last_name}
+//           </Typography>
+
+//           <Button
+//             variant="outlined"
+//             color="primary"
+//             onClick={() => {
+//               setEditMode(true);
+//               setUpdateSuccess(false);
+//             }}
+//           >
+//             تعديل الملف الشخصي
+//           </Button>
+//         </>
+//       ) : (
+//         <Box
+//           component="form"
+//           onSubmit={handleSubmit}
+//           sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
+//         >
+//           <TextField
+//             label="الاسم الأول"
+//             value={firstName}
+//             onChange={(e) => setFirstName(e.target.value)}
+//             fullWidth
+//           />
+//           <TextField
+//             label="الاسم الأخير"
+//             value={lastName}
+//             onChange={(e) => setLastName(e.target.value)}
+//             fullWidth
+//           />
+
+//           <Box display="flex" justifyContent="center" gap={2}>
+//             <Button
+//               variant="contained"
+//               type="submit"
+//               disabled={updateLoading}
+//             >
+//               {updateLoading ? <CircularProgress size={24} /> : "حفظ التغييرات"}
+//             </Button>
+//             <Button
+//               variant="outlined"
+//               color="secondary"
+//               onClick={() => setEditMode(false)}
+//             >
+//               إلغاء
+//             </Button>
+//           </Box>
+
+//           {updateSuccess && (
+//             <Typography color="success.main">✅ تم التحديث بنجاح</Typography>
+//           )}
+//           {error && <Typography color="error.main">❌ {error}</Typography>}
+//         </Box>
+//       )}
+//     </Box>
+//   );
+// };
+
+// export default ProfileHeader;
