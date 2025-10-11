@@ -77,8 +77,6 @@ const TRANSLATIONS = {
     register_success_message:
       "تم إنشاء الحساب بنجاح، يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب قبل تسجيل الدخول.",
     register_error_generic: "حدث خطأ ما",
-
-    // ✅ new ones for backend error cases
     register_error_email_exists: "هذا البريد الإلكتروني مستخدم بالفعل",
     register_error_username_exists: "اسم المستخدم مستخدم بالفعل",
     register_error_fields_invalid:
@@ -94,11 +92,6 @@ const TRANSLATIONS = {
     register_validation_passwords_mismatch: "كلمة المرور غير متطابقة",
     register_validation_password_rules:
       "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف كبير وصغير، ورقم، ورمز خاص",
-    register_error_email_exists: "هذا البريد الإلكتروني مستخدم بالفعل",
-    register_error_username_exists: "اسم المستخدم مستخدم بالفعل",
-    register_error_fields_invalid:
-      "تحقق من الحقول المدخلة، هناك خطأ في بعض البيانات.",
-    register_error_generic: "حدث خطأ ما",
 
     // Subjects
     subjects_title: "المواد",
@@ -139,7 +132,7 @@ const TRANSLATIONS = {
     home_my_subjects: "My Subjects",
     home_other_subjects: "Other Subjects",
     home_view_more: "View more",
-    home_no_started_subjects: "You haven’t started any subject yet.",
+    home_no_started_subjects: "You haven't started any subject yet.",
     home_continue_learning: "Continue learning",
     home_completed: "Completed",
     home_in_progress: "In progress",
@@ -176,6 +169,9 @@ const TRANSLATIONS = {
     register_success_message:
       "Account created. Please verify your email before logging in.",
     register_error_generic: "Something went wrong",
+    register_error_email_exists: "Email already exists",
+    register_error_username_exists: "Username already exists",
+    register_error_fields_invalid: "Please check your input fields",
     register_validation_username: "Username must be at least 3 characters",
     register_validation_first_name: "First name must be at least 3 characters",
     register_validation_last_name: "Last name must be at least 3 characters",
@@ -220,7 +216,12 @@ export const LanguageProvider = ({ children }) => {
 
   const value = useMemo(() => {
     const isRTL = language === "ar";
-    const t = (key) => TRANSLATIONS[language]?.[key] ?? key;
+    const t = (key) => {
+      const translation = TRANSLATIONS[language]?.[key];
+      return typeof translation === "function"
+        ? translation()
+        : translation ?? key;
+    };
     const toggleLanguage = () =>
       setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
     return { language, isRTL, setLanguage, toggleLanguage, t };
