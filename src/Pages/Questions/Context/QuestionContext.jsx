@@ -438,6 +438,7 @@ export const QuestionProvider = ({ children }) => {
       if (data.next_question) {
         setNextQuestionId(data.next_question.id);
         setNextQuestionData(data.next_question);
+        setAnswerId(null);
       }
 
       return data;

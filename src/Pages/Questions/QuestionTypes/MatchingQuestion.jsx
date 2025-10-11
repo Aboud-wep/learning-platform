@@ -39,6 +39,9 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
     setMatchedPairs({});
     setWrongPairs([]);
     setIsCorrect(true);
+    if (answerId) {
+      setAnswerId(null);
+    }
   }, [question?.id]);
 
   if (
