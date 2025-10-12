@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useHome } from "../Pages/Home/Context/HomeContext";
 import FreezesRewards from "../assets/Icons/FreezesRewards.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { DailyLogSkeleton } from "./ui/SkeletonLoader";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
@@ -20,6 +20,7 @@ const DailyLog = ({ subject }) => {
   const { dailyLog } = useQuestion();
   const { profile, loading: profileLoading } = useHome();
   const navigate = useNavigate();
+  const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
@@ -253,9 +254,11 @@ const DailyLog = ({ subject }) => {
         >
           <Button
             onClick={() => {
-              // ✅ FIX: Make sure subject prop has id
-              if (subject?.id) {
-                navigate(`/levels-map/${subject.id}`);
+              // ✅ FIX: Use subjectId from location state, localStorage, or subject prop
+              const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId") || subject?.id;
+              
+              if (subjectId) {
+                navigate(`/levels-map/${subjectId}`);
               } else {
                 navigate("/home"); // fallback
               }

@@ -117,6 +117,11 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
             result.subject?.id ||
             location.state?.subjectId;
 
+          // ✅ Store subjectId in localStorage for persistent access
+          if (subjectId) {
+            localStorage.setItem("currentSubjectId", subjectId);
+          }
+
           navigate(`/questions/${result.question.id}`, {
             state: {
               ...result,

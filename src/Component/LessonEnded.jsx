@@ -38,7 +38,8 @@ const LessonEnded = () => {
 
     // If daily log should be shown, go to daily log page first
     if (shouldShowDailyLog()) {
-      navigate("/daily-log");
+      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId");
+      navigate("/daily-log", { state: { subjectId } });
       return;
     }
 
@@ -46,8 +47,8 @@ const LessonEnded = () => {
     if (location.state?.nextPage) {
       navigate(location.state.nextPage);
     } else {
-      // ✅ FIX: Use the subjectId from location state
-      const subjectId = location.state?.subjectId;
+      // ✅ FIX: Use the subjectId from location state or localStorage
+      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId");
       
 
       if (subjectId) {

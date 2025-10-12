@@ -33,6 +33,10 @@ const MySubjectCard = ({ subject, progress }) => {
       // No hearts left, navigate to no-hearts page
       navigate("/no-hearts");
     } else {
+      // ✅ Store subjectId in localStorage for persistent access
+      if (subject?.id) {
+        localStorage.setItem("currentSubjectId", subject.id);
+      }
       // Has hearts, navigate to subject
       navigate(`/levels-map/${subject.id}`);
     }

@@ -34,6 +34,13 @@ const QuestionPage = ({ type }) => {
   const { t, isRTL } = useLanguage();
   const subjectId = location.state?.subjectId;
   const { id } = useParams();
+  
+  // ✅ Store subjectId in localStorage when available
+  useEffect(() => {
+    if (subjectId) {
+      localStorage.setItem("currentSubjectId", subjectId);
+    }
+  }, [subjectId]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
@@ -400,19 +407,19 @@ const QuestionPage = ({ type }) => {
               test_log_id: isTest ? testLogId : null,
               question_group_id: nextQuestionData?.question_group_id,
               isTest,
-              subjectId, // ✅ added
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
             })
           );
 
           navigate("/lesson-ended", {
-            state: { nextPage: "/rewarded-motivation-freezes", subjectId }, // ✅ added
+            state: { nextPage: "/rewarded-motivation-freezes", subjectId: subjectId || localStorage.getItem("currentSubjectId") }, // ✅ use stored subjectId as fallback
           });
         } else if (hasXPOrCoins) {
-          navigate("/lesson-ended", { state: { subjectId } }); // ✅ added
+          navigate("/lesson-ended", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
         } else if (hasMotivationFreeze) {
-          navigate("/rewarded-motivation-freezes", { state: { subjectId } }); // ✅ added
+          navigate("/rewarded-motivation-freezes", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
         } else {
-          navigate("/lesson-ended", { state: { subjectId } }); // ✅ added
+          navigate("/lesson-ended", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
         }
       } else if (testComplete) {
         const hasXPOrCoins =
@@ -427,7 +434,7 @@ const QuestionPage = ({ type }) => {
               nextPage: "/rewarded-motivation-freezes",
               isTest: true,
               testCompleted: true,
-              subjectId, // ✅ added
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
             },
           });
         } else if (hasXPOrCoins) {
@@ -435,7 +442,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
-              subjectId, // ✅ added
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
             },
           });
         } else if (hasMotivationFreeze) {
@@ -443,7 +450,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
-              subjectId, // ✅ added
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
             },
           });
         } else {
@@ -451,7 +458,7 @@ const QuestionPage = ({ type }) => {
             state: {
               isTest: true,
               testCompleted: true,
-              subjectId, // ✅ added
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
             },
           });
         }
@@ -471,7 +478,7 @@ const QuestionPage = ({ type }) => {
           question: nextQuestionData,
           [logIdKey]: logId,
           question_group_id: nextQuestionData.question_group_id,
-          subjectId, // ✅ added
+          subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
         },
       });
 

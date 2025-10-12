@@ -89,6 +89,8 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
 
         if (subjectId) {
           console.log("🚀 Navigating to levels-map with subjectId:", subjectId);
+          // ✅ Store subjectId in localStorage for persistent access
+          localStorage.setItem("currentSubjectId", subjectId);
           onClose(); // Close the modal first
           navigate(`/levels-map/${subjectId}`, { replace: true });
         } else {
@@ -104,6 +106,10 @@ const PlacementModal = ({ open, onClose, subjectId }) => {
           error.response?.data?.meta?.message?.includes("duplicate key")
         ) {
           console.log("✅ User already has progress, navigating to levels-map");
+          // ✅ Store subjectId in localStorage for persistent access
+          if (subjectId) {
+            localStorage.setItem("currentSubjectId", subjectId);
+          }
           onClose(); // Close the modal first
           navigate(`/levels-map/${subjectId}`, { replace: true });
         } else {

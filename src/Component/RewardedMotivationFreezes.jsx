@@ -36,11 +36,14 @@ const RewardedMotivationFreezes = ({ subject }) => {
 
     // If daily log should be shown, go to daily log page first
     if (shouldShowDailyLog()) {
-      navigate("/daily-log");
+      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId");
+      navigate("/daily-log", { state: { subjectId } });
     } else {
-      // ✅ FIX: Make sure subject prop has id
-      if (subject?.id) {
-        navigate(`/levels-map/${subject.id}`);
+      // ✅ FIX: Use subjectId from location state, localStorage, or subject prop
+      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId") || subject?.id;
+      
+      if (subjectId) {
+        navigate(`/levels-map/${subjectId}`);
       } else {
         navigate("/home"); // fallback
       }
