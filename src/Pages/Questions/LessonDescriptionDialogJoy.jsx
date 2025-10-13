@@ -75,7 +75,7 @@ export default function LessonDescriptionDialogJoy({ open, onClose, lesson }) {
               whiteSpace: "pre-wrap",
             }}
           >
-            {lesson.description || t("lesson_description_no_desc")}
+            {lesson.description || t("لا يوجد وصف للدرس بعد")}
           </Typography>
         </Box>
       </DialogContent>

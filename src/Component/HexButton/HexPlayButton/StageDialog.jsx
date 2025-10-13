@@ -181,7 +181,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
           }}
         />
 
-        {stage.description && (
+        {stage.name && (
           <Box>
             <p
               style={{
@@ -192,7 +192,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
                 lineHeight: 1.3,
               }}
             >
-              {stage.description}
+              {stage.name}
             </p>
           </Box>
         )}
