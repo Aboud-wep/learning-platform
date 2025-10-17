@@ -131,7 +131,7 @@ const { hearts } = useQuestion();
 
         {filteredOtherSubjects.length === 0 ? (
           <Typography textAlign="center" py={4}>
-            لا توجد مواد أخرى مطابقة لبحثك.
+            لا توجد مواد أخرى حاليا.
           </Typography>
         ) : (
           <Grid

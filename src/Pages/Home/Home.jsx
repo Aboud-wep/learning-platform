@@ -63,10 +63,10 @@ const Home = () => {
 
   // Show skeleton loading while data is loading
   // Show skeleton loading while data is loading
-if (homeLoading || subjectsLoading) {
-  console.log("Showing skeleton loader");
-  return <HomeSkeleton />;
-}
+  if (homeLoading || subjectsLoading) {
+    console.log("Showing skeleton loader");
+    return <HomeSkeleton />;
+  }
 
   if (!profile) return null;
 
@@ -103,13 +103,15 @@ if (homeLoading || subjectsLoading) {
         )}
 
         <Box width="100%">
-          <Typography
-            fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
-            fontWeight="bold"
-            mb={2}
-          >
-            {t("home_recent")}
-          </Typography>
+          {lastSubject && (
+            <Typography
+              fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
+              fontWeight="bold"
+              mb={2}
+            >
+              {t("home_recent")}
+            </Typography>
+          )}
 
           {lastSubject && (
             <LastSubjectCard
@@ -119,41 +121,40 @@ if (homeLoading || subjectsLoading) {
           )}
 
           {/* My Subjects */}
-          <Box
-            sx={{
-              textAlign: "center",
-              display: "flex",
-              justifyContent: "space-between",
-              pb: { xs: 1.5, sm: 2 },
-              mt: { xs: 2, sm: 3 },
-            }}
-          >
-            <Typography
-              fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
-              fontWeight="bold"
-            >
-              {t("home_my_subjects")}
-            </Typography>
-            <Button
-              onClick={() => navigate("/subjects/my-subjects")}
+          {Array.isArray(mySubjects) && mySubjects.length > 0 && (
+            <Box
               sx={{
-                fontSize: { xs: "16px", sm: "18px", lg: "20px" },
-                fontWeight: "bold",
-                color: "#205DC7",
-                textTransform: "none",
-                gap: "6px",
+                textAlign: "center",
+                display: "flex",
+                justifyContent: "space-between",
+                pb: { xs: 1.5, sm: 2 },
+                mt: { xs: 2, sm: 3 },
               }}
             >
-              {t("home_view_more")}
-              <ArrowBackIcon fontSize="small" />
-            </Button>
-          </Box>
+              <Typography
+                fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
+                fontWeight="bold"
+              >
+                {t("home_my_subjects")}
+              </Typography>
 
-          {mySubjects.length === 0 ? (
-            <Typography fontSize={{ xs: "14px", sm: "15px" }}>
-              {t("home_no_started_subjects")}
-            </Typography>
-          ) : (
+              <Button
+                onClick={() => navigate("/subjects/my-subjects")}
+                sx={{
+                  fontSize: { xs: "16px", sm: "18px", lg: "20px" },
+                  fontWeight: "bold",
+                  color: "#205DC7",
+                  textTransform: "none",
+                  gap: "6px",
+                }}
+              >
+                {t("home_view_more")}
+                <ArrowBackIcon fontSize="small" />
+              </Button>
+            </Box>
+          )}
+
+          {mySubjects.length > 0 &&
             mySubjects.slice(0, 2).map((subject) => (
               <MySubjectCard
                 key={subject.id}
@@ -163,40 +164,40 @@ if (homeLoading || subjectsLoading) {
                     userProgressMap[subject.id]?.completion_percentage || 0,
                 }}
               />
-            ))
-          )}
+            ))}
 
           {/* Other Subjects */}
-          <Box
-            sx={{
-              textAlign: "center",
-              display: "flex",
-              justifyContent: "space-between",
-              pb: { xs: 1.5, sm: 2 },
-              mt: { xs: 2, sm: 3 },
-            }}
-          >
-            <Typography
-              fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
-              fontWeight="bold"
-            >
-              {t("home_other_subjects")}
-            </Typography>
-            <Button
-              onClick={() => navigate("/subjects/other-subjects")}
+          {otherSubjects && (
+            <Box
               sx={{
-                fontSize: { xs: "16px", sm: "18px", lg: "20px" },
-                fontWeight: "bold",
-                color: "#205DC7",
-                textTransform: "none",
-                gap: "6px",
+                textAlign: "center",
+                display: "flex",
+                justifyContent: "space-between",
+                pb: { xs: 1.5, sm: 2 },
+                mt: { xs: 2, sm: 3 },
               }}
             >
-              {t("home_view_more")}
-              <ArrowBackIcon fontSize="small" />
-            </Button>
-          </Box>
-
+              <Typography
+                fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
+                fontWeight="bold"
+              >
+                {t("home_other_subjects")}
+              </Typography>
+              <Button
+                onClick={() => navigate("/subjects/other-subjects")}
+                sx={{
+                  fontSize: { xs: "16px", sm: "18px", lg: "20px" },
+                  fontWeight: "bold",
+                  color: "#205DC7",
+                  textTransform: "none",
+                  gap: "6px",
+                }}
+              >
+                {t("home_view_more")}
+                <ArrowBackIcon fontSize="small" />
+              </Button>
+            </Box>
+          )}
           <Grid container spacing={{ xs: 1.5, sm: 2 }} justifyContent="center">
             {otherSubjects.map((subject) => (
               <Grid item xs={12} sm={6} lg={4} key={subject.id}>

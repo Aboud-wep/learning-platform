@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useLevels } from "./Context/LevelsContext";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import HexCheckButton from "../../Component/HexButton/HexCheckButton";
 import HexLockButton from "../../Component/HexButton/HexLockButton";
-
+import HexPlayButton from "../../Component/HexButton/HexPlayButton/HexPlayButton";
 import ProfileStatsCard from "../../Component/Home/ProfileStatsCard";
 import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useOutletContext, useParams, useNavigate } from "react-router-dom";
-import HexPlayButton from "../../Component/HexButton/HexPlayButton/HexPlayButton";
 import LevelsMapSkeletonReall from "./LevelsMapSkeleton";
+import Frame1 from "../../assets/Images/Frame.png";
+import Frame2 from "../../assets/Images/Frame2.png";
 
 const LevelsMap = () => {
   const { levelsData, stagesStatus, loading } = useLevels();
@@ -18,24 +19,13 @@ const LevelsMap = () => {
   const { subjectId } = useParams();
   const { setPageTitle } = useOutletContext();
   const [selectedStage, setSelectedStage] = useState(null);
+  const navigate = useNavigate();
 
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
     return acc;
   }, {});
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
-  const otherSubjects = subjects.filter((s) => !userProgressMap[s.id]);
-
-  const lastSubject = mySubjects.length
-    ? [...mySubjects].sort(
-        (a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      )[0]
-    : null;
-  const navigate = useNavigate();
-  const handleStageClick = (stage) => {
-    setSelectedStage(stage);
-  };
 
   useEffect(() => {
     setPageTitle("الرئيسية");
@@ -49,14 +39,9 @@ const LevelsMap = () => {
     ) {
       navigate("/subjects");
     }
-    console.log("VD");
-    console.log("stagesStatus", stagesStatus);
-    console.log(levelsData);
   }, [mySubjects, subjectId, navigate, loadingg]);
 
-  if (loading) {
-    return <LevelsMapSkeletonReall />;
-  }
+  if (loading) return <LevelsMapSkeletonReall />;
 
   if (!levelsData) {
     return (
@@ -93,14 +78,16 @@ const LevelsMap = () => {
           {levelsData.description}
         </Typography>
 
-        {/* Stages Zig-Zag */}
-        {/* Stages Zig-Zag */}
+        {/* ✅ Stages Zig-Zag with alternating side characters */}
+        {/* ✅ Stages Zig-Zag with alternating side characters */}
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
+            alignItems: "center",
+            position: "relative",
             width: "250px",
-            mx: "auto", // <-- centers the whole zig-zag box
+            mx: "auto",
           }}
         >
           {stagesStatus.map(({ stage, isDone, isPlayable, items }, index) => {
@@ -113,8 +100,47 @@ const LevelsMap = () => {
                 ? "center"
                 : "flex-end";
 
+            // Ignore the first stage
+            const showCharacter = index > 0 && (index - 1) % 2 === 0;
+            const isLeftSide = Math.floor((index - 1) / 2) % 2 === 0; // alternate sides every 2 stages
+            const characterImage = isLeftSide ? Frame1 : Frame2;
+
             return (
-              <Box key={stage.id} display="flex" justifyContent={align}>
+              <Box
+                key={stage.id}
+                sx={{
+                  display: "flex",
+                  justifyContent: align,
+                  position: "relative",
+                  width: "100%",
+                  my: 2,
+                  minHeight: "120px",
+                }}
+              >
+                {showCharacter && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      [isLeftSide ? "left" : "right"]: "-150px",
+                      zIndex: 1,
+                      display: { xs: "none", sm: "block" },
+                    }}
+                  >
+                    <img
+                      src={characterImage}
+                      alt="Character"
+                      style={{
+                        width: "130px",
+                        height: "auto",
+                        userSelect: "none",
+                      }}
+                    />
+                  </Box>
+                )}
+
+                {/* Stage Button */}
                 {items.length === 0 ? (
                   <HexLockButton label={stage.name} />
                 ) : isDone ? (
@@ -134,10 +160,9 @@ const LevelsMap = () => {
       <Box
         sx={{
           flexShrink: 0,
-          // flexBasis: { xs: "100%", lg: "30%" }, // take 100% on mobile, 30% on desktop
-          maxWidth: { lg: "320px" }, // limit max width on large screens
-          minWidth: { lg: "300px" }, // prevent collapsing too much
-          mt: { xs: 3, lg: 0 }, // stack below on mobile
+          maxWidth: { lg: "320px" },
+          minWidth: { lg: "300px" },
+          mt: { xs: 3, lg: 0 },
           display: { xs: "none", lg: "block" },
         }}
       >

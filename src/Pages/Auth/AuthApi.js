@@ -49,3 +49,15 @@ export const logoutUser = async () => {
     throw error.response?.data || error;
   }
 };
+
+export const forgotPassword = async (email) => {
+  try {
+    const res = await axiosInstance.post(
+      "https://alibdaagroup.com/backend/api/v1/users/password/forget-password/",
+      { email }
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || error;
+  }
+};

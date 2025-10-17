@@ -12,6 +12,9 @@ import {
   Divider,
   Stack,
   CircularProgress,
+  Collapse,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -19,20 +22,26 @@ import { useHome } from "../Home/Context/HomeContext";
 import { useSubjects } from "../Subjects/Context/SubjectsContext";
 import { useProfile } from "./Context/ProfileContext";
 import React, { useEffect, useState } from "react";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import dayjs from "dayjs";
+import "dayjs/locale/ar"; // Arabic locale
 
 import {
   BoltOutlined as BoltOutlinedIcon,
   Whatshot as WhatshotIcon,
   Logout as LogoutIcon,
   MenuBook as MenuBookIcon,
+  Dashboard as DashboardIcon,
   EmojiEventsOutlined,
+  Visibility,
+  VisibilityOff,
 } from "@mui/icons-material";
+
 import {
   ProfileStatsSkeleton,
   AchievementSkeleton,
   ListSkeleton,
 } from "../../Component/ui/SkeletonLoader";
-import { Dashboard as DashboardIcon } from "@mui/icons-material";
 import RecommendedFriendsDialog from "../../Component/RecommendedFriends/RecommendedFriendsDialog";
 import { useAchievements } from "../../Component/Home/AchievementContext";
 import achievementImg from "../../assets/Images/achievement.png";
@@ -63,6 +72,11 @@ const Profile = () => {
   const { setPageTitle } = useOutletContext();
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const navigate = useNavigate();
   const {
     achievements,
@@ -78,6 +92,19 @@ const Profile = () => {
   const [dialogRewards, setDialogRewards] = useState(null);
   const [openXPDialog, setOpenXPDialog] = useState(false);
   const [openFreezeDialog, setOpenFreezeDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_new_password: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_new_password: "",
+    general: "",
+  });
 
   // Add logout function
   const logoutUser = async () => {
@@ -98,6 +125,85 @@ const Profile = () => {
       navigate("/login");
     }
   };
+  const formattedDate = profile?.created_at
+    ? dayjs(profile.created_at).locale("ar").format("DD MMMM YYYY")
+    : "بدون تاريخ";
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordSuccess(false);
+    setPasswordErrors({
+      old_password: "",
+      new_password: "",
+      confirm_new_password: "",
+      general: "",
+    });
+
+    try {
+      const response = await axiosInstance.post(
+        "users/password/dashboard/change-password",
+        passwordData
+      );
+
+      if (response.data?.meta?.success) {
+        setPasswordSuccess(true);
+        setPasswordData({
+          old_password: "",
+          new_password: "",
+          confirm_new_password: "",
+        });
+      } else {
+        const message = response.data?.meta?.message;
+
+        if (typeof message === "object") {
+          setPasswordErrors((prev) => ({
+            ...prev,
+            old_password:
+              message.old_password?.[0] === "old_password not correct."
+                ? "كلمة المرور القديمة غير صحيحة"
+                : message.old_password?.[0] || "",
+            new_password: message.new_password?.[0] || "",
+            confirm_new_password:
+              message.confirm_new_password?.[0] ===
+              "password fields didn't match."
+                ? "كلمة السر الجديدة غير مطابقة"
+                : message.confirm_new_password?.[0] || "",
+            general: "",
+          }));
+        } else {
+          setPasswordErrors((prev) => ({
+            ...prev,
+            general: message || "حدث خطأ أثناء التحديث",
+          }));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      const message = err.response?.data?.meta?.message;
+      if (typeof message === "object") {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          old_password:
+            message.old_password?.[0] === "old_password not correct."
+              ? "كلمة المرور القديمة غير صحيحة"
+              : message.old_password?.[0] || "",
+          new_password: message.new_password?.[0] || "",
+          confirm_new_password:
+            message.confirm_new_password?.[0] ===
+            "password fields didn't match."
+              ? "كلمة السر الجديدة غير مطابقة"
+              : message.confirm_new_password?.[0] || "",
+        }));
+      } else {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          general: message || "كلمة المرور القديمة غير صحيحة",
+        }));
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -107,53 +213,41 @@ const Profile = () => {
     }
   };
 
-  const uploadAvatar = async (file) => {
-    const formData = new FormData();
-    formData.append("original_img", file); // backend expects this field name
-
-    const response = await axiosInstance.post(
-      "media-handlerimage-avatar/dashboard/image-profile",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    return response.data.data; // should contain the avatar UUID
-  };
   const existingAvatarId = profile?.avatar?.id;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ Handle password change first (same logic as before)
+    if (
+      showPasswordFields &&
+      (passwordData.old_password ||
+        passwordData.new_password ||
+        passwordData.confirm_new_password)
+    ) {
+      await handleChangePassword(e);
+
+      const hasPasswordErrors = Object.values(passwordErrors).some(
+        (msg) => msg
+      );
+      if (!passwordSuccess || hasPasswordErrors) {
+        console.warn("Stopping submit due to password errors");
+        return;
+      }
+    }
+
     try {
-      let avatarUuid = null;
+      // ✅ Use FormData to send text + image in one request
+      const formData = new FormData();
+      formData.append("first_name", firstName);
+      formData.append("last_name", lastName);
 
-      // Upload new avatar if selected
       if (avatar instanceof File) {
-        const uploadResponse = await uploadAvatar(avatar);
-        avatarUuid = uploadResponse?.id; // string UUID
+        formData.append("avatar", avatar); // just send the raw file
       }
 
-      // Use existing avatar if no new file is selected
-      else if (profile?.avatar?.id) {
-        avatarUuid = profile.avatar.id;
-      }
+      await updateUserProfile(formData, true); // pass true if your updateUserProfile handles multipart
 
-      // Prepare payload
-      const payload = {
-        first_name: firstName,
-        last_name: lastName,
-      };
-
-      // Only include avatar if we have a valid UUID
-      if (avatarUuid) {
-        payload.avatar = avatarUuid;
-      }
-
-      await updateUserProfile(payload);
       setEditMode(false);
     } catch (error) {
       console.error("Profile update failed:", error);
@@ -258,10 +352,7 @@ const Profile = () => {
               color="primary"
               size="small"
               sx={{
-                position: "absolute",
-                bottom: 15,
-                right: 15,
-                borderRadius: "50px",
+                borderRadius: "20px",
                 fontSize: "12px",
               }}
             >
@@ -301,6 +392,7 @@ const Profile = () => {
               onSubmit={handleSubmit}
               sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
             >
+              {/* --- Profile Fields --- */}
               <TextField
                 label="الاسم الأول"
                 value={firstName}
@@ -314,13 +406,140 @@ const Profile = () => {
                 fullWidth
               />
 
+              {/* --- Toggle Password Change --- */}
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => setShowPasswordFields((prev) => !prev)}
+                sx={{ alignSelf: "flex-start", mt: 1 }}
+              >
+                {showPasswordFields
+                  ? "إخفاء تغيير كلمة المرور"
+                  : "تغيير كلمة المرور"}
+              </Button>
+
+              {/* --- Password Fields (collapsible) --- */}
+              <Collapse in={showPasswordFields} timeout="auto" unmountOnExit>
+                <Box
+                  sx={{
+                    mt: 2,
+                    borderRadius: "12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <TextField
+                    label="كلمة المرور القديمة"
+                    type={showOldPassword ? "text" : "password"}
+                    fullWidth
+                    value={passwordData.old_password}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        old_password: e.target.value,
+                      }))
+                    }
+                    error={!!passwordErrors.old_password}
+                    helperText={passwordErrors.old_password}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowOldPassword((prev) => !prev)}
+                            edge="end"
+                          >
+                            {showOldPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <TextField
+                    label="كلمة المرور الجديدة"
+                    type={showNewPassword ? "text" : "password"}
+                    fullWidth
+                    value={passwordData.new_password}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        new_password: e.target.value,
+                      }))
+                    }
+                    error={!!passwordErrors.new_password}
+                    helperText={passwordErrors.new_password}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowNewPassword((prev) => !prev)}
+                            edge="end"
+                          >
+                            {showNewPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  <TextField
+                    label="تأكيد كلمة المرور الجديدة"
+                    type={showConfirmPassword ? "text" : "password"}
+                    fullWidth
+                    value={passwordData.confirm_new_password}
+                    onChange={(e) =>
+                      setPasswordData((prev) => ({
+                        ...prev,
+                        confirm_new_password: e.target.value,
+                      }))
+                    }
+                    error={!!passwordErrors.confirm_new_password}
+                    helperText={passwordErrors.confirm_new_password}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() =>
+                              setShowConfirmPassword((prev) => !prev)
+                            }
+                            edge="end"
+                          >
+                            {showConfirmPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+
+                  {passwordErrors.general && (
+                    <Typography color="error.main" mt={1}>
+                      ❌ {passwordErrors.general}
+                    </Typography>
+                  )}
+                </Box>
+              </Collapse>
+
+              {/* --- Buttons --- */}
               <Box display="flex" justifyContent="center" gap={2}>
                 <Button
                   variant="contained"
                   type="submit"
-                  disabled={updateLoading}
+                  disabled={updateLoading || passwordLoading}
                 >
-                  {updateLoading ? (
+                  {updateLoading || passwordLoading ? (
                     <CircularProgress size={24} />
                   ) : (
                     "حفظ التغييرات"
@@ -335,17 +554,43 @@ const Profile = () => {
                 </Button>
               </Box>
 
+              {/* --- Messages --- */}
               {updateSuccess && (
                 <Typography color="success.main">
                   ✅ تم التحديث بنجاح
                 </Typography>
               )}
-              {error && <Typography color="error.main">❌ {error}</Typography>}
+              {passwordSuccess && (
+                <Typography color="success.main" mt={1}>
+                  ✅ تم تغيير كلمة المرور بنجاح
+                </Typography>
+              )}
+              {(error || passwordErrors.general) && (
+                <Typography color="error.main" mt={1}>
+                  ❌ {error || passwordErrors.general}
+                </Typography>
+              )}
             </Box>
           )}
+
           <Typography color="textSecondary" sx={{ fontSize: "24px" }}>
             {profile.title || "بدون لقب"}
           </Typography>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={1}
+            mt={1}
+          >
+            <CalendarTodayIcon fontSize="small" color="action" />
+            <Typography
+              color="textSecondary"
+              sx={{ fontSize: { xs: "16px", sm: "18px" } }}
+            >
+              تم الإنضمام في: {formattedDate}
+            </Typography>
+          </Box>
         </Box>
         <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
         <Grid container spacing={2} justifyContent="center" mb={4}>

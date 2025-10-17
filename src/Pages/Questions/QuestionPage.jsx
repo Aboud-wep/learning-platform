@@ -594,7 +594,7 @@ const QuestionPage = ({ type }) => {
           paddingBottom: { xs: "160px", md: "0px" },
         }}
       >
-        <Box className="w-full max-w-[1010px] opacity-90">
+        <Box className="w-full max-w-[1010px] opacity-90 my-20">
           <Box
             sx={{
               display: { xs: "flex", md: "none" },

@@ -216,6 +216,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
             flexDirection: isMobile ? "column" : "row",
           }}
         >
+          
           <Button
             sx={{
               backgroundColor: "#fff",

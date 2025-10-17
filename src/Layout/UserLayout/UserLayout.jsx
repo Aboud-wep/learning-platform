@@ -1,5 +1,5 @@
 // src/layouts/UserLayout.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Drawer,
@@ -32,6 +32,7 @@ import { useHome } from "../../Pages/Home/Context/HomeContext";
 import { useLanguage } from "../../Context/LanguageContext";
 import { useAuth } from "../../Pages/Auth/AuthContext";
 import axiosInstance from "../../lip/axios";
+import HeartsPopup from "../../Component/HeartsPopup";
 
 const drawerWidth = 229;
 
@@ -41,6 +42,8 @@ const UserLayout = () => {
   const navigate = useNavigate();
   const location = useLocation(); // Get current location
   const { profile, updateProfileStats, loading: profileLoading } = useHome(); // useHome reactive
+  const [heartsPopupOpen, setHeartsPopupOpen] = useState(false);
+  const heartsAnchorRef = useRef(null);
   const {
     logout: authLogout,
     isAuthenticated,
@@ -112,7 +115,9 @@ const UserLayout = () => {
   if (!isAuthenticated) {
     return null; // This should not happen as ProtectedRoutes should handle it
   }
-
+  const handleHeartsClick = () => {
+    setHeartsPopupOpen(true);
+  };
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
   const handleLogout = async () => {
     try {
@@ -459,7 +464,7 @@ const UserLayout = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  height:{xs:"35px",sm:"46px"},
+                  height: { xs: "35px", sm: "46px" },
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
@@ -482,7 +487,7 @@ const UserLayout = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  height:{xs:"35px",sm:"46px"},
+                  height: { xs: "35px", sm: "46px" },
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
@@ -501,25 +506,40 @@ const UserLayout = () => {
               </Box>
 
               <Box
+                ref={heartsAnchorRef} // 👈 Attach the ref
+                onClick={handleHeartsClick}
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  height:{xs:"35px",sm:"46px"},
+                  height: { xs: "35px", sm: "46px" },
                   bgcolor: "white",
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
                   py: "5px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "#F8F8F8",
+                    transform: "scale(1.02)",
+                  },
+                  "&:active": {
+                    transform: "scale(0.98)",
+                  },
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.hearts} {/* Hearts: {profile.hearts} */}
+                  {profile.hearts}
                 </Typography>
                 <Box
                   component="img"
                   src={Heart}
                   alt="heart"
-                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                  sx={{
+                    width: { xs: 14, sm: 18, md: 22 },
+                    height: "auto",
+                    transition: "transform 0.2s ease",
+                  }}
                 />
               </Box>
 
@@ -533,8 +553,8 @@ const UserLayout = () => {
                     src={profile.avatar}
                     alt="avatar"
                     sx={{
-                      width: { xs: 35, sm: 45 , md: 60 },
-                      height: { xs: 35, sm: 45 , md: 60 },
+                      width: { xs: 35, sm: 45, md: 60 },
+                      height: { xs: 35, sm: 45, md: 60 },
                       borderRadius: "50%",
                       objectFit: "cover",
                     }}
@@ -542,8 +562,8 @@ const UserLayout = () => {
                 ) : (
                   <Avatar
                     sx={{
-                      width: { xs: 35, sm: 45 , md: 60 },
-                      height: { xs: 35, sm: 45 , md: 60 },
+                      width: { xs: 35, sm: 45, md: 60 },
+                      height: { xs: 35, sm: 45, md: 60 },
                       bgcolor: "#1976d2",
                       fontSize: { xs: "12px", sm: "14px" },
                     }}
@@ -558,7 +578,7 @@ const UserLayout = () => {
           ) : null}
 
           {/* Language Toggle */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Button
               variant="outlined"
               size="small"
@@ -567,7 +587,7 @@ const UserLayout = () => {
             >
               {language === "ar" ? t("lang_en") : t("lang_ar")}
             </Button>
-          </Box>
+          </Box> */}
         </Box>
 
         <Divider />
@@ -684,6 +704,13 @@ const UserLayout = () => {
           />
         </BottomNavigation>
       </Box>
+      <HeartsPopup
+        open={heartsPopupOpen}
+        onClose={() => setHeartsPopupOpen(false)}
+        currentHearts={profile?.hearts || 0}
+        maxHearts={5}
+        anchorEl={heartsAnchorRef.current} // 👈 Pass the anchor element
+      />
     </Box>
   );
 };

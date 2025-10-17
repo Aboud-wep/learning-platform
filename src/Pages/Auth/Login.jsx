@@ -17,7 +17,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { loginWithGoogleApi } from "./AuthApi";
+import { loginWithGoogleApi, forgotPassword } from "./AuthApi";
 import { GoogleLogin } from "@react-oauth/google";
 import { FormSkeleton } from "../../Component/ui/SkeletonLoader";
 import { useLanguage } from "../../Context/LanguageContext";
@@ -30,7 +30,8 @@ export default function Login() {
   const { login, error, loading, setError } = useAuth();
   const successMessage = location.state?.successMessage;
   const { t } = useLanguage();
-
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     identifier: "",
@@ -46,6 +47,32 @@ export default function Login() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleForgotPassword = async () => {
+    // Simple email validation - you might want to add a proper email input
+    if (!form.identifier.includes("@")) {
+      setError(t("login_please_enter_email"));
+      return;
+    }
+
+    setForgotPasswordLoading(true);
+    setError("");
+    setForgotPasswordSuccess("");
+
+    try {
+      const response = await forgotPassword(form.identifier);
+
+      if (response.meta.success) {
+        setForgotPasswordSuccess("تم إرسال الرابط إلى بريدك الإلكتروني.");
+      } else {
+        setError(response.meta.message || t("forgot_password_failed"));
+      }
+    } catch (err) {
+      setError(err.meta?.message || t("forgot_password_failed"));
+    } finally {
+      setForgotPasswordLoading(false);
+    }
   };
 
   // validation function
@@ -107,11 +134,37 @@ export default function Login() {
     }
   };
 
+  const ForgotPasswordLink = () => (
+    <Link
+      component="button"
+      type="button"
+      onClick={handleForgotPassword}
+      disabled={forgotPasswordLoading}
+      underline="none"
+      sx={{
+        fontSize: "14px",
+        color: "#205DC7",
+        "&:disabled": {
+          color: "#ccc",
+          cursor: "not-allowed",
+        },
+      }}
+    >
+      {forgotPasswordLoading ? t("loading") : t("login_forgot_password")}
+    </Link>
+  );
+
   return (
     <Box className="flex justify-center items-center min-h-screen p-4 bg-[#F9F9F9]">
       <Box className="p-6 w-full max-w-[500px]">
         {successMessage && <Alert severity="error">{successMessage}</Alert>}
-        {error && <Alert severity="error">{error}</Alert>}
+
+        {forgotPasswordSuccess && (
+          <Alert severity="error" sx={{ borderRadius: "12px", mb: 2 }}>
+            {forgotPasswordSuccess}
+          </Alert>
+        )}
+        {/* {error && <Alert severity="error">{error}</Alert>} */}
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           {validationError && (
             <Alert severity="error" sx={{ borderRadius: "12px" }}>
@@ -215,9 +268,7 @@ export default function Login() {
               }
               label={t("login_remember_me")}
             />
-            <Link href="/forgot-password" underline="none">
-              {t("login_forgot_password")}
-            </Link>
+            <ForgotPasswordLink />
           </Box>
 
           <Button

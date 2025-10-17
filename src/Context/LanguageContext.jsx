@@ -98,7 +98,7 @@ const TRANSLATIONS = {
     subjects_search_placeholder: "اكتب هنا للبحث",
     subjects_all_subjects: "جميع المواد",
     subjects_view_more: "عرض المزيد",
-    subjects_no_matches: "لا توجد مواد مطابقة لبحثك.",
+    subjects_no_matches: "لا توجد مواد أخرى حاليا.",
 
     // Rewards / Popups / Buttons
     reward_congrats: "مبارك! لقد حصلت على:",

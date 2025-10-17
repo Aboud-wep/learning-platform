@@ -19,6 +19,34 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
     return tempDiv.querySelectorAll("u").length;
   };
 
+  // Find the longest word among all options
+  const findLongestOption = () => {
+    if (!question.options || question.options.length === 0) return "";
+    return question.options.reduce(
+      (longest, opt) => (opt.text.length > longest.length ? opt.text : longest),
+      ""
+    );
+  };
+
+  // Calculate uniform width based on the longest option
+  const getUniformBlankWidth = () => {
+    const longestOption = findLongestOption();
+    if (!longestOption) {
+      return isMobile ? 120 : isTablet ? 150 : 180; // Default width
+    }
+
+    // Calculate width based on the longest text
+    const baseWidth = isMobile ? 80 : isTablet ? 100 : 120;
+    const charWidth = isMobile ? 10 : isTablet ? 11 : 12;
+    const calculatedWidth = baseWidth + longestOption.length * charWidth;
+
+    // Set reasonable min and max limits
+    const minWidth = isMobile ? 120 : isTablet ? 150 : 180;
+    const maxWidth = isMobile ? 300 : isTablet ? 350 : 400;
+
+    return Math.min(Math.max(calculatedWidth, minWidth), maxWidth);
+  };
+
   useEffect(() => {
     const blankCount = countBlanks();
     setBlanks(Array(blankCount).fill(""));
@@ -45,6 +73,7 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
     tempDiv.innerHTML = html;
 
     let blankIndexCounter = -1;
+    const uniformWidth = getUniformBlankWidth(); // Calculate once for all blanks
 
     const traverse = (node) => {
       if (node.nodeType === 3) return node.textContent; // text node
@@ -53,50 +82,64 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
       if (node.tagName === "U") {
         blankIndexCounter += 1;
         const idx = blankIndexCounter;
+        const hasAnswer = !!blanks[idx];
+
         return (
           <span
             key={idx}
             style={{
-              display: "inline-flex", // changed from inline-block
-              justifyContent: "center",
+              display: "inline-flex",
               alignItems: "center",
-              minWidth: isMobile ? 80 : isTablet ? 100 : 120,
-              minHeight: isMobile ? 60 : isTablet ? 75 : 80,
+              justifyContent: "center",
+              position: "relative",
+              width: uniformWidth, // Use the same width for all blanks
+              minWidth: uniformWidth,
+              minHeight: isMobile ? 50 : isTablet ? 60 : 70,
+              textAlign: "center",
               margin: "0 4px",
               cursor: blanks[idx] && !showResult ? "pointer" : "default",
-              borderBottom: "2px solid #BFBFBF", // optional underline for blank
-              position: "relative",
+              verticalAlign: "middle",
             }}
             onClick={() => blanks[idx] && !showResult && handleClear(idx)}
           >
+            {/* Blank line - ALWAYS VISIBLE */}
             <span
               style={{
                 userSelect: "none",
                 pointerEvents: "none",
                 color: "#000",
-                lineHeight: isMobile ? "30px" : "80px",
+                borderBottom: "2px solid #000",
+                width: "100%",
                 display: "inline-block",
-                // verticalAlign: "bottom",
+                position: "absolute",
+                bottom: "20%",
+                left: 0,
               }}
             >
-              {isMobile ? "______" : "_____________"}
+              &nbsp;
             </span>
 
+            {/* Answer button with smooth slide animation */}
             <AnimatePresence>
-              {blanks[idx] && (
+              {hasAnswer && (
                 <motion.div
-                  layoutId={`option-${blanks[idx]}`}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.5, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 50, damping: 10 }}
+                  layoutId={`option-${blanks[idx]}`} // ✅ keeps the smooth slide
+                  key={`blank-${idx}-${blanks[idx]}`} // ✅ stable identity per answer
+                  initial={{ opacity: 1, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 1, y: -10 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 60,
+                    duration: 0.4,
+                  }}
                   style={{
-                    display: "inline-flex", // use flex for centering
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: "100%", // fill the blank
-                    height: "100%",
+                    position: "absolute",
+                    transform: "translate(-50%, -50%)",
                     pointerEvents: "auto",
+                    width: "95%",
+                    zIndex: 1,
                   }}
                 >
                   <Button
@@ -106,13 +149,15 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
                       border: "1px solid #BFBFBF",
                       boxShadow: "0px 2px 0px 0px #BFBFBF",
                       borderRadius: "20px",
-                      fontSize: isMobile ? "14px" : "20px",
+                      fontSize: isMobile ? "14px" : "18px",
                       backgroundColor: "white",
                       minWidth: "auto",
                       padding: isMobile ? "2px 8px" : "4px 12px",
                       whiteSpace: "nowrap",
+                      width: "100%",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      display: "block",
                     }}
                   >
                     {blanks[idx]}
@@ -166,10 +211,10 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
           return (
             <motion.div
               key={opt.id}
-              layoutId={`option-${opt.text}`}
-              whileTap={{ scale: 0.9 }}
+              layoutId={`option-${opt.text}`} // ✅ must match the blank layoutId
+              whileTap={{ scale: isDisabled ? 1 : 0.95 }}
               animate={{ opacity: isDisabled ? 0.5 : 1 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               style={{ display: "inline-block" }}
             >
               <Button
@@ -187,6 +232,14 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
                   padding: isMobile ? "4px 12px" : "8px 16px",
                   minWidth: "auto",
                   whiteSpace: "nowrap",
+                  transition: "all 0.15s ease",
+                  "&.Mui-disabled": {
+                    backgroundColor: "#f3f3f3",
+                    color: "#aaa",
+                    borderColor: "#ddd",
+                    boxShadow: "none",
+                    opacity: 0.6,
+                  },
                 }}
               >
                 {opt.text}
