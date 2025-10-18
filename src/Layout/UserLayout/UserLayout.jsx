@@ -12,7 +12,7 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Avatar,
-  Button,
+  IconButton,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -22,6 +22,7 @@ import {
   Person as PersonIcon,
   Logout as LogoutIcon,
   Dashboard as DashboardIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/Icons/logo.png";
@@ -31,8 +32,9 @@ import Heart from "../../assets/Icons/heart.png";
 import { useHome } from "../../Pages/Home/Context/HomeContext";
 import { useLanguage } from "../../Context/LanguageContext";
 import { useAuth } from "../../Pages/Auth/AuthContext";
-import axiosInstance from "../../lip/axios";
 import HeartsPopup from "../../Component/HeartsPopup";
+import { logoutUser } from "../../Pages/Auth/AuthApi";
+import StreakPopup from "../../Component/StreakPopup";
 
 const drawerWidth = 229;
 
@@ -40,35 +42,53 @@ const UserLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageTitle, setPageTitle] = useState("");
   const navigate = useNavigate();
-  const location = useLocation(); // Get current location
-  const { profile, updateProfileStats, loading: profileLoading } = useHome(); // useHome reactive
+  const location = useLocation();
+  const {
+    profile,
+    loading: profileLoading,
+    fetchStatsOnly,
+    updateSpecificStats,
+  } = useHome();
   const [heartsPopupOpen, setHeartsPopupOpen] = useState(false);
   const heartsAnchorRef = useRef(null);
+  const [streakPopupOpen, setStreakPopupOpen] = useState(false);
+  const streakAnchorRef = useRef(null);
   const {
     logout: authLogout,
     isAuthenticated,
     loading: authLoading,
-  } = useAuth(); // Get auth state
+  } = useAuth();
   const [activeNavItem, setActiveNavItem] = useState("/home");
   const { language, isRTL, toggleLanguage, t } = useLanguage();
-
   const [bottomNav, setBottomNav] = useState(0);
   const role = localStorage.getItem("userRole");
-  // Debug logging for hearts
-  console.log(
-    "🔄 UserLayout - Current profile hearts:",
-    profile?.hearts,
-    "Loading:",
-    profileLoading,
-    "Auth:",
-    isAuthenticated
-  );
+
+  // ✅ Lightweight polling - only updates stats, not entire profile
+  useEffect(() => {
+    const POLLING_INTERVAL = 30000; // 30 seconds
+
+    const interval = setInterval(async () => {
+      try {
+        await fetchStatsOnly();
+        console.log("🔄 UserLayout - Stats auto-updated");
+      } catch (error) {
+        console.error("🔄 UserLayout - Stats update failed:", error);
+      }
+    }, POLLING_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [fetchStatsOnly]);
+
+  // ✅ Update stats when navigating (lightweight)
+  useEffect(() => {
+    fetchStatsOnly();
+  }, [location.pathname, fetchStatsOnly]);
+
   // Update active navigation item based on URL
   useEffect(() => {
     const path = location.pathname;
     setActiveNavItem(path);
 
-    // Also update bottom navigation based on URL
     switch (path) {
       case "/home":
         setBottomNav(0);
@@ -86,7 +106,6 @@ const UserLayout = () => {
         setBottomNav(4);
         break;
       default:
-        // For nested routes, try to match the parent
         if (path.startsWith("/home")) setBottomNav(0);
         else if (path.startsWith("/subjects")) setBottomNav(1);
         else if (path.startsWith("/competitions")) setBottomNav(2);
@@ -94,6 +113,7 @@ const UserLayout = () => {
         else if (path.startsWith("/profile")) setBottomNav(4);
     }
   }, [location.pathname]);
+
   // Don't render if still loading authentication
   if (authLoading) {
     return (
@@ -113,20 +133,44 @@ const UserLayout = () => {
 
   // Don't render if not authenticated
   if (!isAuthenticated) {
-    return null; // This should not happen as ProtectedRoutes should handle it
+    return null;
   }
+
   const handleHeartsClick = () => {
     setHeartsPopupOpen(true);
   };
+  const handleStreakClick = () => {
+    setStreakPopupOpen(true);
+  };
+
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
   const handleLogout = async () => {
     try {
-      await logoutUser(); // calls backend logout
+      await logoutUser();
     } catch (err) {
       console.error("Logout failed:", err);
     } finally {
-      authLogout(); // clear context/local state
+      authLogout();
       navigate("/login");
+    }
+  };
+
+  // ✅ Lightweight manual refresh - only updates stats
+
+  // ✅ Function to test immediate updates (for demonstration)
+  const testImmediateUpdate = () => {
+    if (profile) {
+      const newHearts = Math.min(5, (profile.hearts || 0) + 1);
+      const newCoins = (profile.coins || 0) + 10;
+      const newStreak = (profile.streak || 0) + 1;
+
+      updateSpecificStats({
+        hearts: newHearts,
+        coins: newCoins,
+        streak: newStreak,
+      });
+      console.log("🔄 UserLayout - Test update applied");
     }
   };
 
@@ -154,7 +198,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -181,7 +225,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -208,7 +252,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -235,7 +279,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -267,7 +311,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -296,7 +340,7 @@ const UserLayout = () => {
             sx={{
               borderRadius: "10px",
               width: "90%",
-              mx: "auto", // ✅ centers the whole item
+              mx: "auto",
               "&.Mui-selected": {
                 backgroundColor: "#F2F2F2",
                 "& .MuiListItemIcon-root": {
@@ -323,7 +367,7 @@ const UserLayout = () => {
           sx={{
             borderRadius: "10px",
             width: "90%",
-            mx: "auto", // ✅ centers the whole item
+            mx: "auto",
             "&.Mui-selected": {
               backgroundColor: "#F2F2F2",
               "& .MuiListItemIcon-root": {
@@ -350,19 +394,6 @@ const UserLayout = () => {
   return (
     <Box className="flex" dir="rtl">
       <Box component="nav" className="flex-shrink-0">
-        {/* <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": { width: drawerWidth },
-          }}
-        >
-          {drawer}
-        </Drawer> */}
-
         <Drawer
           variant="permanent"
           sx={{
@@ -414,7 +445,7 @@ const UserLayout = () => {
               sx={{
                 display: { xs: "flex", md: "none" },
                 alignItems: "center",
-                gap: { xs: 0.5, sm: 1 }, // tighter spacing on smaller screens
+                gap: { xs: 0.5, sm: 1 },
               }}
             >
               <img
@@ -422,13 +453,13 @@ const UserLayout = () => {
                 alt="Logo"
                 style={{
                   height: "auto",
-                  maxHeight: "32px", // default
+                  maxHeight: "32px",
                 }}
               />
               <Typography
                 fontWeight="bold"
                 sx={{
-                  fontSize: { xs: "16px", sm: "24px", md: "24px" }, // responsive text size
+                  fontSize: { xs: "16px", sm: "24px", md: "24px" },
                 }}
               >
                 {t("appName")}
@@ -446,9 +477,7 @@ const UserLayout = () => {
                 color: "#666",
               }}
             >
-              {/* <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                جاري التحميل...
-              </Typography> */}
+              {/* Loading state */}
             </Box>
           ) : profile && profile.hearts !== undefined ? (
             <Box
@@ -459,6 +488,7 @@ const UserLayout = () => {
                 alignItems: "center",
               }}
             >
+              {/* Coins Section */}
               <Box
                 sx={{
                   display: "flex",
@@ -472,7 +502,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.coins}
+                  {profile.coins || 0}
                 </Typography>
                 <Box
                   component="img"
@@ -482,7 +512,10 @@ const UserLayout = () => {
                 />
               </Box>
 
+              {/* Streak Section */}
               <Box
+                ref={streakAnchorRef}
+                onClick={handleStreakClick}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -492,10 +525,19 @@ const UserLayout = () => {
                   borderRadius: "50px",
                   px: { xs: "10px", sm: "20px" },
                   py: "5px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "#F8F8F8",
+                    transform: "scale(1.02)",
+                  },
+                  "&:active": {
+                    transform: "scale(0.98)",
+                  },
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.streak}
+                  {profile.streak || 0}
                 </Typography>
                 <Box
                   component="img"
@@ -505,8 +547,9 @@ const UserLayout = () => {
                 />
               </Box>
 
+              {/* Hearts Section */}
               <Box
-                ref={heartsAnchorRef} // 👈 Attach the ref
+                ref={heartsAnchorRef}
                 onClick={handleHeartsClick}
                 sx={{
                   display: "flex",
@@ -529,7 +572,7 @@ const UserLayout = () => {
                 }}
               >
                 <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.hearts}
+                  {profile.hearts || 0}
                 </Typography>
                 <Box
                   component="img"
@@ -543,9 +586,10 @@ const UserLayout = () => {
                 />
               </Box>
 
+              {/* Avatar */}
               <Box
                 onClick={() => navigate("/profile")}
-                sx={{ cursor: "pointer" }} // 👈 makes it clear it’s clickable
+                sx={{ cursor: "pointer" }}
               >
                 {profile.avatar ? (
                   <Box
@@ -576,18 +620,6 @@ const UserLayout = () => {
               </Box>
             </Box>
           ) : null}
-
-          {/* Language Toggle */}
-          {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={toggleLanguage}
-              sx={{ minWidth: 48 }}
-            >
-              {language === "ar" ? t("lang_en") : t("lang_ar")}
-            </Button>
-          </Box> */}
         </Box>
 
         <Divider />
@@ -595,7 +627,7 @@ const UserLayout = () => {
           component="main"
           sx={{
             flex: 1,
-            pb: { xs: "80px", md: "40px" }, // reserve space for bottom nav
+            pb: { xs: "80px", md: "40px" },
           }}
         >
           <Outlet context={{ setPageTitle }} />
@@ -641,7 +673,7 @@ const UserLayout = () => {
             }
           }}
           sx={{
-            height: { xs: 56, sm: 64, md: 72 }, // nav bar height responsive
+            height: { xs: 56, sm: 64, md: 72 },
           }}
         >
           <BottomNavigationAction
@@ -649,9 +681,9 @@ const UserLayout = () => {
             icon={<HomeIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
             sx={{
               "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" }, // label responsive
+                fontSize: { xs: "10px", sm: "12px", md: "14px" },
               },
-              minWidth: { xs: 50, sm: 70 }, // shrink buttons on mobile
+              minWidth: { xs: 50, sm: 70 },
             }}
           />
           <BottomNavigationAction
@@ -704,12 +736,21 @@ const UserLayout = () => {
           />
         </BottomNavigation>
       </Box>
+
       <HeartsPopup
         open={heartsPopupOpen}
         onClose={() => setHeartsPopupOpen(false)}
-        currentHearts={profile?.hearts || 0}
+        currentHearts={profile?.hearts}
         maxHearts={5}
-        anchorEl={heartsAnchorRef.current} // 👈 Pass the anchor element
+        refillInterval={profile?.refill_interval}
+        lastHeartUpdate={profile?.last_heart_update}
+        anchorEl={heartsAnchorRef.current}
+      />
+      <StreakPopup
+        open={streakPopupOpen}
+        onClose={() => setStreakPopupOpen(false)}
+        currentStreak={profile?.streak}
+        anchorEl={streakAnchorRef.current}
       />
     </Box>
   );

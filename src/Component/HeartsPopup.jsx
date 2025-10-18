@@ -1,49 +1,89 @@
-// src/components/HeartsPopup.jsx
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
   Dialog,
   DialogContent,
-  IconButton,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import HeartIcon from "../assets/Icons/heart.png";
-
+import axiosInstance from "../lip/axios";
+import Coin from "../assets/Icons/coin.png";
 const HeartsPopup = ({
   open,
   onClose,
   currentHearts,
   maxHearts = 5,
   anchorEl,
+  refillInterval, // in minutes
+  lastHeartUpdate, // ISO string
 }) => {
   const popupRef = useRef(null);
   const [position, setPosition] = useState(null);
   const [arrowOffset, setArrowOffset] = useState("50%");
+  const [displayHearts, setDisplayHearts] = useState(currentHearts);
+  const [timeLeft, setTimeLeft] = useState(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // md and below use dialog
-  const POPUP_WIDTH = 300;
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const POPUP_WIDTH = 278;
   const MARGIN = 12;
 
-  // ✅ Calculate safe position (desktop only)
+  // ✅ Calculate how many hearts should be refilled already
+  useEffect(() => {
+    if (!lastHeartUpdate || !refillInterval) return;
+
+    const refillMs = refillInterval * 60 * 1000;
+    const lastUpdateTime = new Date(lastHeartUpdate).getTime();
+
+    const updateHeartsAndTimer = () => {
+      const now = Date.now();
+      const diff = now - lastUpdateTime;
+
+      // how many refills since last update
+      const heartsToAdd = Math.floor(diff / refillMs);
+
+      // ✅ only add hearts if you don’t already have full hearts
+      let updatedHearts = currentHearts;
+      if (currentHearts < maxHearts) {
+        updatedHearts = Math.min(currentHearts + heartsToAdd, maxHearts);
+      }
+
+      setDisplayHearts(updatedHearts);
+
+      // ✅ calculate next refill timer
+      if (updatedHearts < maxHearts) {
+        const nextRefillTime = lastUpdateTime + (heartsToAdd + 1) * refillMs;
+        const diffToNext = nextRefillTime - now;
+        const minutes = Math.floor(diffToNext / 60000);
+        const seconds = Math.floor((diffToNext % 60000) / 1000);
+        setTimeLeft(
+          `${minutes.toString().padStart(2, "0")}:${seconds
+            .toString()
+            .padStart(2, "0")}`
+        );
+      } else {
+        setTimeLeft(null);
+      }
+    };
+
+    updateHeartsAndTimer();
+    const interval = setInterval(updateHeartsAndTimer, 1000);
+    return () => clearInterval(interval);
+  }, [currentHearts, lastHeartUpdate, refillInterval, maxHearts]);
+
+  // ✅ Popup positioning for desktop
   useEffect(() => {
     if (open && anchorEl && !isMobile) {
       const rect = anchorEl.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2 + window.scrollX;
       const top = rect.bottom + window.scrollY + MARGIN;
-
       const minLeft = POPUP_WIDTH / 2 + 8;
       const maxLeft = window.innerWidth - POPUP_WIDTH / 2 - 8;
-
-      // Clamp popup inside viewport
       const safeLeft = Math.min(Math.max(centerX, minLeft), maxLeft);
-
-      // ✅ Calculate arrow offset relative to popup
       const arrowPercent =
         ((centerX - (safeLeft - POPUP_WIDTH / 2)) / POPUP_WIDTH) * 100;
-      const clampedArrow = Math.min(Math.max(arrowPercent, 10), 90); // keep arrow inside rounded edges
-
+      const clampedArrow = Math.min(Math.max(arrowPercent, 10), 90);
       setPosition({ top, left: safeLeft });
       setArrowOffset(`${clampedArrow}%`);
     } else {
@@ -51,27 +91,44 @@ const HeartsPopup = ({
     }
   }, [open, anchorEl, isMobile]);
 
-  // Close popper when clicking outside
+  // ✅ Close when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
+    const handleClickOutside = (e) => {
       if (
         popupRef.current &&
-        !popupRef.current.contains(event.target) &&
+        !popupRef.current.contains(e.target) &&
         anchorEl &&
-        !anchorEl.contains(event.target)
+        !anchorEl.contains(e.target)
       ) {
         onClose();
       }
-    }
-
-    if (open && !isMobile) {
+    };
+    if (open && !isMobile)
       document.addEventListener("mousedown", handleClickOutside);
-    }
-
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onClose, anchorEl, isMobile]);
 
-  // ✅ Mobile/Tablet Dialog
+  const handleBuyHeart = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "profiles/profiles/website/coins/buy_heart"
+      );
+
+      const newHearts = res.data?.data?.hearts;
+      if (newHearts !== undefined) {
+        setDisplayHearts(newHearts); // ✅ update popper with real value
+      }
+
+      // optionally, you can also show the updated coins somewhere
+      const newCoins = res.data?.data?.coins;
+      console.log("Updated coins:", newCoins);
+    } catch (err) {
+      console.error("Failed to buy heart:", err);
+      alert("فشل شراء القلب. تأكد من وجود عملات كافية.");
+    }
+  };
+
+  // ✅ Mobile Dialog
   if (isMobile) {
     return (
       <Dialog
@@ -88,28 +145,19 @@ const HeartsPopup = ({
           },
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-              color: "#343F4E",
-              fontSize: "20px",
-            }}
-          >
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography variant="h6" fontWeight="bold">
             عداد القلوب
           </Typography>
         </Box>
-
         <DialogContent sx={{ padding: "0 !important" }}>
-          <HeartsContent currentHearts={currentHearts} maxHearts={maxHearts} />
+          <HeartsContent
+            hearts={displayHearts}
+            maxHearts={maxHearts}
+            timeLeft={timeLeft}
+            isDesktop
+            onBuyHeart={handleBuyHeart} // pass handler
+          />
         </DialogContent>
       </Dialog>
     );
@@ -127,16 +175,15 @@ const HeartsPopup = ({
         left: position.left,
         transform: "translateX(-50%)",
         width: `${POPUP_WIDTH}px`,
-        backgroundColor: "#205DC7",
+        backgroundColor: "white",
         borderRadius: "20px",
         boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
         zIndex: 2000,
         padding: "20px 24px",
+        textAlign: "center",
         direction: "rtl",
-        textAlign: "right",
       }}
     >
-      {/* ✅ Arrow always aligned to heart icon */}
       <div
         style={{
           position: "absolute",
@@ -147,70 +194,132 @@ const HeartsPopup = ({
           height: 0,
           borderLeft: "10px solid transparent",
           borderRight: "10px solid transparent",
-          borderBottom: "10px solid #205DC7",
-          filter: "drop-shadow(0px -1px 2px rgba(0,0,0,0.08))",
+          borderBottom: "10px solid white",
         }}
       />
 
       <Typography
         variant="h6"
-        sx={{
-          fontWeight: "bold",
-          color: "#fff",
-          fontSize: "18px",
-          mb: 2,
-          textAlign: "center",
-        }}
+        sx={{ fontWeight: "bold", color: "black", mb: 2 }}
       >
-        القلوب المتاحة
+        عداد القلوب
       </Typography>
 
       <HeartsContent
-        currentHearts={currentHearts}
+        hearts={displayHearts}
         maxHearts={maxHearts}
-        isDesktop={true}
+        timeLeft={timeLeft}
+        isDesktop
+        onBuyHeart={handleBuyHeart} // ✅ pass handler
       />
     </div>
   );
 };
 
-const HeartsContent = ({ currentHearts, maxHearts, isDesktop = false }) => {
-  const textColor = isDesktop ? "#fff" : "#666";
-  const infoBgColor = isDesktop ? "rgba(255,255,255,0.1)" : "#F5F5F5";
+// ✅ Renders hearts and countdown
+const HeartsContent = ({
+  hearts,
+  maxHearts,
+  timeLeft,
+  isDesktop = false,
+  onBuyHeart,
+}) => {
+  const textColor = isDesktop ? "black" : "#444";
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        gap: 1,
-        mb: 3,
-      }}
-    >
-      {Array.from({ length: maxHearts }, (_, index) => (
-        <Box
-          key={index}
-          sx={{
-            width: 40,
-            height: 40,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+    <Box sx={{ textAlign: "center" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 2 }}>
+        {Array.from({ length: maxHearts }, (_, i) => (
           <img
+            key={i}
             src={HeartIcon}
             alt="heart"
             style={{
-              width: "32px",
-              height: "32px",
-              filter:
-                index < currentHearts ? "none" : "grayscale(100%) opacity(0.3)",
+              width: 32,
+              height: 32,
+              filter: i < hearts ? "none" : "grayscale(100%) opacity(0.3)",
               transition: "all 0.3s ease",
             }}
           />
+        ))}
+      </Box>
+
+      {hearts < maxHearts && timeLeft && (
+        <Box
+          sx={{ color: textColor, fontWeight: 500, fontSize: "16px", mb: 1 }}
+        >
+          ستحصل على قلب جديد خلال:
+          <Typography
+            component="div"
+            sx={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              mt: 1,
+              color: "#FF4346",
+            }}
+          >
+            {timeLeft}
+          </Typography>
         </Box>
-      ))}
+      )}
+
+      {/* Buy Heart Button */}
+      {hearts < maxHearts && (
+        <Box
+          sx={{
+            mt: 2,
+            display: "flex",
+            justifyContent: { xs: "center", md: "flex-start" }, // center on xs, left-align on md+
+          }}
+        >
+          <button
+            onClick={onBuyHeart}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              backgroundColor: "#F2F2F2",
+              color: "#000",
+              padding: "8px 10px",
+              borderRadius: "12px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              border: "1px solid #CDCCCC",
+              minWidth: "238px",
+              width: "100%", // full width on small screens
+              maxWidth: "238px", // max width for larger screens
+            }}
+          >
+            {/* Coin + Number on the left */}
+            <Box
+              sx={{
+                position: "absolute",
+                right: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <Typography sx={{ fontWeight: "bold" }}>10</Typography>
+              <Box
+                component="img"
+                src={Coin}
+                alt="coin"
+                sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+              />
+            </Box>
+            {/* Centered Text */}
+            اشتر قلب
+          </button>
+        </Box>
+      )}
+
+      {hearts >= maxHearts && (
+        <Typography sx={{ color: textColor, fontWeight: 500 }}>
+          جميع القلوب ممتلئة ❤️
+        </Typography>
+      )}
     </Box>
   );
 };
