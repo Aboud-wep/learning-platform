@@ -24,7 +24,6 @@ import { useAuth } from "./AuthContext";
 export default function Register() {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { loginWithGoogle } = useAuth();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -50,7 +49,7 @@ export default function Register() {
       const idToken = credentialResponse.credential;
 
       // Use the AuthContext's loginWithGoogle function
-      const { success, needs_username } = await loginWithGoogle(idToken);
+      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
       if (success) {
         if (needs_username) {

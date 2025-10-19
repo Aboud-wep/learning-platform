@@ -40,6 +40,7 @@ export default function Login() {
   });
 
   const [validationError, setValidationError] = useState(""); // for client-side validation
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -124,7 +125,7 @@ export default function Login() {
       const idToken = credentialResponse.credential;
 
       // Use the AuthContext's loginWithGoogle function
-      const { success, needs_username } = await loginWithGoogle(idToken);
+      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
       if (success) {
         if (needs_username) {
