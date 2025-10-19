@@ -20,9 +20,11 @@ import { IconButton, InputAdornment } from "@mui/material";
 import { registerUser, loginWithGoogleApi } from "./AuthApi";
 import { GoogleLogin } from "@react-oauth/google";
 import { useLanguage } from "../../Context/LanguageContext";
+import { useAuth } from "./AuthContext";
 export default function Register() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { loginWithGoogle } = useAuth();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -36,17 +38,28 @@ export default function Register() {
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
+  const [validationErrors, setValidationErrors] = useState({});
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleGoogleLogin = async (credentialResponse) => {
     setLoading(true);
     setError("");
     try {
       const idToken = credentialResponse.credential;
-      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
-      if (needs_username) {
-        navigate("/set-username");
-      } else if (success) {
-        navigate("/dashboard");
+      // Use the AuthContext's loginWithGoogle function
+      const { success, needs_username } = await loginWithGoogle(idToken);
+
+      if (success) {
+        if (needs_username) {
+          navigate("/set-username");
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        setError(t("register_google_failed"));
       }
     } catch (err) {
       setError(t("register_google_failed"));
@@ -58,10 +71,6 @@ export default function Register() {
   //   onSuccess: handleGoogleLogin,
   //   onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
   // });
-  const [validationErrors, setValidationErrors] = useState({});
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

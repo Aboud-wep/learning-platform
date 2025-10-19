@@ -122,12 +122,18 @@ export default function Login() {
     setError("");
     try {
       const idToken = credentialResponse.credential;
-      const { success, needs_username } = await loginWithGoogleApi(idToken);
 
-      if (needs_username) {
-        navigate("/set-username");
-      } else if (success) {
-        navigate("/dashboard");
+      // Use the AuthContext's loginWithGoogle function
+      const { success, needs_username } = await loginWithGoogle(idToken);
+
+      if (success) {
+        if (needs_username) {
+          navigate("/set-username");
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        setError(t("login_google_failed"));
       }
     } catch (err) {
       setError(t("login_google_failed"));
