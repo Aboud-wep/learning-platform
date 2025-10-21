@@ -193,33 +193,30 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
         PaperProps={{
           sx: {
             borderRadius: "20px",
-            padding: "16px",
+            padding: "24px 16px 16px 16px",
             background: "white",
             boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
+            position: "relative", // ensure absolute children (like icon) stay inside
           },
         }}
       >
-        <Box
+        {/* ✅ Close icon in top-right corner */}
+        <IconButton
+          onClick={onClose}
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 2,
+            position: "absolute",
+            top: 12,
+            left: 12,
+            color: "#555",
+            backgroundColor: "#F5F5F5",
+            "&:hover": { backgroundColor: "#E0E0E0" },
+            zIndex: 1,
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-              color: "#343F4E",
-              fontSize: "20px",
-            }}
-          >
-            سجل المتابعة اليومية
-          </Typography>
-        </Box>
+          <CloseIcon />
+        </IconButton>
 
-        <DialogContent sx={{ padding: "0 !important" }}>
+        <DialogContent sx={{ padding: "0 !important", mt: 4 }}>
           <StreakContent
             currentStreak={currentStreak}
             dailyLogs={dailyLogs}
@@ -355,14 +352,14 @@ const StreakContent = ({
 
       <Typography
         sx={{
-          fontSize: { xs: "24px", sm: "30px"},
+          fontSize: { xs: "24px", sm: "30px" },
           fontWeight: "bolder",
           background: "linear-gradient(to right, #D8553A, #E89528)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
           textAlign: "center",
-          my:1,
+          my: 1,
         }}
       >
         يوماً حماسة

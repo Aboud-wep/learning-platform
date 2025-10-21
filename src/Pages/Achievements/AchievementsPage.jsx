@@ -89,7 +89,7 @@ const AchievementsPage = () => {
     );
   }
 
-  if (!achievements.length) {
+  if (!achievements || achievements.length === 0) {
     return (
       <Box
         sx={{
@@ -103,9 +103,9 @@ const AchievementsPage = () => {
         }}
       >
         <img
-          src={item.achievement.image || achievementImg}
+          src={achievementImg}
           alt="No achievements"
-          style={{ width: 100, opacity: 0.5, marginBottom: 16 }}
+          style={{ width: 120, opacity: 0.5, marginBottom: 16 }}
         />
         <Typography variant="h6" color="textSecondary">
           لا توجد إنجازات بعد.

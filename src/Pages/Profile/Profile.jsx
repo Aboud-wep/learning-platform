@@ -724,175 +724,178 @@ const Profile = () => {
         </Grid>
         <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
         {/* Achievements Section */}
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight="bold"
+        {!achievementsLoading && achievements.length === 0 ? null : (
+          <Box>
+            <Box
               sx={{
-                fontSize: { xs: "18px", sm: "20px", md: "24px" },
-                color: "#2D2D2D",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
               }}
             >
-              التحديات
-            </Typography>
-            <Button
-              onClick={() => navigate("/achievements")}
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                sx={{
+                  fontSize: { xs: "18px", sm: "20px", md: "24px" },
+                  color: "#2D2D2D",
+                }}
+              >
+                التحديات
+              </Typography>
+              <Button
+                onClick={() => navigate("/achievements")}
+                sx={{
+                  fontSize: { xs: "14px", sm: "16px", md: "18px" },
+                  fontWeight: "bold",
+                  color: "#205DC7",
+                  textTransform: "none",
+                  gap: "6px",
+                }}
+              >
+                عرض المزيد
+                <ArrowBackIcon fontSize="small" />
+              </Button>
+            </Box>
+
+            <Box
               sx={{
-                fontSize: { xs: "14px", sm: "16px", md: "18px" },
-                fontWeight: "bold",
-                color: "#205DC7",
-                textTransform: "none",
-                gap: "6px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                borderRadius: "20px",
               }}
             >
-              عرض المزيد
-              <ArrowBackIcon fontSize="small" />
-            </Button>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "20px",
-              borderRadius: "20px",
-            }}
-          >
-            {achievementsLoading ? (
-              <ListSkeleton count={isMobile ? 2 : 4} height={120} />
-            ) : (
-              achievements
-                .slice(0, isMobile ? 2 : achievements.length)
-                .map((item, index) => (
-                  <Box key={item.achievement.id}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        backgroundColor: "#fff",
-                        borderRadius: "20px",
-                        p: { xs: 0, md: 2.5 },
-                      }}
-                    >
-                      <Avatar
-                        src={item.achievement.image || achievementImg}
-                        alt="Achievement"
-                        sx={{
-                          width: { xs: 93, md: "auto" },
-                          height: { xs: 138, md: 93 },
-                          backgroundColor: "#F0F7FF",
-                          borderRadius: "12px",
-                          m: 1,
-                        }}
-                      />
-
+              {achievementsLoading ? (
+                <ListSkeleton count={isMobile ? 2 : 4} height={120} />
+              ) : (
+                achievements
+                  .slice(0, isMobile ? 2 : achievements.length)
+                  .map((item, index) => (
+                    <Box key={item.achievement.id}>
                       <Box
                         sx={{
-                          flex: 1,
-                          py: { xs: 2.5, md: 0 },
-                          pr: { xs: 2.5, md: 0 },
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          backgroundColor: "#fff",
+                          borderRadius: "20px",
+                          p: { xs: 0, md: 2.5 },
                         }}
                       >
+                        <Avatar
+                          src={item.achievement.image || achievementImg}
+                          alt="Achievement"
+                          sx={{
+                            width: { xs: 93, md: "auto" },
+                            height: { xs: 138, md: 93 },
+                            backgroundColor: "#F0F7FF",
+                            borderRadius: "12px",
+                            m: 1,
+                          }}
+                        />
+
                         <Box
                           sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
+                            flex: 1,
+                            py: { xs: 2.5, md: 0 },
+                            pr: { xs: 2.5, md: 0 },
                           }}
                         >
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: "16px",
-                                color: "#2D2D2D",
-                                mb: 0.5,
-                              }}
-                            >
-                              {item.achievement.name}
-                            </Typography>
-
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: "16px",
-                                color: "#2D2D2D",
-                                mb: 0.5,
-                              }}
-                            >
-                              {item.achievement.description}
-                            </Typography>
-                          </Box>
-                          {item.completion_percentage === 100 && (
-                            <Button
-                              variant="contained"
-                              sx={{
-                                mt: 2,
-                                borderRadius: "1000px",
-                                py: 1,
-                                backgroundColor: "#205DC7",
-                              }}
-                              onClick={() => claimReward(item.achievement.id)}
-                              disabled={loadingId === item.achievement.id}
-                            >
-                              {loadingId === item.achievement.id ? (
-                                <CircularProgress size={20} />
-                              ) : (
-                                "احصل على جائزتك"
-                              )}
-                            </Button>
-                          )}
-                        </Box>
-                        <Box sx={{ position: "relative", mt: 2 }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={item.completion_percentage}
+                          <Box
                             sx={{
-                              height: { xs: 14, sm: 24 },
-                              borderRadius: "8px",
-                              backgroundColor: "#F0F0F0",
-                              "& .MuiLinearProgress-bar": {
-                                borderRadius: "8px",
-                                backgroundColor: "#81AB00",
-                              },
-                            }}
-                          />
-
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              position: "absolute",
-                              top: "50%",
-                              left: "50%",
-                              transform: "translate(-50%, -50%)",
-                              color: "black",
-                              fontWeight: "bold",
-                              fontSize: "16px",
-                              textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                              display: "flex",
+                              justifyContent: "space-between",
                             }}
                           >
-                            {item.completion_percentage === 100
-                              ? "مكتمل"
-                              : `${item.completion_percentage}%`}
-                          </Typography>
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  fontSize: "16px",
+                                  color: "#2D2D2D",
+                                  mb: 0.5,
+                                }}
+                              >
+                                {item.achievement.name}
+                              </Typography>
+
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  fontSize: "16px",
+                                  color: "#2D2D2D",
+                                  mb: 0.5,
+                                }}
+                              >
+                                {item.achievement.description}
+                              </Typography>
+                            </Box>
+                            {item.completion_percentage === 100 && (
+                              <Button
+                                variant="contained"
+                                sx={{
+                                  mt: 2,
+                                  borderRadius: "1000px",
+                                  py: 1,
+                                  backgroundColor: "#205DC7",
+                                }}
+                                onClick={() => claimReward(item.achievement.id)}
+                                disabled={loadingId === item.achievement.id}
+                              >
+                                {loadingId === item.achievement.id ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  "احصل على جائزتك"
+                                )}
+                              </Button>
+                            )}
+                          </Box>
+
+                          <Box sx={{ position: "relative", mt: 2 }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={item.completion_percentage}
+                              sx={{
+                                height: { xs: 14, sm: 24 },
+                                borderRadius: "8px",
+                                backgroundColor: "#F0F0F0",
+                                "& .MuiLinearProgress-bar": {
+                                  borderRadius: "8px",
+                                  backgroundColor: "#81AB00",
+                                },
+                              }}
+                            />
+
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                color: "black",
+                                fontWeight: "bold",
+                                fontSize: "16px",
+                                textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                              }}
+                            >
+                              {item.completion_percentage === 100
+                                ? "مكتمل"
+                                : `${item.completion_percentage}%`}
+                            </Typography>
+                          </Box>
                         </Box>
                       </Box>
                     </Box>
-                  </Box>
-                ))
-            )}
+                  ))
+              )}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       {/* sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
       <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
@@ -915,29 +918,14 @@ const Profile = () => {
           >
             أصدقائي
           </Typography>
+
           {followers.slice(0, 5).map((item, index) => {
-            const currentUserId = profile.id;
-            const isCurrentUserFollower = item.follower === currentUserId;
-
-            const friendId = isCurrentUserFollower
-              ? item.following
-              : item.follower;
-
-            const friendFirstName = isCurrentUserFollower
-              ? item.following_first_name
-              : item.follower_first_name;
-
-            const friendLastName = isCurrentUserFollower
-              ? item.following_last_name
-              : item.follower_last_name;
-
-            const friendAvatar = isCurrentUserFollower
-              ? item.following_avatar
-              : item.follower_avatar;
-
-            const friendXp = isCurrentUserFollower
-              ? item.following_xp
-              : item.follower_xp;
+            // Your friends are the ones you follow
+            const friendId = item.following;
+            const friendFirstName = item.following_first_name;
+            const friendLastName = item.following_last_name;
+            const friendAvatar = item.following_avatar;
+            const friendXp = item.following_xp ?? 0;
 
             return (
               <Box
@@ -962,7 +950,7 @@ const Profile = () => {
                   color="gray"
                   sx={{ fontSize: { xs: "14px", md: "16px" } }}
                 >
-                  {friendXp ?? 0} XP
+                  {friendXp} XP
                 </Typography>
               </Box>
             );

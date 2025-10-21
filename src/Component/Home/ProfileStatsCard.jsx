@@ -268,7 +268,7 @@ const ProfileStatsCard = ({
 
       {/* Achievements */}
       <Box sx={{ mt: 3 }}>
-        {!showAchievements && achievements ? (
+        {!showAchievements && achievements && achievements.length > 0 && (
           <Box sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2 }}>
             <Typography
               fontWeight="bold"
@@ -279,7 +279,7 @@ const ProfileStatsCard = ({
             </Typography>
 
             {achievements
-              .slice(-3) // ✅ get last 3
+              .slice(-3) // ✅ last 3 achievements
               .map((item, index, arr) => (
                 <Box key={item.achievement.id}>
                   <Box
@@ -355,10 +355,6 @@ const ProfileStatsCard = ({
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>
-        ) : (
-          !showAchievements && (
-            <Typography fontSize="14px">لا توجد إنجازات حالياً.</Typography>
-          )
         )}
       </Box>
 

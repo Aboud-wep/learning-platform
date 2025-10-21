@@ -93,16 +93,16 @@ const LevelsMap = () => {
           {stagesStatus.map(({ stage, isDone, isPlayable, items }, index) => {
             const align =
               index % 4 === 0
-                ? "center"
-                : index % 4 === 1
                 ? "flex-start"
-                : index % 4 === 2
+                : index % 4 === 1
                 ? "center"
-                : "flex-end";
+                : index % 4 === 2
+                ? "flex-end"
+                : "center";
 
             // Ignore the first stage
-            const showCharacter = index > 0 && (index - 1) % 2 === 0;
-            const isLeftSide = Math.floor((index - 1) / 2) % 2 === 0; // alternate sides every 2 stages
+            const showCharacter = index > 0 && (index - 2) % 2 === 0;
+            const isLeftSide = Math.floor((index - 2) / 2) % 2 === 0; // alternate sides every 2 stages
             const characterImage = isLeftSide ? Frame1 : Frame2;
 
             return (
@@ -123,17 +123,20 @@ const LevelsMap = () => {
                       position: "absolute",
                       top: "50%",
                       transform: "translateY(-50%)",
-                      [isLeftSide ? "left" : "right"]: "-150px",
+                      [isLeftSide ? "left" : "right"]: {
+                        xs: "-10px",
+                        sm: "-100px",
+                      },
                       zIndex: 1,
-                      display: { xs: "none", sm: "block" },
                     }}
                   >
-                    <img
+                    <Box
+                      component="img"
                       src={characterImage}
                       alt="Character"
-                      style={{
-                        width: "130px",
-                        height: "auto",
+                      sx={{
+                        width: { xs: "124px", sm: "auto" },
+                        height: { xs: "133px", sm: "auto" },
                         userSelect: "none",
                       }}
                     />

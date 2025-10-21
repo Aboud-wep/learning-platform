@@ -167,7 +167,7 @@ const Home = () => {
             ))}
 
           {/* Other Subjects */}
-          {otherSubjects && (
+          {otherSubjects && otherSubjects.length > 0 && (
             <Box
               sx={{
                 textAlign: "center",
@@ -198,6 +198,7 @@ const Home = () => {
               </Button>
             </Box>
           )}
+
           <Grid container spacing={{ xs: 1.5, sm: 2 }} justifyContent="center">
             {otherSubjects.map((subject) => (
               <Grid item xs={12} sm={6} lg={4} key={subject.id}>

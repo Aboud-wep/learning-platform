@@ -6,10 +6,12 @@ import {
   DialogContent,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import HeartIcon from "../assets/Icons/heart.png";
 import axiosInstance from "../lip/axios";
 import Coin from "../assets/Icons/coin.png";
+import CloseIcon from "@mui/icons-material/Close";
 const HeartsPopup = ({
   open,
   onClose,
@@ -145,18 +147,49 @@ const HeartsPopup = ({
           },
         }}
       >
-        <Box sx={{ textAlign: "center", mb: 2 }}>
+        {/* Header with title + close icon */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            position: "relative",
+            mb: 2,
+          }}
+        >
           <Typography variant="h6" fontWeight="bold">
             عداد القلوب
           </Typography>
+
+          {/* ✅ Close button (visible only on mobile) */}
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+          >
+            <IconButton
+              onClick={onClose}
+              sx={{
+                color: "#555",
+                backgroundColor: "#F5F5F5",
+                "&:hover": { backgroundColor: "#E0E0E0" },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
         </Box>
+
         <DialogContent sx={{ padding: "0 !important" }}>
           <HeartsContent
             hearts={displayHearts}
             maxHearts={maxHearts}
             timeLeft={timeLeft}
             isDesktop
-            onBuyHeart={handleBuyHeart} // pass handler
+            onBuyHeart={handleBuyHeart}
           />
         </DialogContent>
       </Dialog>
