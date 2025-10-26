@@ -34,7 +34,7 @@ const QuestionPage = ({ type }) => {
   const { t, isRTL } = useLanguage();
   const subjectId = location.state?.subjectId;
   const { id } = useParams();
-  
+
   // ✅ Store subjectId in localStorage when available
   useEffect(() => {
     if (subjectId) {
@@ -412,14 +412,29 @@ const QuestionPage = ({ type }) => {
           );
 
           navigate("/lesson-ended", {
-            state: { nextPage: "/rewarded-motivation-freezes", subjectId: subjectId || localStorage.getItem("currentSubjectId") }, // ✅ use stored subjectId as fallback
+            state: {
+              nextPage: "/rewarded-motivation-freezes",
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"),
+            }, // ✅ use stored subjectId as fallback
           });
         } else if (hasXPOrCoins) {
-          navigate("/lesson-ended", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
+          navigate("/lesson-ended", {
+            state: {
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"),
+            },
+          }); // ✅ use stored subjectId as fallback
         } else if (hasMotivationFreeze) {
-          navigate("/rewarded-motivation-freezes", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
+          navigate("/rewarded-motivation-freezes", {
+            state: {
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"),
+            },
+          }); // ✅ use stored subjectId as fallback
         } else {
-          navigate("/lesson-ended", { state: { subjectId: subjectId || localStorage.getItem("currentSubjectId") } }); // ✅ use stored subjectId as fallback
+          navigate("/lesson-ended", {
+            state: {
+              subjectId: subjectId || localStorage.getItem("currentSubjectId"),
+            },
+          }); // ✅ use stored subjectId as fallback
         }
       } else if (testComplete) {
         const hasXPOrCoins =
@@ -591,10 +606,10 @@ const QuestionPage = ({ type }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
           px: 1,
-          paddingBottom: { xs: "160px", md: "0px" },
+          paddingBottom: { xs: "83px", md: "0px" },
         }}
       >
-        <Box className="w-full max-w-[1010px] opacity-90 my-20">
+        <Box className="w-full max-w-[1010px] opacity-90 my-5">
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
@@ -612,22 +627,23 @@ const QuestionPage = ({ type }) => {
             }}
           >
             {/* Info Button on Mobile */}
-            {shouldShowLessonDescription && (
+            {shouldShowLessonDescription ? (
               <IconButton
                 onClick={() => setLessonDialogOpen(true)}
                 sx={{
                   color: "#205DC7",
                   backgroundColor: "white",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  "&:hover": {
-                    backgroundColor: "#f5f5f5",
-                  },
+                  "&:hover": { backgroundColor: "#f5f5f5" },
                   width: 40,
                   height: 40,
                 }}
               >
                 <InfoOutlinedIcon />
               </IconButton>
+            ) : (
+              // Invisible placeholder keeps hearts aligned left
+              <Box sx={{ width: 40 }} />
             )}
 
             {/* Hearts on Mobile */}
