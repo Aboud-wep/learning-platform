@@ -47,10 +47,17 @@ const QuestionPage = ({ type }) => {
   const persistedStageId = localStorage.getItem("currentStageId");
   const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
   const [pageNumber, setPageNumber] = useState(() => {
-    const saved = localStorage.getItem(`pageNumber-${id}`);
+    // Try to restore from sessionStorage first (for refresh)
+    const saved = sessionStorage.getItem("currentLessonPageNumber");
+    if (saved) return parseInt(saved, 10);
+    // Fallback to localStorage per question ID
+    const savedPerQuestion = localStorage.getItem(`pageNumber-${id}`);
+    return savedPerQuestion ? parseInt(savedPerQuestion, 10) : 1;
+  });
+  const [questionCount, setQuestionCount] = useState(() => {
+    const saved = sessionStorage.getItem(`questionCount-${id}`);
     return saved ? parseInt(saved, 10) : 1;
   });
-  const [questionCount, setQuestionCount] = useState(1);
   const {
     currentQuestion,
     openVideoDialog,
@@ -184,11 +191,87 @@ const QuestionPage = ({ type }) => {
     }
   }, [isCorrect]);
 
-  // Handle browser/mobile back button
+  // Store lesson state for refresh recovery
+  useEffect(() => {
+    if (location.state?.question) {
+      const lessonState = {
+        question: location.state.question,
+        question_group_id: location.state.question_group_id,
+        lesson_log_id: location.state.lesson_log_id,
+        test_log_id: location.state.test_log_id,
+        test_id: location.state.test_id,
+        isTest: location.state.test_log_id ? true : false,
+        subjectId: location.state.subjectId || subjectId,
+      };
+      sessionStorage.setItem("currentLessonState", JSON.stringify(lessonState));
+      console.log("✅ Stored lesson state for refresh recovery:", lessonState);
+    }
+  }, [location.state, subjectId]);
+
+  // Handle browser/mobile back button and refresh recovery
   useEffect(() => {
     const idToStart = id || persistedStageId;
 
     if (!location.state?.question) {
+      // Try to restore from sessionStorage first (refresh scenario)
+      const savedState = sessionStorage.getItem("currentLessonState");
+      if (savedState && idToStart) {
+        try {
+          const restored = JSON.parse(savedState);
+          console.log(
+            "✅ Restoring lesson state from sessionStorage:",
+            restored
+          );
+          setApiResponse(restored);
+          setCurrentQuestion(restored.question);
+
+          if (restored.test_log_id) {
+            setTestLogId(restored.test_log_id);
+            setIsTest(true);
+          } else {
+            setLessonLogId(restored.lesson_log_id);
+            setIsTest(false);
+          }
+          setQuestionGroupId(restored.question_group_id);
+
+          // Update questionCount from sessionStorage if available
+          const savedCount = sessionStorage.getItem(`questionCount-${id}`);
+          if (savedCount) {
+            setQuestionCount(parseInt(savedCount, 10));
+          }
+
+          // Restore pageNumber from sessionStorage
+          const savedPageNumber = sessionStorage.getItem(
+            "currentLessonPageNumber"
+          );
+          console.log(
+            "🔍 Attempting to restore pageNumber from sessionStorage:",
+            savedPageNumber
+          );
+          if (savedPageNumber) {
+            const pageNum = parseInt(savedPageNumber, 10);
+            setPageNumber(pageNum);
+            console.log(
+              "✅ Restored pageNumber from sessionStorage to:",
+              pageNum
+            );
+          } else {
+            console.log(
+              "⚠️ No saved pageNumber found in sessionStorage, keeping current value:",
+              pageNumber
+            );
+          }
+
+          // Clear the navigation flag now that we've restored
+          sessionStorage.removeItem("isNavigatingNext");
+          return;
+        } catch (e) {
+          console.error("Failed to restore state:", e);
+          sessionStorage.removeItem("currentLessonState");
+          sessionStorage.removeItem("isNavigatingNext");
+        }
+      }
+
       if (!idToStart) {
         console.warn("⚠️ No stage ID available to start question.");
         return;
@@ -377,20 +460,74 @@ const QuestionPage = ({ type }) => {
     }
   };
 
+  // Store pageNumber in sessionStorage for refresh recovery (lesson-wide, not per question)
   useEffect(() => {
-    setPageNumber(1);
-  }, [id]);
+    sessionStorage.setItem("currentLessonPageNumber", pageNumber);
+    console.log(
+      "✅ Stored pageNumber in sessionStorage:",
+      pageNumber,
+      "for question ID:",
+      id
+    );
+  }, [pageNumber, id]);
 
   useEffect(() => {
-    localStorage.setItem(`pageNumber-${id}`, pageNumber);
-  }, [pageNumber, id]);
+    sessionStorage.setItem(`questionCount-${id}`, questionCount);
+  }, [questionCount, id]);
+
+  // Cleanup on unmount (when navigating back/away from lesson)
+  useEffect(() => {
+    return () => {
+      // Check if we're actively navigating to next question
+      const isNavigating = sessionStorage.getItem("isNavigatingNext");
+      // Only clean up if we're not navigating to the next question and lesson is not complete
+      // This allows back button to work while preserving state during forward navigation
+      if (!isNavigating && !lessonComplete && !testComplete) {
+        console.log(
+          "Cleaning up sessionStorage on unmount (user navigated back/away)"
+        );
+        setPageNumber(0);
+        sessionStorage.removeItem("currentLessonState");
+        sessionStorage.removeItem(`questionCount-${id}`);
+        sessionStorage.removeItem("currentLessonPageNumber");
+      } else if (isNavigating) {
+        // Reset the flag after using it
+        sessionStorage.removeItem("isNavigatingNext");
+      }
+    };
+  }, [lessonComplete, testComplete, id]);
+
+  useEffect(() => {
+    // Check if we're starting a fresh lesson (no existing state)
+    const hasExistingState = sessionStorage.getItem("currentLessonState");
+    const hasExistingPageNumber = sessionStorage.getItem(
+      "currentLessonPageNumber"
+    );
+
+    if (!hasExistingState && !hasExistingPageNumber) {
+      console.log("🆕 Fresh lesson start - ensuring pageNumber starts at 1");
+      setPageNumber(1);
+    }
+  }, []);
 
   const handleNext = () => {
     if (isCorrect) {
-      setPageNumber(pageNumber + 1);
+      const newPageNumber = pageNumber + 1;
+      console.log(
+        "🔄 Incrementing pageNumber from",
+        pageNumber,
+        "to",
+        newPageNumber
+      );
+      setPageNumber(newPageNumber);
     }
 
+    // Clean up sessionStorage when lesson/test completes
     if (lessonComplete || testComplete) {
+      sessionStorage.removeItem("currentLessonState");
+      sessionStorage.removeItem(`questionCount-${id}`);
+      sessionStorage.removeItem("currentLessonPageNumber");
+      setPageNumber(0);
       if (lessonComplete) {
         const hasXPOrCoins =
           (rewards.xp && rewards.xp > 0) ||
@@ -488,6 +625,9 @@ const QuestionPage = ({ type }) => {
       const logId = isTestFromContext ? testLogId : lessonLogId;
       const logIdKey = isTestFromContext ? "test_log_id" : "lesson_log_id";
 
+      // Set flag to prevent cleanup during navigation to next question
+      sessionStorage.setItem("isNavigatingNext", "true");
+
       navigate(`/questions/${nextQuestionId}`, {
         state: {
           question: nextQuestionData,
@@ -495,6 +635,7 @@ const QuestionPage = ({ type }) => {
           question_group_id: nextQuestionData.question_group_id,
           subjectId: subjectId || localStorage.getItem("currentSubjectId"), // ✅ use stored subjectId as fallback
         },
+        replace: true, // ✅ Replace history entry to exit lesson on back button
       });
 
       setShowResult(false);
@@ -689,7 +830,7 @@ const QuestionPage = ({ type }) => {
               number={pageNumber}
               color="blue"
               percentage={
-                (pageNumber === 1 ? 0 : (pageNumber - 1) / questionCount) * 100
+                questionCount > 0 ? (pageNumber / questionCount) * 100 : 0
               }
               isCorrect={isCorrect}
             />
