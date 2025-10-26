@@ -37,6 +37,7 @@ export default function Register() {
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
+  const { loginWithGoogle } = useAuth();
   const [validationErrors, setValidationErrors] = useState({});
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -48,11 +49,11 @@ export default function Register() {
     try {
       const idToken = credentialResponse.credential;
 
-      // Use the AuthContext's loginWithGoogle function
-      const { success, needs_username } = await loginWithGoogleApi(idToken);
+      // ✅ CORRECT: Using AuthContext function
+      const result = await loginWithGoogle(idToken);
 
-      if (success) {
-        if (needs_username) {
+      if (result.success) {
+        if (result.needs_username) {
           navigate("/set-username");
         } else {
           navigate("/dashboard");
@@ -66,10 +67,6 @@ export default function Register() {
       setLoading(false);
     }
   };
-  // const googleLoginButton = useGoogleLogin({
-  //   onSuccess: handleGoogleLogin,
-  //   onError: () => setError("فشل تسجيل الدخول باستخدام Google"),
-  // });
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

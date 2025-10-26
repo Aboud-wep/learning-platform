@@ -27,7 +27,7 @@ export default function Login() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/home";
 
-  const { login, error, loading, setError } = useAuth();
+  const { login, error, loading, setError, loginWithGoogle } = useAuth();
   const successMessage = location.state?.successMessage;
   const { t } = useLanguage();
   const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
@@ -40,7 +40,6 @@ export default function Login() {
   });
 
   const [validationError, setValidationError] = useState(""); // for client-side validation
-  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -119,16 +118,18 @@ export default function Login() {
     }
   };
 
+  // Make sure this is in your useAuth destructuring
+
   const handleGoogleLogin = async (credentialResponse) => {
     setError("");
     try {
       const idToken = credentialResponse.credential;
 
-      // Use the AuthContext's loginWithGoogle function
-      const { success, needs_username } = await loginWithGoogleApi(idToken);
+      // ✅ CORRECT: Using AuthContext function
+      const result = await loginWithGoogle(idToken);
 
-      if (success) {
-        if (needs_username) {
+      if (result.success) {
+        if (result.needs_username) {
           navigate("/set-username");
         } else {
           navigate("/dashboard");

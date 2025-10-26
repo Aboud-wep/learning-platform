@@ -714,7 +714,7 @@ const Profile = () => {
                 }}
               >
                 <EmojiEventsOutlined sx={{ fontSize: { xs: 30, sm: 40 } }} />
-                {profile.highest_competition_level.name || "الذهبي"}
+                {profile?.highest_competition_level?.name || "الذهبي"}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
                 المستوى الذي وصلت له

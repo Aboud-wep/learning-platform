@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }) => {
     setError("");
     try {
       const data = await loginWithGoogleApi(idToken);
-      const { access, refresh, expires_in, role } = data.tokens;
+      const { access, refresh, expires_in, role } = data.tokens; // ✅ data.tokens (not data.data)
 
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
