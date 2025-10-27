@@ -1,7 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Card,
-  CardContent,
   Typography,
   LinearProgress,
   Box,
@@ -11,11 +9,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Image from "../../assets/Images/Image.png";
-import { useQuestion } from "../../Pages/Questions/Context/QuestionContext"; // Import the QuestionContext
+import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
 
 const MySubjectCard = ({ subject, progress }) => {
   const navigate = useNavigate();
-  const { hearts } = useQuestion(); // Get hearts from QuestionContext
+  const { hearts } = useQuestion();
 
   const allItems =
     subject?.levels?.flatMap((level) =>
@@ -26,18 +24,40 @@ const MySubjectCard = ({ subject, progress }) => {
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
 
-  // Function to handle navigation
+  // ✅ Final progress value
+  const finalProgress =
+    (progress?.completion_percentage ?? subject?.completion_percentage) || 0;
+
+  // ✅ Animated progress
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const target = finalProgress;
+    const duration = 800; // ms
+    const stepTime = 16;
+    const steps = duration / stepTime;
+    const increment = target / steps;
+
+    const interval = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        start = target;
+        clearInterval(interval);
+      }
+      setAnimatedProgress(start);
+    }, stepTime);
+
+    return () => clearInterval(interval);
+  }, [finalProgress]);
+
   const handleNavigateToSubject = () => {
-    // Check if user has hearts left
     if (hearts !== null && hearts <= 0) {
-      // No hearts left, navigate to no-hearts page
       navigate("/no-hearts");
     } else {
-      // ✅ Store subjectId in localStorage for persistent access
       if (subject?.id) {
         localStorage.setItem("currentSubjectId", subject.id);
       }
-      // Has hearts, navigate to subject
       navigate(`/levels-map/${subject.id}`);
     }
   };
@@ -46,15 +66,12 @@ const MySubjectCard = ({ subject, progress }) => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", sm: "row" }, // stack on mobile
-        alignItems: { xs: "flex-start", sm: "center" }, // center on mobile
-        height: "auto", // let it grow naturally
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "flex-start", sm: "center" },
         overflow: "hidden",
-        // px: "15px",
         borderRadius: "20px",
         mb: "20px",
         backgroundColor: "#FFFFFF",
-        // gap: { xs: 2, sm: 0 }, // spacing when stacked
       }}
     >
       {/* Image + Content */}
@@ -64,11 +81,9 @@ const MySubjectCard = ({ subject, progress }) => {
           display: "flex",
           alignItems: "center",
           gap: "15px",
-          // flexDirection: { xs: "column", sm: "row" }, // image on top for mobile
           width: "100%",
-          paddingLeft: "20px",
-          paddingTop: "20px",
-          paddingBottom: { xs: "0px", sm: "20px" },
+          p: "20px",
+          pb: { xs: 0, sm: "20px" },
         }}
       >
         <CardMedia
@@ -77,9 +92,7 @@ const MySubjectCard = ({ subject, progress }) => {
           alt={subject.name}
           sx={{
             width: "134px",
-            // width: { xs: "100%", sm: 137 }, // full width on mobile, fixed on larger
-            height: "auto", // let height scale automatically
-            // maxHeight: { xs: 200, sm: 101 }, // optional cap
+            height: "auto",
             objectFit: "cover",
             borderRadius: 2,
           }}
@@ -106,19 +119,21 @@ const MySubjectCard = ({ subject, progress }) => {
             {isCompleted ? "مكتمل" : "قيد التقدم"}
           </Typography>
 
+          {/* 🌀 Animated Progress */}
           <Box sx={{ position: "relative", width: "100%" }}>
             <LinearProgress
               variant="determinate"
-              value={
-                (progress?.completion_percentage ??
-                  subject.completion_percentage) ||
-                0
-              }
+              value={animatedProgress}
               sx={{
                 height: 24,
                 borderRadius: "12px",
                 backgroundColor: "#eee",
                 mr: { xs: "10px", sm: "0px" },
+                transition: "all 0.6s ease-out",
+                "& .MuiLinearProgress-bar": {
+                  transition: "transform 0.6s ease-out",
+                  backgroundColor: "#205DC7",
+                },
               }}
             />
             <Typography
@@ -137,10 +152,7 @@ const MySubjectCard = ({ subject, progress }) => {
                 color: "black",
               }}
             >
-              {(progress?.completion_percentage ??
-                subject.completion_percentage) ||
-                0}
-              %
+              {Math.round(animatedProgress)}%
             </Typography>
           </Box>
         </Box>
@@ -151,16 +163,16 @@ const MySubjectCard = ({ subject, progress }) => {
         sx={{
           m: { xs: 1, sm: 2 },
           py: "6px",
-          px: "24px", // 👈 force horizontal padding
-          minWidth: "134px", // 👈 set a minimum width
+          px: "24px",
+          minWidth: "134px",
           borderRadius: "100px",
           alignSelf: { xs: "stretch", sm: "center" },
         }}
         variant="contained"
         size="small"
-        onClick={handleNavigateToSubject} // Use the new handler
+        onClick={handleNavigateToSubject}
         endIcon={<ArrowBackIcon fontSize="small" />}
-        disabled={hearts !== null && hearts <= 0} // Optional: disable button when no hearts
+        disabled={hearts !== null && hearts <= 0}
       >
         {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
       </Button>

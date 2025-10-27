@@ -5,16 +5,17 @@ import ModalClose from "@mui/joy/ModalClose";
 import DialogTitle from "@mui/joy/DialogTitle";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import ReactMarkdown from "react-markdown";
 import { useLanguage } from "../../Context/LanguageContext";
+import { Box } from "@mui/material";
 
 export default function StageSummaryDialogJoy({
   open,
   onClose,
   stageSummaries,
-}) { 
-  if (!stageSummaries) return null;
+}) {
   const { t } = useLanguage();
+
+  if (!stageSummaries || stageSummaries.length === 0) return null;
 
   return (
     <div style={{ zIndex: 3001 }}>
@@ -22,7 +23,7 @@ export default function StageSummaryDialogJoy({
         open={open}
         onClose={(_, reason) => {
           if (reason === "backdropClick" || reason === "escapeKeyDown") {
-            onClose(); // ✅ close only when clicking outside or pressing Esc
+            onClose();
           }
         }}
       >
@@ -33,31 +34,28 @@ export default function StageSummaryDialogJoy({
             maxHeight: "80vh",
             width: { xs: 360, sm: 600 },
             overflow: "hidden",
-            px: 5,
+            px: 3,
           }}
         >
-          {/* Title */}
+          <ModalClose />
           <DialogTitle
             sx={{
-              textAlign: "left",
+              textAlign: "center",
               fontWeight: "bold",
-              fontSize: "1.25rem",
-              p: 2,
+              fontSize: "1.3rem",
+              mb: 1,
             }}
           >
             {t("stage_summary_title")}
           </DialogTitle>
 
-          <Stack>{stageSummaries.title || t("stage_summary_no_title")}</Stack>
-
-          {/* Scrollable content */}
           <Stack
             sx={{
               p: 2,
               maxHeight: "60vh",
               overflowY: "auto",
-              direction: "rtl",
               textAlign: "left",
+              direction: "rtl",
               "& h1, & h2, & h3": {
                 fontWeight: "bold",
                 margin: "16px 0 8px",
@@ -75,11 +73,19 @@ export default function StageSummaryDialogJoy({
               "& p": { marginBottom: "10px", lineHeight: 1.6 },
             }}
           >
-            <div
-              dangerouslySetInnerHTML={{
-                __html: stageSummaries.text || t("stage_summary_no_desc"),
-              }}
-            />
+            {stageSummaries.map((summary) => (
+              <Box key={summary.id} sx={{ mb: 3 }}>
+                <Typography level="title-md" sx={{ fontWeight: "bold", mb: 1 }}>
+                  {summary.title || t("stage_summary_no_title")}
+                </Typography>
+
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: summary.text || t("stage_summary_no_desc"),
+                  }}
+                />
+              </Box>
+            ))}
           </Stack>
         </ModalDialog>
       </Modal>

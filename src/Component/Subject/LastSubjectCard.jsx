@@ -1,4 +1,5 @@
-import { Box, Avatar, Typography, LinearProgress, Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, LinearProgress, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
@@ -12,8 +13,37 @@ const LastSubjectCard = ({ subject, progress }) => {
   const isCompleted =
     allItems.length > 0 &&
     allItems.every((item) => item?.lesson?.is_passed === true);
+
   const navigate = useNavigate();
   const { hearts } = useQuestion();
+
+  // ✅ Get final progress value
+  const finalProgress =
+    (progress?.completion_percentage ?? subject?.completion_percentage) || 0;
+
+  // ✅ Animated progress state
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const target = finalProgress;
+    const duration = 800; // ms
+    const stepTime = 16;
+    const steps = duration / stepTime;
+    const increment = target / steps;
+
+    const interval = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        start = target;
+        clearInterval(interval);
+      }
+      setAnimatedProgress(start);
+    }, stepTime);
+
+    return () => clearInterval(interval);
+  }, [finalProgress]);
+
   return (
     <Box
       sx={{
@@ -21,8 +51,8 @@ const LastSubjectCard = ({ subject, progress }) => {
         borderRadius: "20px",
         p: "20px",
         display: "flex",
-        flexDirection: { xs: "column", md: "row" }, // stack on small, row on bigger
-        alignItems: { xs: "center", md: "flex-start" }, // center on mobile
+        flexDirection: { xs: "column", md: "row" },
+        alignItems: { xs: "center", md: "flex-start" },
         gap: "30px",
         width: "100%",
         my: "30px",
@@ -73,7 +103,6 @@ const LastSubjectCard = ({ subject, progress }) => {
             display: "inline-block",
             fontSize: "14px",
             my: "15px",
-
             textAlign: "center",
           }}
           gutterBottom
@@ -81,26 +110,26 @@ const LastSubjectCard = ({ subject, progress }) => {
           {isCompleted ? "مكتمل" : "قيد التقدم"}
         </Typography>
 
-        {/* Progress bar */}
+        {/* 🌀 Animated Progress Bar */}
         <Box
           sx={{
             position: "relative",
             width: "100%",
-            // maxWidth: "400px",
             mx: { xs: "auto", sm: "0" },
           }}
         >
           <LinearProgress
             variant="determinate"
-            value={
-              (progress?.completion_percentage ??
-                subject.completion_percentage) ||
-              0
-            }
+            value={animatedProgress}
             sx={{
               height: 24,
               borderRadius: "12px",
               backgroundColor: "#eee",
+              transition: "all 0.6s ease-out",
+              "& .MuiLinearProgress-bar": {
+                transition: "transform 0.6s ease-out",
+                backgroundColor: "#205DC7",
+              },
             }}
           />
           <Typography
@@ -119,10 +148,7 @@ const LastSubjectCard = ({ subject, progress }) => {
               color: "black",
             }}
           >
-            {(progress?.completion_percentage ??
-              subject.completion_percentage) ||
-              0}
-            %
+            {Math.round(animatedProgress)}%
           </Typography>
         </Box>
 

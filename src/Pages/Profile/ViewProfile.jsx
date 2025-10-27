@@ -13,6 +13,7 @@ import {
   useMediaQuery,
   LinearProgress,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import axiosInstance from "../../lip/axios";
 import { useHome } from "../Home/Context/HomeContext";
@@ -32,21 +33,58 @@ import {
   MenuBook as MenuBookIcon,
   Whatshot,
 } from "@mui/icons-material";
+
 const ViewProfile = () => {
   const { id } = useParams();
   const [userProfile, setUserProfile] = useState(null);
-  const [isFriend, setIsFriend] = useState(false); // Add this state
+  const [isFriend, setIsFriend] = useState(false);
   const { followers, recommended } = useProfile();
   const token = localStorage.getItem("accessToken");
   const { profile } = useHome();
   const navigate = useNavigate();
   const { addFriend, loadinggg, success, error } = useFriends();
-  const { refreshFriendData } = useProfile(); // Add this
+  const { refreshFriendData } = useProfile();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { achievements } = useAchievements();
+
+  // ✅ Add animated values state for progress bars
+  const [animatedValues, setAnimatedValues] = useState([]);
+
+  // ✅ Initialize animatedValues when achievements load
+  useEffect(() => {
+    if (achievements.length > 0) {
+      setAnimatedValues(achievements.map(() => 0));
+    }
+  }, [achievements]);
+
+  // ✅ Animate all progress bars when achievements load
+  useEffect(() => {
+    if (achievements.length > 0) {
+      const intervals = achievements.map((item, idx) => {
+        let start = 0;
+        const target = item.completion_percentage || 0;
+        const duration = 800;
+        const stepTime = 16;
+        const steps = duration / stepTime;
+        const increment = target / steps;
+
+        return setInterval(() => {
+          start += increment;
+          setAnimatedValues((prev) => {
+            const copy = [...prev];
+            copy[idx] = start >= target ? target : start;
+            return copy;
+          });
+        }, stepTime);
+      });
+
+      return () => intervals.forEach(clearInterval);
+    }
+  }, [achievements]);
+
   useEffect(() => {
     if (!token) {
       console.error("No token found");
@@ -422,7 +460,7 @@ const ViewProfile = () => {
                       <Box sx={{ position: "relative", mt: 2 }}>
                         <LinearProgress
                           variant="determinate"
-                          value={item.completion_percentage}
+                          value={animatedValues[index] || 0}
                           sx={{
                             height: { xs: 14, sm: 20, md: 24 },
                             borderRadius: "8px",
@@ -446,9 +484,9 @@ const ViewProfile = () => {
                             textShadow: "0 0 2px rgba(0,0,0,0.3)",
                           }}
                         >
-                          {item.completion_percentage === 100
+                          {animatedValues[index] === 100
                             ? "مكتمل"
-                            : `${item.completion_percentage}%`}
+                            : `${Math.round(animatedValues[index] || 0)}%`}
                         </Typography>
                       </Box>
                     </Box>

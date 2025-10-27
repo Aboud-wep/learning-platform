@@ -103,10 +103,15 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
   };
 
   const handleOpenSummary = (stage) => {
-    const summary = stageSummaries?.find(
-      (s) => s.stage === stage.id || s.stage_id === stage.id
-    );
-    setSelectedSummary(summary);
+    // Get the summaries directly from the stage object if available
+    const summaries =
+      stage.stage_summaries && stage.stage_summaries.length > 0
+        ? stage.stage_summaries
+        : stageSummaries?.filter(
+            (s) => s.stage === stage.id || s.stage_id === stage.id
+          );
+
+    setSelectedSummary(summaries || []);
     setSummaryOpen(true);
   };
 

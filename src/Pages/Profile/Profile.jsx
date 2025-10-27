@@ -281,6 +281,39 @@ const Profile = () => {
     navigate(`/user-profile/${userId}`);
   };
 
+  const [animatedValues, setAnimatedValues] = React.useState([]);
+
+  React.useEffect(() => {
+    if (!achievementsLoading && achievements.length > 0) {
+      const intervals = achievements.map((item, idx) => {
+        let start = 0;
+        const target = item.completion_percentage || 0;
+        const duration = 800;
+        const stepTime = 16;
+        const steps = duration / stepTime;
+        const increment = target / steps;
+
+        return setInterval(() => {
+          start += increment;
+          setAnimatedValues((prev) => {
+            const copy = [...prev];
+            copy[idx] = start >= target ? target : start;
+            return copy;
+          });
+        }, stepTime);
+      });
+
+      return () => intervals.forEach(clearInterval);
+    }
+  }, [achievements, achievementsLoading]);
+
+  // Initialize animatedValues when achievements load
+  React.useEffect(() => {
+    if (!achievementsLoading && achievements.length > 0) {
+      setAnimatedValues(achievements.map(() => 0));
+    }
+  }, [achievements, achievementsLoading]);
+
   useEffect(() => {
     setPageTitle("الرئيسية");
   }, [setPageTitle]);
@@ -834,6 +867,7 @@ const Profile = () => {
                                 {item.achievement.description}
                               </Typography>
                             </Box>
+
                             {item.completion_percentage === 100 && (
                               <Button
                                 variant="contained"
@@ -858,7 +892,7 @@ const Profile = () => {
                           <Box sx={{ position: "relative", mt: 2 }}>
                             <LinearProgress
                               variant="determinate"
-                              value={item.completion_percentage}
+                              value={animatedValues[index] || 0}
                               sx={{
                                 height: { xs: 14, sm: 24 },
                                 borderRadius: "8px",
@@ -883,9 +917,9 @@ const Profile = () => {
                                 textShadow: "0 0 2px rgba(0,0,0,0.3)",
                               }}
                             >
-                              {item.completion_percentage === 100
+                              {animatedValues[index] === 100
                                 ? "مكتمل"
-                                : `${item.completion_percentage}%`}
+                                : `${Math.round(animatedValues[index] || 0)}%`}
                             </Typography>
                           </Box>
                         </Box>

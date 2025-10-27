@@ -280,66 +280,98 @@ const ProfileStatsCard = ({
 
             {achievements
               .slice(-3) // ✅ last 3 achievements
-              .map((item, index, arr) => (
-                <Box key={item.achievement.id}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 2,
-                      pb: 2,
-                    }}
-                  >
-                    <Avatar
-                      variant="rounded"
-                      src={item.achievement.image || achievementImg}
-                      alt="Achievement"
+              .map((item, index, arr) => {
+                const [animatedProgress, setAnimatedProgress] =
+                  React.useState(0);
+
+                React.useEffect(() => {
+                  let start = 0;
+                  const target = item.completion_percentage || 0;
+                  const duration = 800; // ms
+                  const stepTime = 16;
+                  const steps = duration / stepTime;
+                  const increment = target / steps;
+
+                  const interval = setInterval(() => {
+                    start += increment;
+                    if (start >= target) {
+                      start = target;
+                      clearInterval(interval);
+                    }
+                    setAnimatedProgress(start);
+                  }, stepTime);
+
+                  return () => clearInterval(interval);
+                }, [item.completion_percentage]);
+
+                return (
+                  <Box key={item.achievement.id}>
+                    <Box
                       sx={{
-                        width: { xs: 50, sm: 75 },
-                        height: { xs: 50, sm: 75 },
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 2,
+                        pb: 2,
                       }}
-                    />
-                    <Box flex={1}>
-                      <Typography
-                        fontSize={{ xs: "12px", sm: "14px" }}
-                        mb={1}
-                        textAlign="center"
-                      >
-                        {item.achievement.description}
-                      </Typography>
-                      <Box sx={{ position: "relative" }}>
-                        <LinearProgress
-                          variant="determinate"
-                          value={item.completion_percentage}
-                          sx={{
-                            height: { xs: 14, sm: 24 },
-                            borderRadius: "12px",
-                            backgroundColor: "#F0F0F0",
-                          }}
-                        />
+                    >
+                      <Avatar
+                        variant="rounded"
+                        src={item.achievement.image || achievementImg}
+                        alt="Achievement"
+                        sx={{
+                          width: { xs: 50, sm: 75 },
+                          height: { xs: 50, sm: 75 },
+                        }}
+                      />
+                      <Box flex={1}>
                         <Typography
-                          variant="caption"
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: { xs: "12px", sm: "16px" },
-                            color: "black",
-                          }}
+                          fontSize={{ xs: "12px", sm: "14px" }}
+                          mb={1}
+                          textAlign="center"
                         >
-                          {item.completion_percentage || 0}%
+                          {item.achievement.description}
                         </Typography>
+
+                        {/* 🌀 Animated Linear Progress */}
+                        <Box sx={{ position: "relative" }}>
+                          <LinearProgress
+                            variant="determinate"
+                            value={animatedProgress}
+                            sx={{
+                              height: { xs: 14, sm: 24 },
+                              borderRadius: "12px",
+                              backgroundColor: "#F0F0F0",
+                              transition: "all 0.6s ease-out",
+                              "& .MuiLinearProgress-bar": {
+                                transition: "transform 0.6s ease-out",
+                                backgroundColor: "#205DC7",
+                              },
+                            }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              position: "absolute",
+                              top: 0,
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              height: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: { xs: "12px", sm: "16px" },
+                              color: "black",
+                            }}
+                          >
+                            {Math.round(animatedProgress)}%
+                          </Typography>
+                        </Box>
                       </Box>
                     </Box>
+                    {index < arr.length - 1 && <Divider sx={{ mb: 2 }} />}
                   </Box>
-                  {index < arr.length - 1 && <Divider sx={{ mb: 2 }} />}
-                </Box>
-              ))}
+                );
+              })}
 
             <Button
               onClick={() => navigate("/achievements")}

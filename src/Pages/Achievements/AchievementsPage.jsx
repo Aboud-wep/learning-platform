@@ -158,122 +158,149 @@ const AchievementsPage = () => {
             borderRadius: "20px",
           }}
         >
-          {achievements.map((item) => (
-            <Box key={item.achievement.id}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  backgroundColor: "#fff",
-                  borderRadius: "20px",
-                  p: { xs: 0, md: 2.5 },
-                }}
-              >
-                <Avatar
-                  src={item.achievement.image || achievementImg}
-                  alt="Achievement"
-                  sx={{
-                    width: { xs: 93, md: "auto" },
-                    height: { xs: 138, md: 93 },
-                    backgroundColor: "#F0F7FF",
-                    borderRadius: "12px",
-                    m: 1,
-                  }}
-                />
+          {achievements.map((item) => {
+            const finalProgress = item.completion_percentage || 0;
+            const [animatedProgress, setAnimatedProgress] = useState(0);
 
+            useEffect(() => {
+              let start = 0;
+              const target = finalProgress;
+              const duration = 800; // ms
+              const stepTime = 16;
+              const steps = duration / stepTime;
+              const increment = target / steps;
+
+              const interval = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                  start = target;
+                  clearInterval(interval);
+                }
+                setAnimatedProgress(start);
+              }, stepTime);
+
+              return () => clearInterval(interval);
+            }, [finalProgress]);
+
+            return (
+              <Box key={item.achievement.id}>
                 <Box
                   sx={{
-                    flex: 1,
-                    py: { xs: 2.5, md: 0 },
-                    pr: { xs: 2.5, md: 0 },
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    backgroundColor: "#fff",
+                    borderRadius: "20px",
+                    p: { xs: 0, md: 2.5 },
                   }}
                 >
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Box>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: "16px",
-                          color: "#2D2D2D",
-                          mb: 0.5,
-                        }}
-                      >
-                        {item.achievement.name}
-                      </Typography>
+                  <Avatar
+                    src={item.achievement.image || achievementImg}
+                    alt="Achievement"
+                    sx={{
+                      width: { xs: 93, md: "auto" },
+                      height: { xs: 138, md: 93 },
+                      backgroundColor: "#F0F7FF",
+                      borderRadius: "12px",
+                      m: 1,
+                    }}
+                  />
 
-                      <Typography
-                        variant="body1"
+                  <Box
+                    sx={{
+                      flex: 1,
+                      py: { xs: 2.5, md: 0 },
+                      pr: { xs: 2.5, md: 0 },
+                    }}
+                  >
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Box>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "16px",
+                            color: "#2D2D2D",
+                            mb: 0.5,
+                          }}
+                        >
+                          {item.achievement.name}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: "16px",
+                            color: "#2D2D2D",
+                            mb: 0.5,
+                          }}
+                        >
+                          {item.achievement.description}
+                        </Typography>
+                      </Box>
+
+                      {item.completion_percentage === 100 && (
+                        <Button
+                          variant="contained"
+                          sx={{
+                            mt: 2,
+                            borderRadius: "1000px",
+                            py: 1,
+                            backgroundColor: "#205DC7",
+                          }}
+                          onClick={() => claimReward(item.achievement.id)}
+                          disabled={loadingId === item.achievement.id}
+                        >
+                          {loadingId === item.achievement.id ? (
+                            <Skeleton variant="text" width={100} height={20} />
+                          ) : (
+                            "احصل على جائزتك"
+                          )}
+                        </Button>
+                      )}
+                    </Box>
+
+                    {/* 🌀 Animated LinearProgress */}
+                    <Box sx={{ position: "relative", mt: 2 }}>
+                      <LinearProgress
+                        variant="determinate"
+                        value={animatedProgress}
                         sx={{
-                          fontWeight: 500,
+                          height: { xs: 14, sm: 24 },
+                          borderRadius: "8px",
+                          backgroundColor: "#F0F0F0",
+                          "& .MuiLinearProgress-bar": {
+                            borderRadius: "8px",
+                            backgroundColor: "#81AB00",
+                            transition: "transform 0.6s ease-out",
+                          },
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          color: "black",
+                          fontWeight: "bold",
                           fontSize: "16px",
-                          color: "#2D2D2D",
-                          mb: 0.5,
+                          textShadow: "0 0 2px rgba(0,0,0,0.3)",
                         }}
                       >
-                        {item.achievement.description}
+                        {animatedProgress === 100
+                          ? "مكتمل"
+                          : `${Math.round(animatedProgress)}%`}
                       </Typography>
                     </Box>
-                    {item.completion_percentage === 100 && (
-                      <Button
-                        variant="contained"
-                        sx={{
-                          mt: 2,
-                          borderRadius: "1000px",
-                          py: 1,
-                          backgroundColor: "#205DC7",
-                        }}
-                        onClick={() => claimReward(item.achievement.id)}
-                        disabled={loadingId === item.achievement.id}
-                      >
-                        {loadingId === item.achievement.id ? (
-                          <Skeleton variant="text" width={100} height={20} />
-                        ) : (
-                          "احصل على جائزتك"
-                        )}
-                      </Button>
-                    )}
-                  </Box>
-                  <Box sx={{ position: "relative", mt: 2 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={item.completion_percentage}
-                      sx={{
-                        height: { xs: 14, sm: 24 },
-                        borderRadius: "8px",
-                        backgroundColor: "#F0F0F0",
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: "8px",
-                          backgroundColor: "#81AB00",
-                        },
-                      }}
-                    />
-
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        color: "black",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                        textShadow: "0 0 2px rgba(0,0,0,0.3)",
-                      }}
-                    >
-                      {item.completion_percentage === 100
-                        ? "مكتمل"
-                        : `${item.completion_percentage}%`}
-                    </Typography>
                   </Box>
                 </Box>
               </Box>
-            </Box>
-          ))}
+            );
+          })}
         </Box>
       </Box>
 
