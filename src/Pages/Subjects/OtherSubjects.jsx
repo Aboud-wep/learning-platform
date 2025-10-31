@@ -24,12 +24,13 @@ import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
 import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const OtherSubjects = () => {
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const navigate = useNavigate();
   const { subjects, userProgress, loadingg } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-const { hearts } = useQuestion();
+  const { hearts } = useQuestion();
+
   // 🔎 Search state
   const [searchValue, setSearchValue] = useState("");
 
@@ -78,8 +79,8 @@ const { hearts } = useQuestion();
 
   // Show skeleton loading while data is loading
   if (loadingg) {
-  return <SubjectsPageSkeleton />;
-}
+    return <SubjectsPageSkeleton isDarkMode={isDarkMode} />;
+  }
 
   return (
     <Box
@@ -91,6 +92,8 @@ const { hearts } = useQuestion();
         flexDirection: { xs: "column", md: "row" },
         gap: 3,
         justifyContent: "center",
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Main Content - Other Subjects */}
@@ -100,7 +103,6 @@ const { hearts } = useQuestion();
           maxWidth: { md: 800 },
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           justifyItems: "center",
         }}
       >
@@ -115,14 +117,17 @@ const { hearts } = useQuestion();
             sx={{
               maxWidth: { xs: "100%", md: "438px" },
               "& .MuiOutlinedInput-root": {
-                borderRadius: "20px", // ✅ apply to input
-                backgroundColor: "white",
+                borderRadius: "20px",
+                backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                "& input": {
+                  color: isDarkMode ? "text.primary" : "inherit",
+                },
               },
             }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <SearchIcon color="action" />
+                  <SearchIcon color={isDarkMode ? "disabled" : "action"} />
                 </InputAdornment>
               ),
             }}
@@ -130,7 +135,11 @@ const { hearts } = useQuestion();
         </Box>
 
         {filteredOtherSubjects.length === 0 ? (
-          <Typography textAlign="center" py={4}>
+          <Typography
+            textAlign="center"
+            py={4}
+            color={isDarkMode ? "text.primary" : "inherit"}
+          >
             لا توجد مواد أخرى حاليا.
           </Typography>
         ) : (
@@ -151,7 +160,7 @@ const { hearts } = useQuestion();
                 key={subject.id}
                 sx={{ display: "flex", justifyContent: "center" }} // keep card centered
               >
-                <OtherSubjectCard subject={subject} />
+                <OtherSubjectCard subject={subject} isDarkMode={isDarkMode} />
               </Grid>
             ))}
           </Grid>
@@ -173,7 +182,11 @@ const { hearts } = useQuestion();
               borderRadius: "20px",
               overflow: "hidden",
               padding: "20px",
-              backgroundColor: "#FFFFFF",
+              backgroundColor: isDarkMode ? "background.paper" : "#FFFFFF",
+              border: isDarkMode ? "1px solid #333" : "none",
+              boxShadow: isDarkMode
+                ? "0 4px 12px rgba(0,0,0,0.3)"
+                : "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
             {/* Subject Image */}
@@ -186,6 +199,7 @@ const { hearts } = useQuestion();
                 width: "284px",
                 height: "235px",
                 borderRadius: "20px",
+                filter: isDarkMode ? "brightness(0.9)" : "none",
               }}
             />
 
@@ -200,16 +214,25 @@ const { hearts } = useQuestion();
               }}
             >
               {/* Progress Section */}
-
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                gutterBottom
+                color={isDarkMode ? "text.primary" : "inherit"}
+              >
                 {lastUpdatedSubject.name}
               </Typography>
 
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                color={isDarkMode ? "text.secondary" : "textSecondary"}
+                sx={{ mb: 2 }}
+              >
                 {lastUpdatedSubject.description.length > 100
                   ? `${lastUpdatedSubject.description.substring(0, 100)}...`
                   : lastUpdatedSubject.description}
               </Typography>
+
               {/* Continue Button */}
               <Button
                 fullWidth
@@ -219,10 +242,21 @@ const { hearts } = useQuestion();
                 sx={{
                   borderRadius: "20px",
                   py: 1,
+                  backgroundColor: "#205DC7",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: isDarkMode ? "#64b5f6" : "#1648A8",
+                  },
+                  "&:disabled": {
+                    backgroundColor: isDarkMode ? "#555" : "#ccc",
+                    color: isDarkMode ? "#888" : "#666",
+                  },
                 }}
                 disabled={hearts !== null && hearts <= 0}
               >
-                {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
+                {hearts !== null && hearts <= 0
+                  ? "لا توجد محاولات"
+                  : "أكمل التعلم"}
               </Button>
             </Box>
           </Box>

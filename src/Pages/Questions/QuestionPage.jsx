@@ -28,12 +28,14 @@ import CircularCounter from "../../Component/CircularCounter";
 import HeartIcon from "../../assets/Icons/heart.png";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import LessonDescriptionDialogJoy from "./LessonDescriptionDialogJoy";
+import { useDarkMode } from "../../Context/DarkModeContext";
 
 const QuestionPage = ({ type }) => {
   const location = useLocation();
   const { t, isRTL } = useLanguage();
   const subjectId = location.state?.subjectId;
   const { id } = useParams();
+  const { isDarkMode } = useDarkMode();
 
   // ✅ Store subjectId in localStorage when available
   useEffect(() => {
@@ -740,9 +742,12 @@ const QuestionPage = ({ type }) => {
           justifyContent: { xs: "normal", md: "center" },
           alignItems: { xs: "normal", md: "center" },
           minHeight: "100vh",
+          backgroundColor: { xs: isDarkMode ? "#10171A" : "#FFFFFF" }, // 👈 added for xs
           backgroundImage: {
             xs: "none",
-            md: `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
+            md: isDarkMode
+              ? `url(${bgImage}),linear-gradient(to bottom, #10171A, #10171A)`
+              : `linear-gradient(to bottom, #31A9D6, #205CC7), url(${bgImage})`,
           },
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -750,7 +755,11 @@ const QuestionPage = ({ type }) => {
           paddingBottom: { xs: "83px", md: "0px" },
         }}
       >
-        <Box className="w-full max-w-[1010px] opacity-90 my-5">
+        <Box
+          className={`w-full max-w-[1010px]  ${
+            isDarkMode ? "opacity-100" : "opacity-90"
+          } my-5`}
+        >
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
@@ -760,9 +769,8 @@ const QuestionPage = ({ type }) => {
               top: 0,
               left: 0,
               right: 0,
-              // backgroundColor: "white",
+              backgroundColor: isDarkMode ? "#10171A" : "white",
               padding: "8px 16px",
-              // boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               zIndex: 9999,
               height: "56px",
             }}
@@ -772,10 +780,12 @@ const QuestionPage = ({ type }) => {
               <IconButton
                 onClick={() => setLessonDialogOpen(true)}
                 sx={{
-                  color: "#205DC7",
-                  backgroundColor: "white",
+                  color: isDarkMode ? "#90caf9" : "#205DC7",
+                  backgroundColor: isDarkMode ? "#333" : "white",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  "&:hover": { backgroundColor: "#f5f5f5" },
+                  "&:hover": {
+                    backgroundColor: isDarkMode ? "#444" : "#f5f5f5",
+                  },
                   width: 40,
                   height: 40,
                 }}
@@ -783,7 +793,6 @@ const QuestionPage = ({ type }) => {
                 <InfoOutlinedIcon />
               </IconButton>
             ) : (
-              // Invisible placeholder keeps hearts aligned left
               <Box sx={{ width: 40 }} />
             )}
 
@@ -795,15 +804,19 @@ const QuestionPage = ({ type }) => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  bgcolor: "white",
+                  bgcolor: isDarkMode ? "#10171A" : "white",
                   borderRadius: "50px",
                   px: "16px",
                   py: "6px",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                  border: "1px solid #e0e0e0",
+                  border: isDarkMode ? "1px solid #444" : "1px solid #e0e0e0",
                 }}
               >
-                <Typography fontSize="14px" fontWeight="bold">
+                <Typography
+                  fontSize="14px"
+                  fontWeight="bold"
+                  color={isDarkMode ? "white" : "inherit"}
+                >
                   {isTest && apiResponse?.hearts !== undefined
                     ? apiResponse.hearts
                     : hearts}
@@ -812,7 +825,11 @@ const QuestionPage = ({ type }) => {
                   component="img"
                   src={HeartIcon}
                   alt="heart"
-                  sx={{ width: 20, height: "auto" }}
+                  sx={{
+                    width: 20,
+                    height: "auto",
+                    filter: isDarkMode ? "brightness(0.8)" : "none",
+                  }}
                 />
               </Box>
             )}
@@ -824,6 +841,8 @@ const QuestionPage = ({ type }) => {
               justifyContent: "center",
               mb: "16px",
               my: { xs: 8, md: 0 },
+              position: "relative",
+              zIndex: 10000,
             }}
           >
             <CircularCounter
@@ -833,36 +852,43 @@ const QuestionPage = ({ type }) => {
                 questionCount > 0 ? (pageNumber / questionCount) * 100 : 0
               }
               isCorrect={isCorrect}
+              isDarkMode={isDarkMode}
             />
           </Box>
 
-          <Box elevation={3} className="bg-white/90 rounded-[40px]">
+          <Box
+            className={`rounded-[40px] ${
+              isDarkMode
+                ? "bg-[#10171A] lg:bg-[#161F23]" // 👈 darker on md
+                : "bg-white/90"
+            }`}
+          >
             <Box
               sx={{
                 paddingX: { xs: "10px", sm: "32px", md: "64px", lg: "114px" },
                 paddingTop: { xs: "0px", md: "50px" },
-                position: "relative", // Needed for absolute positioning of icon
+                position: "relative",
               }}
             >
-              {/* Lesson Description Button - Similar to StagePopperCustom pattern */}
+              {/* Lesson Description Button */}
               {shouldShowLessonDescription && (
                 <>
                   <IconButton
                     onClick={() => setLessonDialogOpen(true)}
                     sx={{
-                      color: "#205DC7",
+                      color: isDarkMode ? "#90caf9" : "#205DC7",
                       position: "absolute",
                       top: 16,
                       left: 16,
                       zIndex: 1,
-                      backgroundColor: "white",
+                      backgroundColor: isDarkMode ? "#333" : "white",
                       boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                       "&:hover": {
-                        backgroundColor: "#f5f5f5",
+                        backgroundColor: isDarkMode ? "#444" : "#f5f5f5",
                       },
                       width: 40,
                       height: 40,
-                      display: { xs: "none", md: "flex" }, // Hide on mobile, show on desktop
+                      display: { xs: "none", md: "flex" },
                     }}
                   >
                     <InfoOutlinedIcon />
@@ -872,6 +898,7 @@ const QuestionPage = ({ type }) => {
                     open={lessonDialogOpen}
                     onClose={() => setLessonDialogOpen(false)}
                     lesson={lessonData}
+                    isDarkMode={isDarkMode}
                   />
                 </>
               )}
@@ -881,7 +908,7 @@ const QuestionPage = ({ type }) => {
                 (hearts !== null && hearts !== undefined)) && (
                 <Box
                   sx={{
-                    display: { xs: "none", md: "flex" }, // Hide on mobile, show on desktop
+                    display: { xs: "none", md: "flex" },
                     justifyContent: "flex-end",
                     mb: 1.5,
                   }}
@@ -891,14 +918,18 @@ const QuestionPage = ({ type }) => {
                       display: "flex",
                       alignItems: "center",
                       gap: 1,
-                      bgcolor: "white",
+                      bgcolor: isDarkMode ? "#10171A" : "white",
                       borderRadius: "50px",
                       px: "20px",
                       py: "5px",
                       boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                      border: isDarkMode ? "1px solid #444" : "none",
                     }}
                   >
-                    <Typography fontSize="14px">
+                    <Typography
+                      fontSize="14px"
+                      color={isDarkMode ? "white" : "inherit"}
+                    >
                       {isTest && apiResponse?.hearts !== undefined
                         ? apiResponse.hearts
                         : hearts}
@@ -907,19 +938,25 @@ const QuestionPage = ({ type }) => {
                       component="img"
                       src={HeartIcon}
                       alt="heart"
-                      sx={{ width: 22, height: "auto" }}
+                      sx={{
+                        width: 22,
+                        height: "auto",
+                        filter: isDarkMode ? "brightness(0.8)" : "none",
+                      }}
                     />
                   </Box>
                 </Box>
               )}
 
               <Box
-                className="mb-3 text-[#205DC7]"
+                className={`mb-3 ${
+                  isDarkMode ? "text-[#205DC7]" : "text-[#205DC7]"
+                }`}
                 sx={{
                   fontSize: isMobile ? "18px" : "20px",
                   textAlign: { xs: "center", md: "left" },
                   fontWeight: "bold",
-                  mt: shouldShowLessonDescription ? 6 : 0, // Add margin top if button is shown
+                  mt: shouldShowLessonDescription ? 6 : 0,
                 }}
               >
                 {questionTypeNames[currentQuestion.type] ||
@@ -937,18 +974,42 @@ const QuestionPage = ({ type }) => {
                   width: { xs: "100%", md: "auto" },
                   px: { xs: 2, md: 0 },
                   py: { xs: 2, md: "40px" },
-                  backgroundColor: { xs: "white", md: "transparent" },
+                  backgroundColor: {
+                    xs: isDarkMode ? "#10171A" : "white",
+                    md: "transparent",
+                  },
+                  borderTop: {
+                    xs: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+                    md: "none",
+                  },
                 }}
               >
                 <Box className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                   {currentQuestion?.video_url && (
                     <Button
                       onClick={() => openVideoDialog(currentQuestion.video_url)}
-                      className="py-[7px] px-[11px]  text-[14px] flex items-center gap-1"
+                      className="py-[7px] px-[11px] text-[14px] flex items-center gap-1"
                       sx={{
-                        backgroundColor: { xs: "#205DC7", md: "white" },
-                        color: { xs: "white", md: "#205DC7" },
+                        backgroundColor: {
+                          xs: isDarkMode ? "#90caf9" : "#205DC7",
+                          md: isDarkMode ? "#333" : "white",
+                        },
+                        color: {
+                          xs: isDarkMode ? "#121212" : "white",
+                          md: isDarkMode ? "#90caf9" : "#205DC7",
+                        },
                         borderRadius: "1000px",
+                        border: {
+                          md: isDarkMode
+                            ? "1px solid #444"
+                            : "1px solid #e0e0e0",
+                        },
+                        "&:hover": {
+                          backgroundColor: {
+                            xs: isDarkMode ? "#64b5f6" : "#1648A8",
+                            md: isDarkMode ? "#444" : "#f5f5f5",
+                          },
+                        },
                       }}
                     >
                       شاهد مقطع تعليمي <PlayArrowIcon fontSize="small" />
@@ -994,7 +1055,11 @@ const QuestionPage = ({ type }) => {
                     ? !showResult && (
                         <button
                           onClick={handleSubmit}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto"
+                          className={`py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto ${
+                            isDarkMode
+                              ? "bg-[#205DC7] text-white hover:bg-blue-700"
+                              : "bg-[#205DC7] text-white"
+                          }`}
                           disabled={loading}
                         >
                           تأكيد الجواب
@@ -1003,7 +1068,11 @@ const QuestionPage = ({ type }) => {
                     : !showResult && (
                         <button
                           onClick={() => setShowResult(true)}
-                          className="bg-[#205DC7] text-white py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto"
+                          className={`py-[7px] px-[11px] rounded-[1000px] text-[14px] w-full md:w-auto ${
+                            isDarkMode
+                              ? "bg-[#205DC7] text-white hover:bg-blue-700"
+                              : "bg-[#205DC7] text-white"
+                          }`}
                         >
                           تأكيد الجواب
                         </button>
@@ -1012,7 +1081,11 @@ const QuestionPage = ({ type }) => {
                   {showResult && (
                     <button
                       onClick={handleNext}
-                      className="bg-[#205DC7] text-white py-[8px] px-6 rounded-[1000px] text-[14px] w-full md:w-auto"
+                      className={`py-[8px] px-6 rounded-[1000px] text-[14px] w-full md:w-auto ${
+                        isDarkMode
+                          ? "bg-[#205DC7] text-white hover:bg-blue-700"
+                          : "bg-[#205DC7] text-white"
+                      }`}
                     >
                       أكمل
                     </button>
@@ -1023,7 +1096,7 @@ const QuestionPage = ({ type }) => {
           </Box>
         </Box>
 
-        <QuestionVideoDialog />
+        <QuestionVideoDialog isDarkMode={isDarkMode} />
       </Box>
     </>
   );

@@ -39,7 +39,7 @@ const AchievementsPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext();
   const [openXPDialog, setOpenXPDialog] = React.useState(false);
   const [loadingId, setLoadingId] = useState(null);
   const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);
@@ -83,8 +83,13 @@ const AchievementsPage = () => {
   // Show skeleton loading while achievements are loading
   if (achievementsLoading) {
     return (
-      <Box sx={{ p: 3 }}>
-        <ListSkeleton count={6} height={120} />
+      <Box
+        sx={{
+          p: 3,
+          bgcolor: isDarkMode ? "background.default" : "transparent",
+        }}
+      >
+        <ListSkeleton count={6} height={120} isDarkMode={isDarkMode} />
       </Box>
     );
   }
@@ -100,6 +105,8 @@ const AchievementsPage = () => {
           flexDirection: "column",
           px: 2,
           textAlign: "center",
+          bgcolor: isDarkMode ? "background.default" : "transparent",
+          color: isDarkMode ? "text.primary" : "inherit",
         }}
       >
         <img
@@ -107,7 +114,10 @@ const AchievementsPage = () => {
           alt="No achievements"
           style={{ width: 120, opacity: 0.5, marginBottom: 16 }}
         />
-        <Typography variant="h6" color="textSecondary">
+        <Typography
+          variant="h6"
+          color={isDarkMode ? "text.secondary" : "textSecondary"}
+        >
           لا توجد إنجازات بعد.
         </Typography>
       </Box>
@@ -126,6 +136,8 @@ const AchievementsPage = () => {
         width: "100%",
         px: { xs: "15px", md: "20px" },
         mx: "auto",
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Achievements Section */}
@@ -143,7 +155,7 @@ const AchievementsPage = () => {
             fontWeight="bold"
             sx={{
               fontSize: { xs: "20px", sm: "24px" },
-              color: "#2D2D2D",
+              color: isDarkMode ? "text.primary" : "#2D2D2D",
             }}
           >
             التحديات
@@ -189,9 +201,13 @@ const AchievementsPage = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
-                    backgroundColor: "#fff",
+                    backgroundColor: isDarkMode ? "background.paper" : "#fff",
                     borderRadius: "20px",
                     p: { xs: 0, md: 2.5 },
+                    border: isDarkMode ? "1px solid #333" : "none",
+                    boxShadow: isDarkMode
+                      ? "0 2px 8px rgba(0,0,0,0.3)"
+                      : "0 2px 8px rgba(0,0,0,0.1)",
                   }}
                 >
                   <Avatar
@@ -200,7 +216,7 @@ const AchievementsPage = () => {
                     sx={{
                       width: { xs: 93, md: "auto" },
                       height: { xs: 138, md: 93 },
-                      backgroundColor: "#F0F7FF",
+                      backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
                       borderRadius: "12px",
                       m: 1,
                     }}
@@ -222,7 +238,7 @@ const AchievementsPage = () => {
                           sx={{
                             fontWeight: 500,
                             fontSize: "16px",
-                            color: "#2D2D2D",
+                            color: isDarkMode ? "text.primary" : "#2D2D2D",
                             mb: 0.5,
                           }}
                         >
@@ -233,7 +249,7 @@ const AchievementsPage = () => {
                           sx={{
                             fontWeight: 500,
                             fontSize: "16px",
-                            color: "#2D2D2D",
+                            color: isDarkMode ? "text.secondary" : "#2D2D2D",
                             mb: 0.5,
                           }}
                         >
@@ -249,12 +265,25 @@ const AchievementsPage = () => {
                             borderRadius: "1000px",
                             py: 1,
                             backgroundColor: "#205DC7",
+                            "&:hover": {
+                              backgroundColor: "#1648A8",
+                            },
+                            "&:disabled": {
+                              backgroundColor: isDarkMode ? "#555" : "#ccc",
+                            },
                           }}
                           onClick={() => claimReward(item.achievement.id)}
                           disabled={loadingId === item.achievement.id}
                         >
                           {loadingId === item.achievement.id ? (
-                            <Skeleton variant="text" width={100} height={20} />
+                            <Skeleton
+                              variant="text"
+                              width={100}
+                              height={20}
+                              sx={{
+                                bgcolor: isDarkMode ? "#444" : "#f5f5f5",
+                              }}
+                            />
                           ) : (
                             "احصل على جائزتك"
                           )}
@@ -270,7 +299,7 @@ const AchievementsPage = () => {
                         sx={{
                           height: { xs: 14, sm: 24 },
                           borderRadius: "8px",
-                          backgroundColor: "#F0F0F0",
+                          backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
                           "& .MuiLinearProgress-bar": {
                             borderRadius: "8px",
                             backgroundColor: "#81AB00",
@@ -285,10 +314,12 @@ const AchievementsPage = () => {
                           top: "50%",
                           left: "50%",
                           transform: "translate(-50%, -50%)",
-                          color: "black",
+                          color: isDarkMode ? "#FFFFFF" : "black",
                           fontWeight: "bold",
                           fontSize: "16px",
-                          textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                          textShadow: isDarkMode
+                            ? "0 0 2px rgba(255,255,255,0.3)"
+                            : "0 0 2px rgba(0,0,0,0.3)",
                         }}
                       >
                         {animatedProgress === 100
@@ -311,19 +342,23 @@ const AchievementsPage = () => {
             profile={profile}
             mySubjects={mySubjects}
             showAchievements={hideAchievements}
+            isDarkMode={isDarkMode}
           />
         </Box>
       )}
+
       {/* Reward Dialogs */}
       <AchievementRewardXPDialog
         open={openXPDialog}
         onClose={() => setOpenXPDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
       <AchievementRewardFreezeDialog
         open={openFreezeDialog}
         onClose={() => setOpenFreezeDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
     </Box>
   );

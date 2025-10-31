@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import {
   Avatar,
@@ -40,10 +40,11 @@ const ViewProfile = () => {
   const [isFriend, setIsFriend] = useState(false);
   const { followers, recommended } = useProfile();
   const token = localStorage.getItem("accessToken");
-  const { profile } = useHome();
+  const { profile } = useHome(); // This might be null initially
   const navigate = useNavigate();
   const { addFriend, loadinggg, success, error } = useFriends();
   const { refreshFriendData } = useProfile();
+  const { isDarkMode } = useOutletContext(); // Added isDarkMode from context
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
@@ -91,6 +92,9 @@ const ViewProfile = () => {
       return;
     }
 
+    // ✅ Don't make the API call if profile is not loaded yet
+    if (!profile) return;
+
     axiosInstance
       .get(`profiles/profiles/dashboard/user-profile/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -103,21 +107,23 @@ const ViewProfile = () => {
         if (profileData.is_friend !== undefined) {
           setIsFriend(profileData.is_friend);
         } else {
-          // ✅ If is_friend is not provided, check against current user's followers
-          const isAlreadyFriend = followers.some(
-            (friend) =>
-              (friend.follower === profile.id &&
-                friend.following === profileData.id) ||
-              (friend.following === profile.id &&
-                friend.follower === profileData.id)
-          );
-          setIsFriend(isAlreadyFriend);
+          // ✅ Check if profile exists before accessing its id
+          const isAlreadyFriend =
+            profile &&
+            followers.some(
+              (friend) =>
+                (friend.follower === profile.id &&
+                  friend.following === profileData.id) ||
+                (friend.following === profile.id &&
+                  friend.follower === profileData.id)
+            );
+          setIsFriend(isAlreadyFriend || false);
         }
       })
       .catch((err) => {
         console.error("Error fetching profile:", err);
       });
-  }, [id, token, followers, profile?.id]);
+  }, [id, token, followers, profile]); // ✅ Added profile to dependencies
 
   const boxStyle = (bgcolor) => ({
     bgcolor,
@@ -130,6 +136,7 @@ const ViewProfile = () => {
     justifyContent: "center",
     paddingLeft: { xs: "20px", md: "30px" },
     textAlign: { xs: "center", sm: "left" },
+    boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
   });
 
   const handleViewProfile = (userId) => {
@@ -150,7 +157,9 @@ const ViewProfile = () => {
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
 
-  if (!userProfile) return <ProfileViewSkeleton />;
+  // ✅ Show loading skeleton if userProfile is not loaded OR if profile is not loaded
+  if (!userProfile || !profile)
+    return <ProfileViewSkeleton isDarkMode={isDarkMode} />;
 
   return (
     <Box
@@ -162,6 +171,8 @@ const ViewProfile = () => {
         px: { xs: 2, sm: 3, md: 4 },
         maxWidth: 1200,
         mx: "auto",
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Left: Profile */}
@@ -181,24 +192,42 @@ const ViewProfile = () => {
               height: { xs: "270px", sm: "300px" },
               mx: "auto",
               mb: "10px",
+              border: isDarkMode ? "2px solid #333" : "none",
             }}
           >
             {!userProfile.avatar && (
               <PersonIcon sx={{ fontSize: { xs: 40, md: 60 } }} />
             )}
           </Avatar>
-          <Typography variant="h5" fontWeight="bold" sx={{ fontSize: "48px" }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            sx={{
+              fontSize: "48px",
+              color: isDarkMode ? "text.primary" : "inherit",
+            }}
+          >
             {userProfile.first_name} {userProfile.last_name}
           </Typography>
-          <Typography color="textSecondary" sx={{ fontSize: "24px" }}>
+          <Typography
+            color={isDarkMode ? "text.secondary" : "textSecondary"}
+            sx={{ fontSize: "24px" }}
+          >
             {userProfile.title || "بدون لقب"}
           </Typography>
 
-          {userProfile.id !== profile.id && !isFriend && (
+          {/* ✅ Add null check for profile.id */}
+          {profile && userProfile.id !== profile.id && !isFriend && (
             <Button
               variant="contained"
               color="primary"
-              sx={{ mt: 2, fontSize: { xs: "14px", borderRadius: "1000px" } }}
+              sx={{
+                mt: 2,
+                fontSize: { xs: "14px", borderRadius: "1000px" },
+                "&:hover": {
+                  backgroundColor: "#1648A8",
+                },
+              }}
               disabled={loadinggg}
               endIcon={<PersonAddOutlinedIcon />}
               onClick={() => handleAddFriend(userProfile.id)}
@@ -207,7 +236,8 @@ const ViewProfile = () => {
             </Button>
           )}
 
-          {userProfile.id !== profile.id && isFriend && (
+          {/* ✅ Add null check for profile.id */}
+          {profile && userProfile.id !== profile.id && isFriend && (
             <Typography
               color="green"
               mt={2}
@@ -227,7 +257,13 @@ const ViewProfile = () => {
             </Typography>
           )}
         </Box>
-        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+        <Divider
+          sx={{
+            my: 4,
+            display: { xs: "block", md: "none" },
+            borderColor: isDarkMode ? "#333" : "#e0e0e0",
+          }}
+        />
         {/* Stats */}
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item xs={12} sm={6} md={3}>
@@ -242,6 +278,7 @@ const ViewProfile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -274,6 +311,7 @@ const ViewProfile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -306,6 +344,7 @@ const ViewProfile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -338,6 +377,7 @@ const ViewProfile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -358,7 +398,13 @@ const ViewProfile = () => {
             </Box>
           </Grid>
         </Grid>
-        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+        <Divider
+          sx={{
+            my: 4,
+            display: { xs: "block", md: "none" },
+            borderColor: isDarkMode ? "#333" : "#e0e0e0",
+          }}
+        />
         <Box>
           <Box
             sx={{
@@ -373,7 +419,7 @@ const ViewProfile = () => {
               fontWeight="bold"
               sx={{
                 fontSize: { xs: "18px", sm: "20px", md: "24px" },
-                color: "#2D2D2D",
+                color: isDarkMode ? "text.primary" : "#2D2D2D",
               }}
             >
               التحديات
@@ -410,9 +456,13 @@ const ViewProfile = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: 2,
-                      backgroundColor: "#fff",
+                      backgroundColor: isDarkMode ? "background.paper" : "#fff",
                       borderRadius: "20px",
                       p: { xs: 0, md: 2.5 },
+                      border: isDarkMode ? "1px solid #333" : "none",
+                      boxShadow: isDarkMode
+                        ? "0 2px 8px rgba(0,0,0,0.3)"
+                        : "0 2px 8px rgba(0,0,0,0.1)",
                     }}
                   >
                     <Avatar
@@ -421,7 +471,7 @@ const ViewProfile = () => {
                       sx={{
                         width: { xs: 93, md: "auto" },
                         height: { xs: 138, md: 93 },
-                        backgroundColor: "#F0F7FF",
+                        backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
                         borderRadius: "12px",
                         m: 1,
                       }}
@@ -439,7 +489,7 @@ const ViewProfile = () => {
                         sx={{
                           fontWeight: 500,
                           fontSize: { xs: "14px", sm: "16px" },
-                          color: "#2D2D2D",
+                          color: isDarkMode ? "text.primary" : "#2D2D2D",
                           mb: 0.5,
                         }}
                       >
@@ -450,7 +500,7 @@ const ViewProfile = () => {
                         sx={{
                           fontWeight: 400,
                           fontSize: { xs: "12px", sm: "14px" },
-                          color: "#6B6B6B",
+                          color: isDarkMode ? "text.secondary" : "#6B6B6B",
                           mb: 2,
                         }}
                       >
@@ -464,7 +514,7 @@ const ViewProfile = () => {
                           sx={{
                             height: { xs: 14, sm: 20, md: 24 },
                             borderRadius: "8px",
-                            backgroundColor: "#F0F0F0",
+                            backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
                             "& .MuiLinearProgress-bar": {
                               borderRadius: "8px",
                               backgroundColor: "#81AB00",
@@ -478,10 +528,12 @@ const ViewProfile = () => {
                             top: "50%",
                             left: "50%",
                             transform: "translate(-50%, -50%)",
-                            color: "black",
+                            color: isDarkMode ? "#FFFFFF" : "black",
                             fontWeight: "bold",
                             fontSize: { xs: "10px", sm: "12px", md: "14px" },
-                            textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                            textShadow: isDarkMode
+                              ? "0 0 2px rgba(255,255,255,0.3)"
+                              : "0 0 2px rgba(0,0,0,0.3)",
                           }}
                         >
                           {animatedValues[index] === 100
@@ -496,7 +548,13 @@ const ViewProfile = () => {
           </Box>
         </Box>
       </Box>
-      <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+      <Divider
+        sx={{
+          my: 4,
+          display: { xs: "block", md: "none" },
+          borderColor: isDarkMode ? "#333" : "#e0e0e0",
+        }}
+      />
       {/* Right: Friends & Recommended */}
       <Box
         sx={{
@@ -512,12 +570,17 @@ const ViewProfile = () => {
             p: { xs: 2, md: "30px" },
             borderRadius: "20px",
             cursor: "pointer",
+            backgroundColor: isDarkMode ? "background.paper" : "white",
+            border: isDarkMode ? "1px solid #333" : "none",
           }}
           onClick={handleOpenDialog}
         >
           <Typography
             fontWeight="bold"
-            sx={{ fontSize: { xs: "20px", md: "24px" } }}
+            sx={{
+              fontSize: { xs: "20px", md: "24px" },
+              color: isDarkMode ? "text.primary" : "inherit",
+            }}
             mb={2}
           >
             الأصدقاء المقترحون
@@ -538,13 +601,16 @@ const ViewProfile = () => {
               <Box>
                 <Typography
                   fontWeight="bold"
-                  sx={{ fontSize: { xs: "14px", md: "16px" } }}
+                  sx={{
+                    fontSize: { xs: "14px", md: "16px" },
+                    color: isDarkMode ? "text.primary" : "inherit",
+                  }}
                 >
                   {user.first_name} {user.last_name}
                 </Typography>
                 <Typography
                   variant="caption"
-                  color="text.secondary"
+                  color={isDarkMode ? "text.secondary" : "text.secondary"}
                   sx={{ fontSize: { xs: "12px", md: "14px" } }}
                 >
                   @{user.username}
@@ -564,7 +630,10 @@ const ViewProfile = () => {
                 "& input": {
                   cursor: "pointer",
                   fontSize: { xs: "14px", md: "16px" },
+                  backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                  color: isDarkMode ? "text.primary" : "inherit",
                 },
+                backgroundColor: isDarkMode ? "#1E1E1E" : "white",
               },
             }}
             sx={{
@@ -581,6 +650,7 @@ const ViewProfile = () => {
           open={openDialog}
           onClose={handleCloseDialog}
           recommended={recommended}
+          isDarkMode={isDarkMode}
         />
       </Box>
     </Box>

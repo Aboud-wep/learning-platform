@@ -1,13 +1,34 @@
 import React, { useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
+import { Switch, FormControlLabel, Box } from "@mui/material";
+
 const Settings = () => {
-   const { setPageTitle } = useOutletContext();
-   useEffect(() => {
+  const { setPageTitle, isDarkMode, setIsDarkMode } = useOutletContext();
+
+  useEffect(() => {
     setPageTitle("الإعدادات");
   }, [setPageTitle]);
-  return (
-    <div>Settings</div>
-  )
-}
 
-export default Settings
+  const handleToggleDarkMode = (event) => {
+    const newMode = event.target.checked;
+    setIsDarkMode(newMode);
+    localStorage.setItem("darkMode", newMode); // persist user preference
+  };
+
+  return (
+    <Box sx={{ p: 2 }}>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={isDarkMode}
+            onChange={handleToggleDarkMode}
+            color="primary"
+          />
+        }
+        label={isDarkMode ? "الوضع الداكن" : "الوضع الفاتح"}
+      />
+    </Box>
+  );
+};
+
+export default Settings;

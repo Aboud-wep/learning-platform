@@ -27,8 +27,7 @@ const Home = () => {
     loadingg: subjectsLoading,
     error: subjectsError,
   } = useSubjects();
-
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const { t } = useLanguage();
   const [showWelcome, setShowWelcome] = useState(true);
 
@@ -55,17 +54,21 @@ const Home = () => {
 
   if (homeError || subjectsError) {
     return (
-      <Box sx={{ p: 3 }}>
+      <Box
+        sx={{
+          p: 3,
+          bgcolor: isDarkMode ? "background.default" : "transparent",
+        }}
+      >
         <Typography color="error">{homeError || subjectsError}</Typography>
       </Box>
     );
   }
 
   // Show skeleton loading while data is loading
-  // Show skeleton loading while data is loading
   if (homeLoading || subjectsLoading) {
     console.log("Showing skeleton loader");
-    return <HomeSkeleton />;
+    return <HomeSkeleton isDarkMode={isDarkMode} />;
   }
 
   if (!profile) return null;
@@ -76,11 +79,13 @@ const Home = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        my: { xs: 2, sm: 3, lg: 4 }, // responsive vertical margin
-        gap: { xs: 2, sm: 3, lg: 4 }, // responsive gap
+        my: { xs: 2, sm: 3, lg: 4 },
+        gap: { xs: 2, sm: 3, lg: 4 },
         flexWrap: { xs: "wrap", lg: "nowrap" },
         width: "100%",
-        px: { xs: 1.5, sm: 3, lg: 4 }, // responsive padding
+        px: { xs: 1.5, sm: 3, lg: 4 },
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Left Side Content */}
@@ -92,13 +97,14 @@ const Home = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: { xs: 2, sm: 3 }, // spacing between sections
+          gap: { xs: 2, sm: 3 },
         }}
       >
         {showWelcome && (
           <WelcomeBanner
             name={profile.first_name}
             onClose={() => setShowWelcome(false)}
+            isDarkMode={isDarkMode}
           />
         )}
 
@@ -108,6 +114,7 @@ const Home = () => {
               fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
               fontWeight="bold"
               mb={2}
+              color={isDarkMode ? "text.primary" : "inherit"}
             >
               {t("home_recent")}
             </Typography>
@@ -117,6 +124,7 @@ const Home = () => {
             <LastSubjectCard
               subject={lastSubject}
               progress={userProgressMap[lastSubject.id]}
+              isDarkMode={isDarkMode}
             />
           )}
 
@@ -134,6 +142,7 @@ const Home = () => {
               <Typography
                 fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
                 fontWeight="bold"
+                color={isDarkMode ? "text.primary" : "inherit"}
               >
                 {t("home_my_subjects")}
               </Typography>
@@ -146,6 +155,11 @@ const Home = () => {
                   color: "#205DC7",
                   textTransform: "none",
                   gap: "6px",
+                  "&:hover": {
+                    backgroundColor: isDarkMode
+                      ? "rgba(32, 93, 199, 0.1)"
+                      : "rgba(32, 93, 199, 0.04)",
+                  },
                 }}
               >
                 {t("home_view_more")}
@@ -163,6 +177,7 @@ const Home = () => {
                   completion_percentage:
                     userProgressMap[subject.id]?.completion_percentage || 0,
                 }}
+                isDarkMode={isDarkMode}
               />
             ))}
 
@@ -180,6 +195,7 @@ const Home = () => {
               <Typography
                 fontSize={{ xs: "18px", sm: "20px", lg: "24px" }}
                 fontWeight="bold"
+                color={isDarkMode ? "text.primary" : "inherit"}
               >
                 {t("home_other_subjects")}
               </Typography>
@@ -191,6 +207,11 @@ const Home = () => {
                   color: "#205DC7",
                   textTransform: "none",
                   gap: "6px",
+                  "&:hover": {
+                    backgroundColor: isDarkMode
+                      ? "rgba(32, 93, 199, 0.1)"
+                      : "rgba(32, 93, 199, 0.04)",
+                  },
                 }}
               >
                 {t("home_view_more")}
@@ -205,6 +226,7 @@ const Home = () => {
                 <OtherSubjectCard
                   subject={subject}
                   onJoin={(id) => console.log("Joining subject:", id)}
+                  isDarkMode={isDarkMode}
                 />
               </Grid>
             ))}
@@ -212,17 +234,21 @@ const Home = () => {
         </Box>
       </Box>
 
+      {/* Right Side - Profile Stats (Hidden on mobile) */}
       <Box
         sx={{
           flexShrink: 0,
-          // flexBasis: { xs: "100%", lg: "30%" }, // take 100% on mobile, 30% on desktop
-          maxWidth: { lg: "320px" }, // limit max width on large screens
-          minWidth: { lg: "300px" }, // prevent collapsing too much
-          mt: { xs: 3, lg: 0 }, // stack below on mobile
+          maxWidth: { lg: "320px" },
+          minWidth: { lg: "300px" },
+          mt: { xs: 3, lg: 0 },
           display: { xs: "none", lg: "block" },
         }}
       >
-        <ProfileStatsCard profile={profile} mySubjects={mySubjects} />
+        <ProfileStatsCard
+          profile={profile}
+          mySubjects={mySubjects}
+          isDarkMode={isDarkMode}
+        />
       </Box>
     </Box>
   );

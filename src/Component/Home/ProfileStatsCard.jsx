@@ -24,6 +24,7 @@ const ProfileStatsCard = ({
   mySubjects,
   showAchievements,
   showWeeklyCompetition,
+  isDarkMode = false, // Add isDarkMode prop with default value
 }) => {
   const { achievements, refreshAchievements } = useAchievements();
   const { updateProfileStats } = useHome();
@@ -89,6 +90,7 @@ const ProfileStatsCard = ({
               justifyContent: "center",
               alignItems: "center",
               mx: "auto",
+              boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
             }}
           >
             <Typography fontSize={{ xs: "12px", sm: "15px" }}>موادي</Typography>
@@ -102,7 +104,12 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Skeleton variant="text" width="60%" height={16} />
+              <Skeleton
+                variant="text"
+                width="60%"
+                height={16}
+                sx={{ bgcolor: isDarkMode ? "#444" : "#f5f5f5" }}
+              />
             )}
           </Box>
         </Grid>
@@ -121,6 +128,7 @@ const ProfileStatsCard = ({
               justifyContent: "center",
               alignItems: "center",
               mx: "auto",
+              boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
             }}
           >
             <Typography fontSize={{ xs: "12px", sm: "15px" }}>
@@ -136,7 +144,12 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Skeleton variant="text" width="60%" height={16} />
+              <Skeleton
+                variant="text"
+                width="60%"
+                height={16}
+                sx={{ bgcolor: isDarkMode ? "#444" : "#f5f5f5" }}
+              />
             )}
           </Box>
         </Grid>
@@ -155,6 +168,7 @@ const ProfileStatsCard = ({
               justifyContent: "center",
               alignItems: "center",
               mx: "auto",
+              boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
             }}
           >
             <Typography fontSize={{ xs: "12px", sm: "15px" }}>
@@ -170,7 +184,12 @@ const ProfileStatsCard = ({
                 </Typography>
               </Box>
             ) : (
-              <Skeleton variant="text" width="60%" height={16} />
+              <Skeleton
+                variant="text"
+                width="60%"
+                height={16}
+                sx={{ bgcolor: isDarkMode ? "#444" : "#f5f5f5" }}
+              />
             )}
           </Box>
         </Grid>
@@ -184,12 +203,22 @@ const ProfileStatsCard = ({
           ...(profile?.weekly_competition?.retreat_zone || []),
         ].length > 0 && (
           <Box
-            sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2, mb: 3 }}
+            sx={{
+              backgroundColor: isDarkMode ? "#161F23" : "#fff",
+              borderRadius: "20px",
+              p: 2,
+              mb: 3,
+              border: isDarkMode ? "1px solid #333" : "none",
+              boxShadow: isDarkMode
+                ? "0 2px 8px rgba(0,0,0,0.3)"
+                : "0 2px 8px rgba(0,0,0,0.1)",
+            }}
           >
             <Typography
               fontWeight="bold"
               fontSize={{ xs: "18px", sm: "24px" }}
               mb={2}
+              color={isDarkMode ? "text.primary" : "inherit"}
             >
               قائمة المتقدمين
             </Typography>
@@ -214,7 +243,11 @@ const ProfileStatsCard = ({
                   }}
                 >
                   <Typography
-                    sx={{ width: 20, fontSize: { xs: "12px", sm: "14px" } }}
+                    sx={{
+                      width: 20,
+                      fontSize: { xs: "12px", sm: "14px" },
+                      color: isDarkMode ? "text.primary" : "inherit",
+                    }}
                   >
                     {index + 1}
                   </Typography>
@@ -229,7 +262,11 @@ const ProfileStatsCard = ({
                     {!player.avatar && player.first_name?.charAt(0)}
                   </Avatar>
                   <Typography
-                    sx={{ flexGrow: 1, fontSize: { xs: "12px", sm: "14px" } }}
+                    sx={{
+                      flexGrow: 1,
+                      fontSize: { xs: "12px", sm: "14px" },
+                      color: isDarkMode ? "text.primary" : "inherit",
+                    }}
                   >
                     {player.first_name}
                   </Typography>
@@ -238,11 +275,13 @@ const ProfileStatsCard = ({
                     fontWeight="bold"
                     sx={{
                       border: "1px solid",
+                      borderColor: isDarkMode ? "#555" : "#e0e0e0",
                       borderRadius: "100px",
                       px: { xs: "12px", sm: "33px" },
                       py: { xs: "2px", sm: "5px" },
                       color: "#205DC7",
                       fontSize: { xs: "12px", sm: "14px" },
+                      backgroundColor: isDarkMode ? "#2A2A2A" : "transparent",
                     }}
                   >
                     {player.xp_per_week} XP
@@ -258,6 +297,11 @@ const ProfileStatsCard = ({
                 color: "#205DC7",
                 textTransform: "none",
                 gap: "6px",
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "rgba(32, 93, 199, 0.1)"
+                    : "rgba(32, 93, 199, 0.04)",
+                },
               }}
             >
               عرض المزيد
@@ -269,11 +313,22 @@ const ProfileStatsCard = ({
       {/* Achievements */}
       <Box sx={{ mt: 3 }}>
         {!showAchievements && achievements && achievements.length > 0 && (
-          <Box sx={{ backgroundColor: "#fff", borderRadius: "20px", p: 2 }}>
+          <Box
+            sx={{
+              backgroundColor: isDarkMode ? "#161F23" : "#fff",
+              borderRadius: "20px",
+              p: 2,
+              border: isDarkMode ? "1px solid #333" : "none",
+              boxShadow: isDarkMode
+                ? "0 2px 8px rgba(0,0,0,0.3)"
+                : "0 2px 8px rgba(0,0,0,0.1)",
+            }}
+          >
             <Typography
               fontWeight="bold"
               fontSize={{ xs: "18px", sm: "24px" }}
               mb={2}
+              color={isDarkMode ? "text.primary" : "inherit"}
             >
               التحديات
             </Typography>
@@ -321,6 +376,7 @@ const ProfileStatsCard = ({
                         sx={{
                           width: { xs: 50, sm: 75 },
                           height: { xs: 50, sm: 75 },
+                          backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
                         }}
                       />
                       <Box flex={1}>
@@ -328,6 +384,7 @@ const ProfileStatsCard = ({
                           fontSize={{ xs: "12px", sm: "14px" }}
                           mb={1}
                           textAlign="center"
+                          color={isDarkMode ? "text.primary" : "inherit"}
                         >
                           {item.achievement.description}
                         </Typography>
@@ -340,7 +397,7 @@ const ProfileStatsCard = ({
                             sx={{
                               height: { xs: 14, sm: 24 },
                               borderRadius: "12px",
-                              backgroundColor: "#F0F0F0",
+                              backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
                               transition: "all 0.6s ease-out",
                               "& .MuiLinearProgress-bar": {
                                 transition: "transform 0.6s ease-out",
@@ -360,7 +417,11 @@ const ProfileStatsCard = ({
                               alignItems: "center",
                               justifyContent: "center",
                               fontSize: { xs: "12px", sm: "16px" },
-                              color: "black",
+                              color: isDarkMode ? "#FFFFFF" : "black",
+                              fontWeight: "bold",
+                              textShadow: isDarkMode
+                                ? "0 0 2px rgba(255,255,255,0.3)"
+                                : "0 0 2px rgba(0,0,0,0.3)",
                             }}
                           >
                             {Math.round(animatedProgress)}%
@@ -368,7 +429,14 @@ const ProfileStatsCard = ({
                         </Box>
                       </Box>
                     </Box>
-                    {index < arr.length - 1 && <Divider sx={{ mb: 2 }} />}
+                    {index < arr.length - 1 && (
+                      <Divider
+                        sx={{
+                          mb: 2,
+                          borderColor: isDarkMode ? "#444" : "#e0e0e0",
+                        }}
+                      />
+                    )}
                   </Box>
                 );
               })}
@@ -381,6 +449,11 @@ const ProfileStatsCard = ({
                 color: "#205DC7",
                 textTransform: "none",
                 gap: "6px",
+                "&:hover": {
+                  backgroundColor: isDarkMode
+                    ? "rgba(32, 93, 199, 0.1)"
+                    : "rgba(32, 93, 199, 0.04)",
+                },
               }}
             >
               عرض المزيد
@@ -395,11 +468,13 @@ const ProfileStatsCard = ({
         open={openXPDialog}
         onClose={() => setOpenXPDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
       <AchievementRewardFreezeDialog
         open={openFreezeDialog}
         onClose={() => setOpenFreezeDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
     </Box>
   );

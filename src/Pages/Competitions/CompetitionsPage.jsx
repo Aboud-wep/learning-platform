@@ -21,7 +21,7 @@ import ThirdIcon from "../../assets/Icons/Third.png";
 import dayjs from "dayjs";
 
 const CompetitionsPage = () => {
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode from context
   const { competition, competitionLevels, fetchCompetition, loading } =
     useWeeklyCompetition();
   const { profile } = useHome();
@@ -122,19 +122,18 @@ const CompetitionsPage = () => {
   // 🟢 Calculate half of them (rounded down)
   const halfUsers = Math.floor(totalUsers / 2);
 
-  if (loading) return <CompetitionPageSkeleton />;
+  if (loading) return <CompetitionPageSkeleton isDarkMode={isDarkMode} />;
 
   // Show message if profile is not loaded yet
   if (!profile) {
-    return <CompetitionPageSkeleton />;
+    return <CompetitionPageSkeleton isDarkMode={isDarkMode} />;
   }
 
   // Show message if no competition ID is available
   if (!competitionId) {
-    return <CompetitionPageSkeleton />;
+    return <CompetitionPageSkeleton isDarkMode={isDarkMode} />;
   }
 
-  // Function to render a player row with global ranking
   // Function to render a player row with global ranking
   const renderPlayerRow = (player, globalRank) => {
     const isTopThree = globalRank <= 3;
@@ -155,9 +154,19 @@ const CompetitionsPage = () => {
           alignItems: "center",
           justifyContent: "space-between",
           p: 2,
-          backgroundColor: isMe ? "#C4DAFF" : "#fff", // 🔵 light highlight for me
+          backgroundColor: isMe
+            ? isDarkMode
+              ? "#2A3A5A"
+              : "#C4DAFF" // 🔵 light highlight for me in light, dark blue in dark mode
+            : isDarkMode
+            ? "#1E1E1E"
+            : "#fff",
           borderRadius: "12px",
           mb: 1.5,
+          border: isDarkMode ? "1px solid #333" : "none",
+          boxShadow: isDarkMode
+            ? "0 2px 8px rgba(0,0,0,0.3)"
+            : "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
@@ -182,8 +191,9 @@ const CompetitionsPage = () => {
                       : ThirdIcon
                   })`
                 : "none",
-              backgroundSize: "cover",
+              backgroundSize: isTopThree ? "contain" : "cover",
               backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -191,8 +201,16 @@ const CompetitionsPage = () => {
               fontWeight: "bold",
               fontSize: "20px",
               textShadow: isTopThree ? "0 0 3px rgba(0,0,0,0.6)" : "none",
+              backgroundColor:
+                isDarkMode && !isTopThree
+                  ? "#2A2A2A"
+                  : isTopThree
+                  ? "transparent"
+                  : "#f0f0f0", // Temporary background for debugging
+              border: isTopThree ? "none" : "2px solid currentColor",
             }}
           >
+            {/* Show rank for all for debugging */}
             {globalRank}
           </Box>
 
@@ -210,13 +228,12 @@ const CompetitionsPage = () => {
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Typography
               sx={{
-                fontWeight: isMe ? "bold" : 500, // bold name if it's me
+                fontWeight: isMe ? "bold" : 500,
                 fontSize: "16px",
-                color: isMe ? "#205DC7" : "#2D3748", // 🔵 change text color
+                color: isMe ? "#205DC7" : isDarkMode ? "#FFFFFF" : "#2D3748",
               }}
             >
               {player.first_name} {player.last_name}
-              
             </Typography>
           </Box>
         </Box>
@@ -228,7 +245,7 @@ const CompetitionsPage = () => {
               fontSize: "20px",
               direction: "rtl",
               fontWeight: isMe ? "bold" : 400,
-              color: isMe ? "#205DC7" : "inherit",
+              color: isMe ? "#205DC7" : isDarkMode ? "#FFFFFF" : "inherit",
             }}
           >
             {player.xp_per_week} XP
@@ -249,6 +266,9 @@ const CompetitionsPage = () => {
         gap: { xs: 3, md: 4 },
         width: "100%",
         mx: "auto",
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
+        px: { xs: 2, md: 3 },
       }}
     >
       {/* Main Content */}
@@ -264,6 +284,7 @@ const CompetitionsPage = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: "40px",
+              mb: 3,
             }}
           >
             {prevLevel && (
@@ -275,6 +296,7 @@ const CompetitionsPage = () => {
                   height: "80px",
                   opacity: 0.5,
                   borderRadius: "12px",
+                  filter: isDarkMode ? "brightness(0.8)" : "none",
                 }}
               />
             )}
@@ -282,7 +304,10 @@ const CompetitionsPage = () => {
             <img
               src={currentLevel.image}
               alt={currentLevel.name}
-              style={{ borderRadius: "16px" }}
+              style={{
+                borderRadius: "16px",
+                filter: isDarkMode ? "brightness(0.9)" : "none",
+              }}
             />
 
             {nextLevel && (
@@ -294,6 +319,7 @@ const CompetitionsPage = () => {
                   height: "80px",
                   opacity: 0.5,
                   borderRadius: "12px",
+                  filter: isDarkMode ? "brightness(0.8)" : "none",
                 }}
               />
             )}
@@ -304,8 +330,9 @@ const CompetitionsPage = () => {
             sx={{
               textAlign: "center",
               fontSize: "32px",
-              color: "#343F4E",
+              color: isDarkMode ? "text.primary" : "#343F4E",
               fontWeight: "bold",
+              mb: 2,
             }}
           >
             {currentLevel.name}
@@ -316,7 +343,7 @@ const CompetitionsPage = () => {
             sx={{
               textAlign: "center",
               fontSize: "20px",
-              color: "#2D3748",
+              color: isDarkMode ? "text.secondary" : "#2D3748",
               fontWeight: "500",
               my: 2,
             }}
@@ -333,16 +360,20 @@ const CompetitionsPage = () => {
               fontWeight: "bold",
               fontSize: "25px",
               color: "#205DC7",
+              mb: 3,
             }}
           >
             {remainingDays} أيام متبقية
           </Typography>
         )}
+
+        {/* Progress Zone */}
         {competition?.progress_zone?.length > 0 && (
           <Box
             sx={{
               padding: { xs: "10px", md: "20px" },
               borderRadius: "16px",
+              mb: 3,
             }}
           >
             {competition.progress_zone
@@ -358,9 +389,9 @@ const CompetitionsPage = () => {
               })}
           </Box>
         )}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <img src={UPArrow} alt="UPArrow" />
 
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3 }}>
+          <img src={UPArrow} alt="UPArrow" />
           <Typography
             sx={{
               fontWeight: "bold",
@@ -373,14 +404,16 @@ const CompetitionsPage = () => {
           >
             منطقة التقدم
           </Typography>
-          <img src={UPArrow} alt="UPArrow" className="" />
+          <img src={UPArrow} alt="UPArrow" />
         </Box>
 
+        {/* Middle Zone */}
         {competition?.zone?.length > 0 && (
           <Box
             sx={{
               padding: { xs: "10px", md: "20px" },
               borderRadius: "16px",
+              mb: 3,
             }}
           >
             {competition.zone
@@ -396,9 +429,9 @@ const CompetitionsPage = () => {
               })}
           </Box>
         )}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <img src={DownArrow} alt="DownArrow" />
 
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3 }}>
+          <img src={DownArrow} alt="DownArrow" />
           <Typography
             sx={{
               fontWeight: "bold",
@@ -411,8 +444,10 @@ const CompetitionsPage = () => {
           >
             منطقة التراجع
           </Typography>
-          <img src={DownArrow} alt="DownArrow" className="" />
+          <img src={DownArrow} alt="DownArrow" />
         </Box>
+
+        {/* Retreat Zone */}
         {competition?.retreat_zone?.length > 0 && (
           <Box
             sx={{
@@ -437,11 +472,12 @@ const CompetitionsPage = () => {
 
       {/* Profile Stats Section - Hidden on mobile */}
       {!isMobile && (
-        <Box sx={{}}>
+        <Box>
           <ProfileStatsCard
             profile={profile}
             mySubjects={mySubjects}
             showWeeklyCompetition={showWeeklyCompetition}
+            isDarkMode={isDarkMode}
           />
         </Box>
       )}

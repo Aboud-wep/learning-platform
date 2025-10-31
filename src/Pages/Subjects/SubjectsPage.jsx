@@ -29,7 +29,7 @@ import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const SubjectsList = () => {
   const { subjects, userProgress, loadingg, error } = useSubjects();
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const navigate = useNavigate();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
@@ -91,7 +91,7 @@ const SubjectsList = () => {
 
   // Replace the loading section in your SubjectsPage component:
   if (loadingg) {
-    return <SubjectsPageSkeleton />;
+    return <SubjectsPageSkeleton isDarkMode={isDarkMode} />;
   }
 
   if (error) return <Typography color="error">خطأ: {error}</Typography>;
@@ -106,6 +106,8 @@ const SubjectsList = () => {
         display: "flex",
         flexDirection: { xs: "column", lg: "row" },
         gap: 2,
+        bgcolor: isDarkMode ? 'background.default' : 'transparent',
+        minHeight: '100vh',
       }}
     >
       {/* Main Content */}
@@ -126,14 +128,17 @@ const SubjectsList = () => {
             sx={{
               maxWidth: { xs: "100%", md: "438px" },
               "& .MuiOutlinedInput-root": {
-                borderRadius: "20px", // ✅ apply to input
-                backgroundColor: "white",
+                borderRadius: "20px",
+                backgroundColor: isDarkMode ? '#1E1E1E' : "white",
+                '& input': {
+                  color: isDarkMode ? 'text.primary' : 'inherit',
+                },
               },
             }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <SearchIcon color="action" />
+                  <SearchIcon color={isDarkMode ? 'disabled' : "action"} />
                 </InputAdornment>
               ),
             }}
@@ -146,11 +151,13 @@ const SubjectsList = () => {
               justifyContent: "space-between",
               alignItems: "center",
               pb: 2,
-              my: 2,
-              borderBottom: "1px solid #eee",
             }}
           >
-            <Typography variant="h5" fontWeight="bold">
+            <Typography 
+              variant="h5" 
+              fontWeight="bold"
+              color={isDarkMode ? 'text.primary' : 'inherit'}
+            >
               {t("home_my_subjects")}
             </Typography>
             <Button
@@ -160,6 +167,9 @@ const SubjectsList = () => {
                 color: "#205DC7",
                 textTransform: "none",
                 gap: 1,
+                '&:hover': {
+                  backgroundColor: isDarkMode ? 'rgba(32, 93, 199, 0.1)' : 'rgba(32, 93, 199, 0.04)',
+                }
               }}
             >
               {t("home_view_more")}
@@ -171,13 +181,20 @@ const SubjectsList = () => {
           <Grid>
             {userSubjects.map(({ subject, progress }) => (
               <Grid item key={subject.id}>
-                <MySubjectCard subject={subject} progress={progress} />
+                <MySubjectCard 
+                  subject={subject} 
+                  progress={progress} 
+                  isDarkMode={isDarkMode}
+                />
               </Grid>
             ))}
           </Grid>
         )}
         {/* Keep موادي section same */}
-        <Divider sx={{ display: { xs: "block", lg: "none" } }} />
+        <Divider sx={{ 
+          display: { xs: "block", md: "none" },
+          borderColor: isDarkMode ? '#333' : '#e0e0e0'
+        }} />
         {filteredOtherSubjects.length > 0 && (
           <Box
             sx={{
@@ -185,11 +202,14 @@ const SubjectsList = () => {
               justifyContent: "space-between",
               alignItems: "center",
               pb: 2,
-              mb: 2,
-              borderBottom: "1px solid #eee",
+              mt: 2,
             }}
           >
-            <Typography variant="h5" fontWeight="bold">
+            <Typography 
+              variant="h5" 
+              fontWeight="bold"
+              color={isDarkMode ? 'text.primary' : 'inherit'}
+            >
               {t("subjects_all_subjects")}
             </Typography>
 
@@ -200,6 +220,9 @@ const SubjectsList = () => {
                 color: "#205DC7",
                 textTransform: "none",
                 gap: 1,
+                '&:hover': {
+                  backgroundColor: isDarkMode ? 'rgba(32, 93, 199, 0.1)' : 'rgba(32, 93, 199, 0.04)',
+                }
               }}
             >
               {t("subjects_view_more")}
@@ -211,7 +234,10 @@ const SubjectsList = () => {
           {filteredOtherSubjects.length > 0 &&
             filteredOtherSubjects.map((subject) => (
               <Grid item key={subject.id} xs={12} sm={6} md={4}>
-                <OtherSubjectCard subject={subject} />
+                <OtherSubjectCard 
+                  subject={subject} 
+                  isDarkMode={isDarkMode}
+                />
               </Grid>
             ))}
         </Grid>
@@ -232,8 +258,9 @@ const SubjectsList = () => {
               borderRadius: "20px",
               overflow: "hidden",
               p: 2,
-              backgroundColor: "#FFFFFF",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              backgroundColor: isDarkMode ? 'background.paper' : "#FFFFFF",
+              boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : "0 4px 12px rgba(0,0,0,0.1)",
+              border: isDarkMode ? '1px solid #333' : 'none',
             }}
           >
             {/* Subject Image */}
@@ -247,6 +274,7 @@ const SubjectsList = () => {
                 height: { md: 180, lg: 235 },
                 borderRadius: "12px",
                 mb: 2,
+                filter: isDarkMode ? 'brightness(0.9)' : 'none',
               }}
             />
 
@@ -263,14 +291,15 @@ const SubjectsList = () => {
               <Box>
                 <Typography
                   sx={{
-                    color: isCompleted ? "#036108" : "#FF4346",
-                    border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+                    color: isCompleted ? "#4CAF50" : "#FF4346",
+                    border: `1px solid ${isCompleted ? "#4CAF50" : "#FF4346"}`,
                     borderRadius: "8px",
                     px: "10px",
                     py: "3px",
                     display: "inline-block",
                     fontSize: "14px",
                     mb: 2,
+                    backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'transparent',
                   }}
                   gutterBottom
                 >
@@ -278,13 +307,18 @@ const SubjectsList = () => {
                 </Typography>
               </Box>
 
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Typography 
+                variant="h6" 
+                fontWeight="bold" 
+                gutterBottom
+                color={isDarkMode ? 'text.primary' : 'inherit'}
+              >
                 {lastUpdatedSubject.name}
               </Typography>
 
               <Typography
                 variant="body2"
-                color="textSecondary"
+                color={isDarkMode ? 'text.secondary' : "textSecondary"}
                 sx={{
                   mb: 2,
                   display: "-webkit-box",
@@ -306,6 +340,15 @@ const SubjectsList = () => {
                   borderRadius: "20px",
                   py: 1,
                   fontWeight: "bold",
+                  backgroundColor:"#205DC7",
+                  color:"white",
+                  '&:hover': {
+                    backgroundColor: isDarkMode ? '#64b5f6' : '#1648A8',
+                  },
+                  '&:disabled': {
+                    backgroundColor: isDarkMode ? '#555' : '#ccc',
+                    color: isDarkMode ? '#888' : '#666',
+                  }
                 }}
                 disabled={hearts !== null && hearts <= 0}
               >

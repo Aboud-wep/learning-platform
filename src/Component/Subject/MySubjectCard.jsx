@@ -11,7 +11,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Image from "../../assets/Images/Image.png";
 import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
 
-const MySubjectCard = ({ subject, progress }) => {
+const MySubjectCard = ({ subject, progress, isDarkMode = false }) => {
   const navigate = useNavigate();
   const { hearts } = useQuestion();
 
@@ -71,7 +71,11 @@ const MySubjectCard = ({ subject, progress }) => {
         overflow: "hidden",
         borderRadius: "20px",
         mb: "20px",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: isDarkMode ? "#161F23" : "#FFFFFF",
+        border: isDarkMode ? "1px solid #333" : "none",
+        boxShadow: isDarkMode
+          ? "0 2px 8px rgba(0,0,0,0.3)"
+          : "0 2px 8px rgba(0,0,0,0.1)",
       }}
     >
       {/* Image + Content */}
@@ -95,24 +99,32 @@ const MySubjectCard = ({ subject, progress }) => {
             height: "auto",
             objectFit: "cover",
             borderRadius: 2,
+            filter: isDarkMode ? "brightness(0.9)" : "none",
           }}
         />
 
         {/* Left Content */}
         <Box sx={{ flex: 1, width: "100%" }}>
-          <Typography fontWeight="bold" color="#205DC7" fontSize="20px">
+          <Typography
+            fontWeight="bold"
+            color={"#205DC7"}
+            fontSize="20px"
+          >
             {subject.name}
           </Typography>
 
           <Typography
             sx={{
-              color: isCompleted ? "#036108" : "#FF4346",
-              border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+              color: isCompleted ? "#4CAF50" : "#FF4346",
+              border: `1px solid ${isCompleted ? "#4CAF50" : "#FF4346"}`,
               borderRadius: "8px",
               padding: "5px",
               display: "inline-block",
               fontSize: "14px",
               my: "15px",
+              backgroundColor: isDarkMode
+                ? "rgba(255,255,255,0.1)"
+                : "transparent",
             }}
             gutterBottom
           >
@@ -127,12 +139,12 @@ const MySubjectCard = ({ subject, progress }) => {
               sx={{
                 height: 24,
                 borderRadius: "12px",
-                backgroundColor: "#eee",
+                backgroundColor: isDarkMode ? "#333" : "#eee",
                 mr: { xs: "10px", sm: "0px" },
                 transition: "all 0.6s ease-out",
                 "& .MuiLinearProgress-bar": {
                   transition: "transform 0.6s ease-out",
-                  backgroundColor: "#205DC7",
+                  backgroundColor: isDarkMode ? "#205DC7" : "#205DC7",
                 },
               }}
             />
@@ -149,7 +161,8 @@ const MySubjectCard = ({ subject, progress }) => {
                 justifyContent: "center",
                 fontSize: "14px",
                 fontWeight: "bold",
-                color: "black",
+                color: isDarkMode ? "#FFFFFF" : "black",
+                textShadow: isDarkMode ? "0 0 2px rgba(0,0,0,0.5)" : "none",
               }}
             >
               {Math.round(animatedProgress)}%
@@ -167,6 +180,15 @@ const MySubjectCard = ({ subject, progress }) => {
           minWidth: "134px",
           borderRadius: "100px",
           alignSelf: { xs: "stretch", sm: "center" },
+          backgroundColor:"#205DC7",
+          color:"white",
+          "&:hover": {
+            backgroundColor: isDarkMode ? "#64b5f6" : "#1648A8",
+          },
+          "&:disabled": {
+            backgroundColor: isDarkMode ? "#555" : "#ccc",
+            color: isDarkMode ? "#888" : "#666",
+          },
         }}
         variant="contained"
         size="small"

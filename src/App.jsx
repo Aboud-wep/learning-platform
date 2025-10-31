@@ -18,6 +18,7 @@ import { HomeProvider } from "./Pages/Home/Context/HomeContext";
 import { SubjectsProvider } from "./Pages/Subjects/Context/SubjectsContext";
 import { WeeklyCompetitionProvider } from "./Pages/Competitions/Context/WeeklyCompetitionContext";
 import { FriendsProvider } from "./Pages/Profile/Context/FriendsContext";
+import { DarkModeProvider } from "./Context/DarkModeContext";
 
 // Wrapper component to register achievement refresh callback
 const QuestionAchievementBridge = ({ children }) => {
@@ -38,6 +39,7 @@ const App = () => {
 
   return (
     <Router>
+      <DarkModeProvider>
       <AuthProvider>
         <HomeProvider>
           <QuestionProvider>
@@ -61,6 +63,7 @@ const App = () => {
           </QuestionProvider>
         </HomeProvider>
       </AuthProvider>
+      </DarkModeProvider>
     </Router>
   );
 };

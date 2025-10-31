@@ -12,58 +12,115 @@ import HeartIcon from "../assets/Icons/heart.png";
 import axiosInstance from "../lip/axios";
 import Coin from "../assets/Icons/coin.png";
 import CloseIcon from "@mui/icons-material/Close";
+
 const HeartsPopup = ({
   open,
   onClose,
   currentHearts,
-  maxHearts = 5,
+  maxHearts = 9,
   anchorEl,
   refillInterval, // in minutes
   lastHeartUpdate, // ISO string
+  isDarkMode = false,
+  onHeartsUpdate, // Callback to refresh hearts from API
 }) => {
   const popupRef = useRef(null);
   const [position, setPosition] = useState(null);
   const [arrowOffset, setArrowOffset] = useState("50%");
   const [displayHearts, setDisplayHearts] = useState(currentHearts);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [lastApiHearts, setLastApiHearts] = useState(currentHearts);
+  const [localLastUpdate, setLocalLastUpdate] = useState(lastHeartUpdate);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const POPUP_WIDTH = 278;
   const MARGIN = 12;
 
-  // ✅ Calculate how many hearts should be refilled already
+  // ✅ Reset when popup opens or currentHearts changes
   useEffect(() => {
-    if (!lastHeartUpdate || !refillInterval) return;
+    if (open) {
+      setDisplayHearts(currentHearts);
+      setLastApiHearts(currentHearts);
+      setLocalLastUpdate(lastHeartUpdate);
+    }
+  }, [open, currentHearts, lastHeartUpdate]);
+
+  // ✅ Calculate timer and handle heart refills with API verification
+  useEffect(() => {
+    if (!open || !localLastUpdate || !refillInterval) return;
 
     const refillMs = refillInterval * 60 * 1000;
-    const lastUpdateTime = new Date(lastHeartUpdate).getTime();
+    const lastUpdateTime = new Date(localLastUpdate).getTime();
 
-    const updateHeartsAndTimer = () => {
+    const updateHeartsAndTimer = async () => {
       const now = Date.now();
       const diff = now - lastUpdateTime;
 
-      // how many refills since last update
-      const heartsToAdd = Math.floor(diff / refillMs);
+      // Check if it's time for a refill
+      const shouldHaveRefilled = diff >= refillMs;
 
-      // ✅ only add hearts if you don’t already have full hearts
-      let updatedHearts = currentHearts;
-      if (currentHearts < maxHearts) {
-        updatedHearts = Math.min(currentHearts + heartsToAdd, maxHearts);
+      if (shouldHaveRefilled && displayHearts < maxHearts) {
+        // Instead of adding heart locally, refresh from API
+        if (onHeartsUpdate) {
+          await onHeartsUpdate();
+        }
+
+        // Update local state with current API values
+        setDisplayHearts(currentHearts);
+        setLastApiHearts(currentHearts);
+
+        // If hearts didn't increase, restart the timer from now
+        if (currentHearts <= lastApiHearts) {
+          setLocalLastUpdate(new Date().toISOString());
+          const minutes = Math.floor(refillMs / 60000);
+          const seconds = Math.floor((refillMs % 60000) / 1000);
+          setTimeLeft(
+            `${minutes.toString().padStart(2, "0")}:${seconds
+              .toString()
+              .padStart(2, "0")}`
+          );
+          return;
+        } else {
+          // Hearts increased successfully, update last update time
+          setLocalLastUpdate(lastHeartUpdate);
+        }
       }
 
-      setDisplayHearts(updatedHearts);
-
-      // ✅ calculate next refill timer
-      if (updatedHearts < maxHearts) {
-        const nextRefillTime = lastUpdateTime + (heartsToAdd + 1) * refillMs;
+      // Calculate next refill timer
+      if (displayHearts < maxHearts) {
+        const nextRefillTime = lastUpdateTime + refillMs;
         const diffToNext = nextRefillTime - now;
-        const minutes = Math.floor(diffToNext / 60000);
-        const seconds = Math.floor((diffToNext % 60000) / 1000);
-        setTimeLeft(
-          `${minutes.toString().padStart(2, "0")}:${seconds
-            .toString()
-            .padStart(2, "0")}`
-        );
+
+        if (diffToNext > 0) {
+          const minutes = Math.floor(diffToNext / 60000);
+          const seconds = Math.floor((diffToNext % 60000) / 1000);
+          setTimeLeft(
+            `${minutes.toString().padStart(2, "0")}:${seconds
+              .toString()
+              .padStart(2, "0")}`
+          );
+        } else {
+          // Timer completed, refresh from API
+          if (onHeartsUpdate) {
+            await onHeartsUpdate();
+          }
+          setDisplayHearts(currentHearts);
+          setLastApiHearts(currentHearts);
+
+          // If hearts didn't increase after refresh, restart timer
+          if (currentHearts <= lastApiHearts) {
+            setLocalLastUpdate(new Date().toISOString());
+            const minutes = Math.floor(refillMs / 60000);
+            const seconds = Math.floor((refillMs % 60000) / 1000);
+            setTimeLeft(
+              `${minutes.toString().padStart(2, "0")}:${seconds
+                .toString()
+                .padStart(2, "0")}`
+            );
+          } else {
+            setLocalLastUpdate(lastHeartUpdate);
+          }
+        }
       } else {
         setTimeLeft(null);
       }
@@ -72,7 +129,17 @@ const HeartsPopup = ({
     updateHeartsAndTimer();
     const interval = setInterval(updateHeartsAndTimer, 1000);
     return () => clearInterval(interval);
-  }, [currentHearts, lastHeartUpdate, refillInterval, maxHearts]);
+  }, [
+    open,
+    displayHearts,
+    localLastUpdate,
+    refillInterval,
+    maxHearts,
+    currentHearts,
+    lastApiHearts,
+    lastHeartUpdate,
+    onHeartsUpdate,
+  ]);
 
   // ✅ Popup positioning for desktop
   useEffect(() => {
@@ -118,10 +185,15 @@ const HeartsPopup = ({
 
       const newHearts = res.data?.data?.hearts;
       if (newHearts !== undefined) {
-        setDisplayHearts(newHearts); // ✅ update popper with real value
+        setDisplayHearts(newHearts);
+        setLastApiHearts(newHearts);
+
+        // Refresh the parent component's data
+        if (onHeartsUpdate) {
+          await onHeartsUpdate();
+        }
       }
 
-      // optionally, you can also show the updated coins somewhere
       const newCoins = res.data?.data?.coins;
       console.log("Updated coins:", newCoins);
     } catch (err) {
@@ -142,8 +214,11 @@ const HeartsPopup = ({
           sx: {
             borderRadius: "20px",
             padding: "16px",
-            background: "linear-gradient(135deg, #FFF 0%, #F8F8F8 100%)",
+            background: isDarkMode
+              ? "linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)"
+              : "linear-gradient(135deg, #FFF 0%, #F8F8F8 100%)",
             boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
+            color: isDarkMode ? "#FFFFFF" : "#000000",
           },
         }}
       >
@@ -157,7 +232,11 @@ const HeartsPopup = ({
             mb: 2,
           }}
         >
-          <Typography variant="h6" fontWeight="bold">
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            color={isDarkMode ? "#FFFFFF" : "#000000"}
+          >
             عداد القلوب
           </Typography>
 
@@ -173,9 +252,9 @@ const HeartsPopup = ({
             <IconButton
               onClick={onClose}
               sx={{
-                color: "#555",
-                backgroundColor: "#F5F5F5",
-                "&:hover": { backgroundColor: "#E0E0E0" },
+                color: isDarkMode ? "#FFFFFF" : "#555",
+                backgroundColor: isDarkMode ? "#333" : "#F5F5F5",
+                "&:hover": { backgroundColor: isDarkMode ? "#444" : "#E0E0E0" },
               }}
             >
               <CloseIcon />
@@ -188,8 +267,9 @@ const HeartsPopup = ({
             hearts={displayHearts}
             maxHearts={maxHearts}
             timeLeft={timeLeft}
-            isDesktop
+            isDesktop={false}
             onBuyHeart={handleBuyHeart}
+            isDarkMode={isDarkMode}
           />
         </DialogContent>
       </Dialog>
@@ -208,13 +288,14 @@ const HeartsPopup = ({
         left: position.left,
         transform: "translateX(-50%)",
         width: `${POPUP_WIDTH}px`,
-        backgroundColor: "white",
+        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
         borderRadius: "20px",
         boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
         zIndex: 2000,
         padding: "20px 24px",
         textAlign: "center",
         direction: "rtl",
+        color: isDarkMode ? "#FFFFFF" : "#000000",
       }}
     >
       <div
@@ -227,13 +308,17 @@ const HeartsPopup = ({
           height: 0,
           borderLeft: "10px solid transparent",
           borderRight: "10px solid transparent",
-          borderBottom: "10px solid white",
+          borderBottom: `10px solid ${isDarkMode ? "#1E1E1E" : "white"}`,
         }}
       />
 
       <Typography
         variant="h6"
-        sx={{ fontWeight: "bold", color: "black", mb: 2 }}
+        sx={{
+          fontWeight: "bold",
+          color: isDarkMode ? "#FFFFFF" : "black",
+          mb: 2,
+        }}
       >
         عداد القلوب
       </Typography>
@@ -242,39 +327,69 @@ const HeartsPopup = ({
         hearts={displayHearts}
         maxHearts={maxHearts}
         timeLeft={timeLeft}
-        isDesktop
-        onBuyHeart={handleBuyHeart} // ✅ pass handler
+        isDesktop={true}
+        onBuyHeart={handleBuyHeart}
+        isDarkMode={isDarkMode}
       />
     </div>
   );
 };
 
-// ✅ Renders hearts and countdown
+// ✅ Renders hearts in two rows (5 in first row, 4 in second row)
 const HeartsContent = ({
   hearts,
   maxHearts,
   timeLeft,
   isDesktop = false,
   onBuyHeart,
+  isDarkMode = false,
 }) => {
-  const textColor = isDesktop ? "black" : "#444";
+  const textColor = isDarkMode ? "#FFFFFF" : isDesktop ? "black" : "#444";
+
+  // Split hearts into two rows: 5 in first row, 4 in second row
+  const firstRowHearts = 5;
+  const secondRowHearts = 4;
 
   return (
     <Box sx={{ textAlign: "center" }}>
-      <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 2 }}>
-        {Array.from({ length: maxHearts }, (_, i) => (
-          <img
-            key={i}
-            src={HeartIcon}
-            alt="heart"
-            style={{
-              width: 32,
-              height: 32,
-              filter: i < hearts ? "none" : "grayscale(100%) opacity(0.3)",
-              transition: "all 0.3s ease",
-            }}
-          />
-        ))}
+      {/* Hearts Container */}
+      <Box sx={{ mb: 2 }}>
+        {/* First Row - 5 hearts */}
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 1 }}>
+          {Array.from({ length: firstRowHearts }, (_, i) => (
+            <img
+              key={i}
+              src={HeartIcon}
+              alt="heart"
+              style={{
+                width: 32,
+                height: 32,
+                filter: i < hearts ? "none" : "grayscale(100%) opacity(0.3)",
+                transition: "all 0.3s ease",
+              }}
+            />
+          ))}
+        </Box>
+
+        {/* Second Row - 4 hearts */}
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          {Array.from({ length: secondRowHearts }, (_, i) => (
+            <img
+              key={i + firstRowHearts}
+              src={HeartIcon}
+              alt="heart"
+              style={{
+                width: 32,
+                height: 32,
+                filter:
+                  i + firstRowHearts < hearts
+                    ? "none"
+                    : "grayscale(100%) opacity(0.3)",
+                transition: "all 0.3s ease",
+              }}
+            />
+          ))}
+        </Box>
       </Box>
 
       {hearts < maxHearts && timeLeft && (
@@ -302,7 +417,7 @@ const HeartsContent = ({
           sx={{
             mt: 2,
             display: "flex",
-            justifyContent: { xs: "center", md: "flex-start" }, // center on xs, left-align on md+
+            justifyContent: { xs: "center", md: "flex-start" },
           }}
         >
           <button
@@ -312,16 +427,16 @@ const HeartsContent = ({
               alignItems: "center",
               justifyContent: "center",
               position: "relative",
-              backgroundColor: "#F2F2F2",
-              color: "#000",
+              backgroundColor: isDarkMode ? "#333" : "#F2F2F2",
+              color: isDarkMode ? "#FFFFFF" : "#000",
               padding: "8px 10px",
               borderRadius: "12px",
               fontWeight: "bold",
               cursor: "pointer",
-              border: "1px solid #CDCCCC",
+              border: isDarkMode ? "1px solid #555" : "1px solid #CDCCCC",
               minWidth: "238px",
-              width: "100%", // full width on small screens
-              maxWidth: "238px", // max width for larger screens
+              width: "100%",
+              maxWidth: "238px",
             }}
           >
             {/* Coin + Number on the left */}

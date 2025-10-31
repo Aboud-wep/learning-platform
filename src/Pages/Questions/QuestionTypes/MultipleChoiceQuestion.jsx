@@ -8,6 +8,7 @@ import DOMPurify from "dompurify";
 
 import parse from "html-react-parser";
 import { useLanguage } from "../../../Context/LanguageContext";
+import { useDarkMode } from "../../../Context/DarkModeContext";
 export default function MultipleChoiceQuestion({
   options,
   selectedOptions,
@@ -20,7 +21,7 @@ export default function MultipleChoiceQuestion({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const { t, isRTL } = useLanguage();
-
+  const isDarkMode = useDarkMode();
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
 
@@ -48,7 +49,6 @@ export default function MultipleChoiceQuestion({
   const getIconForOption = (option) => {
     const isSelected = selectedOptions.includes(option.id); // live selection for pre-submit
     const isLockedSelected = lockedSelection.includes(option.id); // locked selection for post-submit
-    // const isCorrect = option.is_correct;
 
     if (!showResult) {
       return isSelected ? MChoice_Blue : null; // blue effect before submit
@@ -63,23 +63,49 @@ export default function MultipleChoiceQuestion({
   const getBorderColor = (option) => {
     const isSelected = selectedOptions.includes(option.id);
     const isLockedSelected = lockedSelection.includes(option.id);
-    // const isCorrect = option.is_correct;
 
-    if (!showResult) return isSelected ? "#205DC7" : "#BFBFBF"; // pre-submit blue
+    if (!showResult) {
+      return isSelected
+        ? isDarkMode
+          ? "#90caf9"
+          : "#205DC7"
+        : isDarkMode
+        ? "#10171A"
+        : "#BFBFBF";
+    }
 
     if (isSelected && isCorrect) return "#A0D400"; // correct
     if (isSelected && !isCorrect) return "#FF4346"; // wrong selection
-    return "#BFBFBF";
+    return isDarkMode ? "#555" : "#BFBFBF"; // default border
   };
 
   const getBoxShadow = (color) => `0px 2px 0px 0px ${color}`;
 
   const getBgClass = (option) => {
-    const isSelected = lockedSelection.includes(option.id);
+    const isSelected = selectedOptions.includes(option.id);
+
     if (!showResult) {
-      return isSelected ? "bg-blue-50" : "bg-white hover:bg-gray-100";
+      if (isSelected) {
+        return isDarkMode ? "bg-gray-800" : "bg-blue-50";
+      }
+      return isDarkMode
+        ? "bg-gray-800 hover:bg-gray-700"
+        : "bg-white hover:bg-gray-100";
     }
-    return "bg-white"; // keep static after result
+
+    // After result show
+    if (isSelected) {
+      return isDarkMode ? "bg-gray-700" : "bg-white";
+    }
+    return isDarkMode ? "bg-gray-800" : "bg-white";
+  };
+
+  const getTextColor = () => {
+    return isDarkMode ? "text-white" : "text-gray-800";
+  };
+
+  const getQuestionTextColor = () => {
+    return isDarkMode ? "text-blue-300" : "text-[#205DC7]";
   };
 
   const getAnimationStyle = () => ({
@@ -91,13 +117,15 @@ export default function MultipleChoiceQuestion({
       : "scale(0.8)",
     transition: "opacity 0.4s ease, transform 0.4s ease",
   });
+
   console.log(selectedOptions);
+
   return (
     <div className="w-full" dir={isRTL ? "rtl" : "ltr"}>
       <Box
         dir={isRTL ? "rtl" : "ltr"}
-        className="text-[#205DC7]"
-        sx={{ color: "#205DC7" }}
+        className={getQuestionTextColor()}
+        sx={{ color: isDarkMode ? "#90caf9" : "#205DC7" }}
         style={{
           fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
           fontWeight: "bold",
@@ -137,7 +165,7 @@ export default function MultipleChoiceQuestion({
                 }}
                 className={`flex items-center justify-between py-2 pr-4 md:pr-[20px] pl-3 md:pl-[10px] rounded-[20px] text-right w-full ${getBgClass(
                   opt
-                )}`}
+                )} ${getTextColor()} transition-colors duration-200`}
               >
                 <span
                   className="flex-1 text-start"

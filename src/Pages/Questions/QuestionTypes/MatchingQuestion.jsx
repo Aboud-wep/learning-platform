@@ -5,6 +5,8 @@ import DOMPurify from "dompurify";
 import correctAnswer from "../../../assets/Sounds/correctAnswer.mp3";
 import wrongAnswer from "../../../assets/Sounds/wrongAnswer.mp3";
 import parse from "html-react-parser";
+import { useDarkMode } from "../../../Context/DarkModeContext";
+
 const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   const options = question?.matching_columns;
 
@@ -18,14 +20,13 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
     answerId,
     setAnswerId,
     setCurrentQuestion,
-
     is_correct,
   } = useQuestion();
 
   // Track which side selected and item
   // { side: "left" | "right", item, index }
   const [selected, setSelected] = useState(null);
-
+  const isDarkMode = useDarkMode();
   // Store pairs of wrong indices as [leftIndex, rightIndex]
   const [wrongPairs, setWrongPairs] = useState([]);
 
@@ -49,7 +50,11 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
     !Array.isArray(options.left) ||
     !Array.isArray(options.right)
   ) {
-    return <Typography>لا توجد خيارات متاحة</Typography>;
+    return (
+      <Typography color={isDarkMode ? "white" : "inherit"}>
+        لا توجد خيارات متاحة
+      </Typography>
+    );
   }
 
   // Helpers to check matched and wrong status
@@ -57,6 +62,7 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
   const isRightMatched = (item) => Object.values(matchedPairs).includes(item);
   const correctAudioRef = useRef(new Audio(correctAnswer));
   const wrongAudioRef = useRef(new Audio(wrongAnswer));
+
   // Reverse lookup: given right item, get left
   const getLeftForRight = (rightItem) =>
     Object.entries(matchedPairs).find(
@@ -136,26 +142,25 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
 
     const response = await submitAnswer(payload);
 
-   if (response?.is_correct === false) {
-  const leftIndex = side === "left" ? index : selected.index;
-  const rightIndex = side === "right" ? index : selected.index;
+    if (response?.is_correct === false) {
+      const leftIndex = side === "left" ? index : selected.index;
+      const rightIndex = side === "right" ? index : selected.index;
 
-  setSelected(null);
-  setWrongPairs([[leftIndex, rightIndex]]);
-  setTimeout(() => setWrongPairs([]), 800);
+      setSelected(null);
+      setWrongPairs([[leftIndex, rightIndex]]);
+      setTimeout(() => setWrongPairs([]), 800);
 
-  // 🔊 Play wrong sound
-  wrongAudioRef.current.currentTime = 0;
-  wrongAudioRef.current.play().catch(() => {});
-} else {
-  setMatchedPairs(structured_answer);
-  setSelected(null);
+      // 🔊 Play wrong sound
+      wrongAudioRef.current.currentTime = 0;
+      wrongAudioRef.current.play().catch(() => {});
+    } else {
+      setMatchedPairs(structured_answer);
+      setSelected(null);
 
-  // 🔊 Play correct sound
-  correctAudioRef.current.currentTime = 0;
-  correctAudioRef.current.play().catch(() => {});
-}
-
+      // 🔊 Play correct sound
+      correctAudioRef.current.currentTime = 0;
+      correctAudioRef.current.play().catch(() => {});
+    }
 
     if (response?.answer_id && !answerId) {
       setAnswerId(response.answer_id);
@@ -163,19 +168,42 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
 
     setSelected(null);
   };
-  // Shared button style helper
+
+  // Shared button style helper with dark mode support
   const getItemClass = ({ isMatched, wrong, isSelected }) => {
-    if (wrong) return "bg-red-300 cursor-not-allowed"; // wrong has top priority
-    if (isMatched) return "bg-green-200 cursor-not-allowed";
-    if (isSelected) return "bg-blue-300 cursor-pointer";
-    return "bg-white hover:bg-gray-100 cursor-pointer";
+    if (wrong) {
+      return isDarkMode
+        ? "bg-red-700 text-white cursor-not-allowed"
+        : "bg-red-300 cursor-not-allowed";
+    }
+    if (isMatched) {
+      return isDarkMode
+        ? "bg-green-700 text-white cursor-not-allowed"
+        : "bg-green-200 cursor-not-allowed";
+    }
+    if (isSelected) {
+      return isDarkMode
+        ? "bg-blue-700 text-white cursor-pointer"
+        : "bg-blue-300 cursor-pointer";
+    }
+    return isDarkMode
+      ? "bg-gray-800 text-white hover:bg-gray-700 cursor-pointer border-gray-600"
+      : "bg-white hover:bg-gray-100 cursor-pointer border-gray-300";
+  };
+
+  const getQuestionTextColor = () => {
+    return isDarkMode ? "text-blue-300" : "text-[#205DC7]";
+  };
+
+  const getBorderColor = () => {
+    return isDarkMode ? "border-gray-600" : "border-gray-300";
   };
 
   return (
     <Box>
       <Box
-        className="text-xl font-bold mb-6"
-        sx={{ textAlign: { xs: "center", md: "left" }, color: "#205DC7" }}
+        className={`text-xl font-bold mb-6 ${getQuestionTextColor()}`}
+        sx={{ textAlign: { xs: "center", md: "left" } }}
       >
         <div dir="rtl" style={{ lineHeight: 1.6 }}>
           {parse(DOMPurify.sanitize(question.text))}
@@ -185,8 +213,6 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
         className="flex justify-center flex-wrap my-[75px]"
         sx={{ gap: { xs: "10px", sm: "40px" } }}
       >
-        {/* Right column */}
-
         {/* Left column */}
         <Box className="flex flex-col gap-3 max-w-[45%] min-w-[130px]">
           {options.left.map((item, index) => {
@@ -204,13 +230,13 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
             return (
               <Box
                 key={index}
-                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
+                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 transition-colors duration-200 ${getItemClass(
                   {
                     isMatched,
                     wrong,
                     isSelected,
                   }
-                )}`}
+                )} ${getBorderColor()}`}
                 onClick={() => {
                   if (!isMatched && !wrong) tryMatch("left", item, index);
                 }}
@@ -220,6 +246,8 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
             );
           })}
         </Box>
+
+        {/* Right column */}
         <Box className="flex flex-col gap-3 max-w-[45%]">
           {options.right.map((item, index) => {
             const isMatched = isRightMatched(item);
@@ -235,13 +263,13 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
             return (
               <Box
                 key={index}
-                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 ${getItemClass(
+                className={`p-2 border rounded-[20px] text-center break-words text-[20px] px-5 transition-colors duration-200 ${getItemClass(
                   {
                     isMatched,
                     wrong,
                     isSelected,
                   }
-                )}`}
+                )} ${getBorderColor()}`}
                 onClick={() => {
                   if (!isMatched && !wrong) tryMatch("right", item, index);
                 }}

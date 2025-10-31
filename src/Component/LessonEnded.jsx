@@ -11,6 +11,7 @@ import {
   Button,
 } from "@mui/material";
 import { useLanguage } from "../Context/LanguageContext";
+import { useDarkMode } from "../Context/DarkModeContext";
 
 const LessonEnded = () => {
   const { rewards, dailyLog } = useQuestion();
@@ -22,6 +23,10 @@ const LessonEnded = () => {
 
   const isTest = location.state?.isTest || false;
   const { t } = useLanguage();
+
+  // Get isDarkMode from location state or default to false
+  const { isDarkMode } = useDarkMode();
+
 
   const handleContinue = () => {
     // Check if daily log should be shown
@@ -38,25 +43,55 @@ const LessonEnded = () => {
 
     // If daily log should be shown, go to daily log page first
     if (shouldShowDailyLog()) {
-      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId");
-      navigate("/daily-log", { state: { subjectId } });
+      const subjectId =
+        location.state?.subjectId || localStorage.getItem("currentSubjectId");
+      navigate("/daily-log", { state: { subjectId, isDarkMode } });
       return;
     }
 
     // Otherwise follow normal flow
     if (location.state?.nextPage) {
-      navigate(location.state.nextPage);
+      navigate(location.state.nextPage, { state: { isDarkMode } });
     } else {
       // ✅ FIX: Use the subjectId from location state or localStorage
-      const subjectId = location.state?.subjectId || localStorage.getItem("currentSubjectId");
-      
+      const subjectId =
+        location.state?.subjectId || localStorage.getItem("currentSubjectId");
 
       if (subjectId) {
-        navigate(`/levels-map/${subjectId}`);
+        navigate(`/levels-map/${subjectId}`, { state: { isDarkMode } });
       } else {
-        navigate("/home"); // fallback to home if no subjectId
+        navigate("/home", { state: { isDarkMode } }); // fallback to home if no subjectId
       }
     }
+  };
+
+  const getBackgroundColor = () => {
+    return isDarkMode ? "#1a1a1a" : "white";
+  };
+
+  const getTextColor = () => {
+    return isDarkMode ? "white" : "inherit";
+  };
+
+  const getButtonStyles = () => {
+    return {
+      px: 4,
+      py: 1.5,
+      width: { xs: "100%", md: "auto" },
+      backgroundColor: isDarkMode ? "#90caf9" : "#205DC7",
+      color: isDarkMode ? "#121212" : "white",
+      borderRadius: "1000px",
+      fontSize: { xs: "14px", md: "16px" },
+      fontWeight: "bold",
+      minWidth: { xs: "120px", md: "auto" },
+      "&:hover": {
+        backgroundColor: isDarkMode ? "#64b5f6" : "#1a4aa0",
+      },
+    };
+  };
+
+  const getRewardTextColor = () => {
+    return isDarkMode ? "#90caf9" : "#205DC7";
   };
 
   return (
@@ -67,9 +102,11 @@ const LessonEnded = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "white",
+        backgroundColor: getBackgroundColor(),
         px: { xs: 2, sm: 4, md: 6, lg: "249px" },
         py: { xs: 4, md: 0 },
+        color: getTextColor(),
+        transition: "background-color 0.3s ease",
       }}
     >
       <Typography
@@ -77,7 +114,9 @@ const LessonEnded = () => {
           mb: 2,
           fontWeight: "bold",
           fontSize: { xs: "32px", sm: "40px", md: "50px" },
-          background: "linear-gradient(to left, #31A9D6, #205CC7)",
+          background: isDarkMode
+            ? "linear-gradient(to left, #90caf9, #64b5f6)"
+            : "linear-gradient(to left, #31A9D6, #205CC7)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           textAlign: "center",
@@ -91,7 +130,9 @@ const LessonEnded = () => {
         sx={{
           fontSize: { xs: "36px", sm: "48px", md: "60px" },
           color: "white",
-          background: "linear-gradient(to left, #31A9D6, #205CC7)",
+          background: isDarkMode
+            ? "linear-gradient(to left, #90caf9, #64b5f6)"
+            : "linear-gradient(to left, #31A9D6, #205CC7)",
           padding: { xs: "6px 12px", md: "8px 16px" },
           borderRadius: "8px",
           display: "inline-block",
@@ -111,7 +152,7 @@ const LessonEnded = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#205DC7",
+              color: getRewardTextColor(),
               fontSize: { xs: "20px", sm: "26px", md: "32px" },
               fontWeight: "bold",
               mb: 1,
@@ -130,6 +171,7 @@ const LessonEnded = () => {
                 marginRight: "13px",
                 width: isMobile ? "30px" : isTablet ? "36px" : "40px",
                 height: "auto",
+                filter: isDarkMode ? "brightness(0.9)" : "none",
               }}
             />
           </Box>
@@ -140,7 +182,7 @@ const LessonEnded = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#205DC7",
+              color: getRewardTextColor(),
               fontSize: { xs: "20px", sm: "26px", md: "32px" },
               fontWeight: "bold",
             }}
@@ -155,6 +197,7 @@ const LessonEnded = () => {
                 marginRight: "13px",
                 width: isMobile ? "30px" : isTablet ? "36px" : "40px",
                 height: "auto",
+                filter: isDarkMode ? "brightness(0.9)" : "none",
               }}
             />
           </Box>
@@ -169,28 +212,19 @@ const LessonEnded = () => {
           justifyContent: { xs: "center", md: "flex-end" },
           px: { xs: 2, md: 0 },
           position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
-          // position:"static",
           bottom: { xs: 0, md: "auto" },
           py: { xs: 2, md: "40px" },
+          backgroundColor: {
+            xs: isDarkMode ? "#1a1a1a" : "white",
+            md: "transparent",
+          },
+          borderTop: {
+            xs: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+            md: "none",
+          },
         }}
       >
-        <Button
-          onClick={handleContinue}
-          sx={{
-            px: 4,
-            py: 1.5,
-            width: { xs: "100%", md: "auto" },
-            backgroundColor: "#205DC7",
-            color: "white",
-            borderRadius: "1000px",
-            fontSize: { xs: "14px", md: "16px" },
-            fontWeight: "bold",
-            minWidth: { xs: "120px", md: "auto" },
-            "&:hover": {
-              backgroundColor: "#1a4aa0",
-            },
-          }}
-        >
+        <Button onClick={handleContinue} sx={getButtonStyles()}>
           {t("reward_continue")}
         </Button>
       </Box>

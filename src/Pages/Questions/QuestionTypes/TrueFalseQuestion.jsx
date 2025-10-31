@@ -9,7 +9,9 @@ import {
 
 // Import icons
 import TrueIcon from "../../../assets/Icons/True.png";
+import TrueWhiteIcon from "../../../assets/Icons/True_White.png";
 import FalseIcon from "../../../assets/Icons/False.png";
+import FalseWhiteIcon from "../../../assets/Icons/False_White.png";
 import TrueBlueIcon from "../../../assets/Icons/True_Blue.png";
 import TrueRedIcon from "../../../assets/Icons/True_Red.png";
 import TrueGreenIcon from "../../../assets/Icons/True_Green.png";
@@ -17,6 +19,8 @@ import FalseBlueIcon from "../../../assets/Icons/False_Blue.png";
 import FalseRedIcon from "../../../assets/Icons/False_Red.png";
 import FalseGreenIcon from "../../../assets/Icons/False_Green.png";
 import ReactMarkdown from "react-markdown";
+import { useDarkMode } from "../../../Context/DarkModeContext";
+
 const TrueFalseQuestion = ({
   options,
   selectedOption,
@@ -27,7 +31,7 @@ const TrueFalseQuestion = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
+  const isDarkMode = useDarkMode();
   if (!options?.length) return null;
 
   const [lockedSelection, setLockedSelection] = useState(null);
@@ -56,9 +60,17 @@ const TrueFalseQuestion = ({
 
     if (isCorrect === null || isCorrect === undefined) {
       if (text === "true" || text === "صح") {
-        return isSelected ? TrueBlueIcon : TrueIcon;
+        return isSelected
+          ? TrueBlueIcon
+          : isDarkMode
+          ? TrueWhiteIcon // 👈 dark mode true icon
+          : TrueIcon;
       }
-      return isSelected ? FalseBlueIcon : FalseIcon;
+      return isSelected
+        ? FalseBlueIcon
+        : isDarkMode
+        ? FalseWhiteIcon // 👈 dark mode false icon
+        : FalseIcon;
     }
 
     // After submit: only selected option shows color
@@ -74,11 +86,63 @@ const TrueFalseQuestion = ({
   const getTextColor = (option) => {
     const isSelected = (lockedSelection ?? selectedOption) === option.id;
     if (isCorrect === null || isCorrect === undefined) {
-      return isSelected ? "#205DC7" : "#000";
+      return isSelected
+        ? "#205DC7"
+        : isDarkMode
+        ? "#ffffff"
+        : "#000000";
     }
     if (isSelected && isCorrect) return "#4CAF50"; // green
     if (isSelected && !isCorrect) return "#F44336"; // red
     return "transparent"; // hide other option text
+  };
+
+  const getQuestionTextColor = () => {
+    return isDarkMode ? "#205DC7" : "#205DC7";
+  };
+
+  const getButtonBackground = (option) => {
+    const isSelected = (lockedSelection ?? selectedOption) === option.id;
+
+    if (isCorrect === null || isCorrect === undefined) {
+      if (isSelected) {
+        return isDarkMode ? "#343F4E" : "#f5f5f5";
+      }
+      return isDarkMode ? "#343F4E" : "#ffffff";
+    }
+
+    return isDarkMode ? "#333333" : "#ffffff";
+  };
+
+  const getButtonBorder = (option) => {
+    const isSelected = (lockedSelection ?? selectedOption) === option.id;
+
+    if (isCorrect === null || isCorrect === undefined) {
+      return isSelected
+        ? isDarkMode
+          ? "#90caf9"
+          : "#205DC7"
+        : isDarkMode
+        ? "#555555"
+        : "#cccccc";
+    }
+
+    if (isSelected && isCorrect) return "#4CAF50";
+    if (isSelected && !isCorrect) return "#F44336";
+    return isDarkMode ? "#555555" : "#cccccc";
+  };
+
+  const getButtonHoverBackground = (option) => {
+    const isSelected = (lockedSelection ?? selectedOption) === option.id;
+
+    if (isCorrect === null || isCorrect === undefined) {
+      if (isSelected) {
+        return isDarkMode ? "rgba(144, 202, 249, 0.2)" : "#f0f0f0";
+      }
+      return isDarkMode ? "#444444" : "#f9f9f9";
+    }
+
+    return isDarkMode ? "#333333" : "#ffffff";
   };
 
   // Decide which options to display
@@ -120,28 +184,27 @@ const TrueFalseQuestion = ({
   return (
     <div className="w-full">
       <Typography
-  component="div"
-  dir="rtl"
-  sx={{
-    textAlign: { xs: "center", md: "left" },
-    color: "#205DC7",
-    fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
-    fontWeight: "bold",
-    mb: isMobile ? "80px" : "24px",
-    px: isMobile ? 1 : 0,
-    lineHeight: 1.6,
-  }}
-  dangerouslySetInnerHTML={{ __html: question.text }}
-/>
+        component="div"
+        dir="rtl"
+        sx={{
+          textAlign: { xs: "center", md: "left" },
+          color: getQuestionTextColor(),
+          fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
+          fontWeight: "bold",
+          mb: isMobile ? "80px" : "24px",
+          px: isMobile ? 1 : 0,
+          lineHeight: 1.6,
+        }}
+        dangerouslySetInnerHTML={{ __html: question.text }}
+      />
 
-      <div className="flex  justify-center gap-4 sm:gap-8 md:gap-12 lg:gap-[194px] text-right transition-all duration-700 ease-in-out">
+      <div className="flex justify-center gap-4 sm:gap-8 md:gap-12 lg:gap-[194px] text-right transition-all duration-700 ease-in-out">
         {displayedOptions.map((option) => {
           const IconSrc = getIconForOption(option);
           if (!IconSrc) return null;
 
           const textColor = getTextColor(option);
           const animationStyle = getAnimationStyle(option);
-
           const isSelected = (lockedSelection ?? selectedOption) === option.id;
 
           return (
@@ -154,8 +217,10 @@ const TrueFalseQuestion = ({
                 width: isMobile ? "120px" : isTablet ? "140px" : "179px",
                 height: isMobile ? "130px" : isTablet ? "160px" : "194px",
                 borderRadius: "20px",
-                border: "1px solid #ccc",
-                boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+                border: `1px solid ${getButtonBorder(option)}`,
+                boxShadow: isDarkMode
+                  ? "0px 2px 5px rgba(0,0,0,0.3)"
+                  : "0px 2px 5px rgba(0,0,0,0.1)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -165,8 +230,16 @@ const TrueFalseQuestion = ({
                 transition: "all 0.7s ease-in-out",
                 order: isCorrect && isSelected ? 0 : 1,
                 padding: "8px",
+                backgroundColor: getButtonBackground(option),
                 "&:hover": {
-                  backgroundColor: isCorrect === null ? "#f5f5f5" : "inherit",
+                  backgroundColor:
+                    isCorrect === null
+                      ? getButtonHoverBackground(option)
+                      : getButtonBackground(option),
+                },
+                "&.Mui-disabled": {
+                  backgroundColor: getButtonBackground(option),
+                  borderColor: getButtonBorder(option),
                 },
               }}
             >

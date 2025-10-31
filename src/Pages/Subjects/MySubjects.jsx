@@ -21,7 +21,7 @@ import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
 import { useQuestion } from "../Questions/Context/QuestionContext";
 
 const MySubjects = () => {
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const navigate = useNavigate();
   const { hearts } = useQuestion();
   const { subjects, userProgress, loadingg } = useSubjects();
@@ -72,8 +72,8 @@ const MySubjects = () => {
 
   // Show skeleton loading while data is loading
   if (loadingg) {
-  return <SubjectsPageSkeleton />;
-}
+    return <SubjectsPageSkeleton isDarkMode={isDarkMode} />;
+  }
 
   return (
     <Box
@@ -83,6 +83,8 @@ const MySubjects = () => {
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         gap: 3,
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Main Content - My Subjects */}
@@ -99,13 +101,21 @@ const MySubjects = () => {
             mb: 3,
           }}
         >
-          <Typography variant="h4" fontWeight="bold">
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            color={isDarkMode ? "text.primary" : "inherit"}
+          >
             موادي
           </Typography>
         </Box>
 
         {mySubjects.length === 0 ? (
-          <Typography textAlign="center" py={4}>
+          <Typography
+            textAlign="center"
+            py={4}
+            color={isDarkMode ? "text.primary" : "inherit"}
+          >
             لم تبدأ أي مادة بعد.
           </Typography>
         ) : (
@@ -118,6 +128,7 @@ const MySubjects = () => {
                     completion_percentage:
                       userProgressMap[subject.id]?.completion_percentage || 0,
                   }}
+                  isDarkMode={isDarkMode}
                 />
               </Grid>
             ))}
@@ -140,7 +151,11 @@ const MySubjects = () => {
               borderRadius: "20px",
               overflow: "hidden",
               padding: "20px",
-              backgroundColor: "#FFFFFF",
+              backgroundColor: isDarkMode ? "#161F23" : "#FFFFFF",
+              border: isDarkMode ? "1px solid #333" : "none",
+              boxShadow: isDarkMode
+                ? "0 4px 12px rgba(0,0,0,0.3)"
+                : "0 4px 12px rgba(0,0,0,0.1)",
             }}
           >
             {/* Subject Image */}
@@ -153,6 +168,7 @@ const MySubjects = () => {
                 width: "284px",
                 height: "235px",
                 borderRadius: "20px",
+                filter: isDarkMode ? "brightness(0.9)" : "none",
               }}
             />
 
@@ -170,25 +186,37 @@ const MySubjects = () => {
               <Box>
                 <Typography
                   sx={{
-                    color: isCompleted ? "#036108" : "#FF4346",
-                    border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+                    color: isCompleted ? "#4CAF50" : "#FF4346",
+                    border: `1px solid ${isCompleted ? "#4CAF50" : "#FF4346"}`,
                     borderRadius: "8px",
                     px: "10px",
                     py: "3px",
                     display: "inline-block",
                     fontSize: "14px",
                     my: "8px",
+                    backgroundColor: isDarkMode
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
                   }}
                   gutterBottom
                 >
                   {isCompleted ? "مكتمل" : "قيد التقدم"}
                 </Typography>
               </Box>
-              <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                gutterBottom
+                color={isDarkMode ? "text.primary" : "inherit"}
+              >
                 {lastUpdatedSubject.name}
               </Typography>
 
-              <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+              <Typography
+                variant="body2"
+                color={isDarkMode ? "text.secondary" : "textSecondary"}
+                sx={{ mb: 2 }}
+              >
                 {lastUpdatedSubject.description.length > 100
                   ? `${lastUpdatedSubject.description.substring(0, 100)}...`
                   : lastUpdatedSubject.description}
@@ -202,10 +230,21 @@ const MySubjects = () => {
                 sx={{
                   borderRadius: "20px",
                   py: 1,
+                  backgroundColor: "#205DC7",
+                  color:"white",
+                  "&:hover": {
+                    backgroundColor: isDarkMode ? "#64b5f6" : "#1648A8",
+                  },
+                  "&:disabled": {
+                    backgroundColor: isDarkMode ? "#555" : "#ccc",
+                    color: isDarkMode ? "#888" : "#666",
+                  },
                 }}
                 disabled={hearts !== null && hearts <= 0}
               >
-               {hearts !== null && hearts <= 0 ? "لا توجد محاولات" : "أكمل التعلم"}
+                {hearts !== null && hearts <= 0
+                  ? "لا توجد محاولات"
+                  : "أكمل التعلم"}
               </Button>
             </Box>
           </Box>

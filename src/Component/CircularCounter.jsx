@@ -13,8 +13,21 @@ const colorMap = {
   green: "#388e3c",
 };
 
-const CircularCounter = ({ number = 1, color = "blue", percentage = 0 }) => {
-  const progressColor = colorMap[color] || colorMap.blue;
+const darkColorMap = {
+  blue: "#1E51C5", // Light blue for dark mode
+  red: "#f44336",  // Brighter red for dark mode
+  green: "#4caf50", // Brighter green for dark mode
+};
+
+const CircularCounter = ({ 
+  number = 1, 
+  color = "blue", 
+  percentage = 0, 
+  isDarkMode = false 
+}) => {
+  const progressColor = isDarkMode 
+    ? (darkColorMap[color] || darkColorMap.blue) 
+    : (colorMap[color] || colorMap.blue);
 
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -45,18 +58,19 @@ const CircularCounter = ({ number = 1, color = "blue", percentage = 0 }) => {
           zIndex: 2,
         }}
       >
-        {/* White Background Circle */}
+        {/* Background Circle */}
         <Box
           sx={{
             position: "relative",
             width: circleSize,
             height: circleSize,
             borderRadius: "50%",
-            backgroundColor: "white",
-            boxShadow: 3,
+            backgroundColor: isDarkMode ? "#161F23" : "white",
+            boxShadow: isDarkMode ? 2 : 3,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            border: isDarkMode ? "1px solid #161F23" : "none",
           }}
         >
           {/* Background Circle */}
@@ -66,7 +80,7 @@ const CircularCounter = ({ number = 1, color = "blue", percentage = 0 }) => {
             size={circleSize}
             thickness={3}
             sx={{
-              color: "white",
+              color: isDarkMode ? "#161F23" : "white",
               position: "absolute",
               top: 0,
               left: 0,
@@ -107,6 +121,7 @@ const CircularCounter = ({ number = 1, color = "blue", percentage = 0 }) => {
               sx={{
                 fontSize: isXs ? 12 : 14,
                 color: progressColor,
+                fontWeight: isDarkMode ? 500 : 400,
               }}
             >
               سؤال
@@ -116,7 +131,7 @@ const CircularCounter = ({ number = 1, color = "blue", percentage = 0 }) => {
                 fontWeight: "bold",
                 fontSize: isXs ? "38px" : "47px",
                 lineHeight: isXs ? "42px" : "50px",
-                color: "#1E51C5",
+                color: isDarkMode ? "white" : "#1E51C5",
               }}
             >
               {String(number).padStart(2, "0")}

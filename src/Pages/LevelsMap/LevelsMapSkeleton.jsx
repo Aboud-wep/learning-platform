@@ -39,32 +39,32 @@ const LevelsMapSkeleton = () => {
           }}
         >
           {/* Row 1 - Center */}
-          <Box display="flex" justifyContent="center" width="100%">
+          <Box display="flex" justifyContent="left" width="100%">
             <Skeleton variant="circular" width={80} height={80} />
           </Box>
 
           {/* Row 2 - Start & End */}
-          <Box display="flex" justifyContent="left" width="100%">
+          <Box display="flex" justifyContent="center" width="100%">
             <Skeleton variant="circular" width={80} height={80} />
           </Box>
 
           {/* Row 3 - Center */}
-          <Box display="flex" justifyContent="center" width="100%">
-            <Skeleton variant="circular" width={80} height={80} />
-          </Box>
-
-          {/* Row 4 - Start & End */}
           <Box display="flex" justifyContent="right" width="100%">
             <Skeleton variant="circular" width={80} height={80} />
           </Box>
 
-          {/* Row 5 - Center */}
+          {/* Row 4 - Start & End */}
           <Box display="flex" justifyContent="center" width="100%">
             <Skeleton variant="circular" width={80} height={80} />
           </Box>
 
-          {/* Row 6 - Start & End */}
+          {/* Row 5 - Center */}
           <Box display="flex" justifyContent="left" width="100%">
+            <Skeleton variant="circular" width={80} height={80} />
+          </Box>
+
+          {/* Row 6 - Start & End */}
+          <Box display="flex" justifyContent="center" width="100%">
             <Skeleton variant="circular" width={80} height={80} />
           </Box>
         </Box>

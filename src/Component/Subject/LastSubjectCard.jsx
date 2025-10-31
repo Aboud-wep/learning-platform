@@ -4,7 +4,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
 
-const LastSubjectCard = ({ subject, progress }) => {
+const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
   const allItems =
     subject?.levels?.flatMap((level) =>
       level?.stages?.flatMap((stage) => stage?.items || [])
@@ -47,7 +47,7 @@ const LastSubjectCard = ({ subject, progress }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "#fff",
+        backgroundColor: isDarkMode ? '#161F23' : "#fff",
         borderRadius: "20px",
         p: "20px",
         display: "flex",
@@ -56,6 +56,8 @@ const LastSubjectCard = ({ subject, progress }) => {
         gap: "30px",
         width: "100%",
         my: "30px",
+        border: isDarkMode ? '1px solid #333' : 'none',
+        boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
       }}
     >
       {/* Responsive Image */}
@@ -69,6 +71,7 @@ const LastSubjectCard = ({ subject, progress }) => {
           maxHeight: { xs: 200, sm: 191 },
           borderRadius: { xs: "10px", sm: "20px" },
           objectFit: "cover",
+          filter: isDarkMode ? 'brightness(0.9)' : 'none',
         }}
       />
 
@@ -88,7 +91,7 @@ const LastSubjectCard = ({ subject, progress }) => {
           fontSize={{ xs: "20px", sm: "24px" }}
           fontWeight="bold"
           mb={0.5}
-          color="#205DC7"
+          color={isDarkMode ? '#90caf9' : "#205DC7"}
           sx={{ wordBreak: "break-word" }}
         >
           {subject?.name}
@@ -96,14 +99,15 @@ const LastSubjectCard = ({ subject, progress }) => {
 
         <Typography
           sx={{
-            color: isCompleted ? "#036108" : "#FF4346",
-            border: `1px solid ${isCompleted ? "#036108" : "#FF4346"}`,
+            color: isCompleted ? "#4CAF50" : "#FF4346",
+            border: `1px solid ${isCompleted ? "#4CAF50" : "#FF4346"}`,
             borderRadius: "8px",
             padding: "5px",
             display: "inline-block",
             fontSize: "14px",
             my: "15px",
             textAlign: "center",
+            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'transparent',
           }}
           gutterBottom
         >
@@ -124,11 +128,11 @@ const LastSubjectCard = ({ subject, progress }) => {
             sx={{
               height: 24,
               borderRadius: "12px",
-              backgroundColor: "#eee",
+              backgroundColor: isDarkMode ? '#333' : "#eee",
               transition: "all 0.6s ease-out",
               "& .MuiLinearProgress-bar": {
                 transition: "transform 0.6s ease-out",
-                backgroundColor: "#205DC7",
+                backgroundColor: isDarkMode ? '#90caf9' : "#205DC7",
               },
             }}
           />
@@ -145,7 +149,8 @@ const LastSubjectCard = ({ subject, progress }) => {
               justifyContent: "center",
               fontSize: "14px",
               fontWeight: "bold",
-              color: "black",
+              color: isDarkMode ? '#FFFFFF' : "black",
+              textShadow: isDarkMode ? '0 0 2px rgba(0,0,0,0.5)' : 'none',
             }}
           >
             {Math.round(animatedProgress)}%
@@ -161,6 +166,15 @@ const LastSubjectCard = ({ subject, progress }) => {
             borderRadius: "100px",
             width: { xs: "100%", sm: "auto" },
             minWidth: { xs: "auto", sm: "140px" },
+            backgroundColor: isDarkMode ? '#90caf9' : "#205DC7",
+            color: isDarkMode ? '#121212' : 'white',
+            '&:hover': {
+              backgroundColor: isDarkMode ? '#64b5f6' : '#1648A8',
+            },
+            '&:disabled': {
+              backgroundColor: isDarkMode ? '#555' : '#ccc',
+              color: isDarkMode ? '#888' : '#666',
+            }
           }}
           variant="contained"
           size="small"

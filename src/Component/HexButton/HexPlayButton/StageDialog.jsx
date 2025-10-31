@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { CssVarsProvider } from "@mui/joy";
 import StageSummaryDialogJoy from "../../Levels/StageSummaryDialog";
 import { useStageSummary } from "../../../Pages/LevelsMap/Context/StageSummaryContext";
 
@@ -237,6 +236,7 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
               ) : (
                 "ابدأ"
               )}
+
               <ArrowBackIcon sx={{ fontSize: isMobile ? "18px" : "20px" }} />
             </Button>
           </Box>
@@ -244,13 +244,12 @@ const StagePopperCustom = ({ open, anchorEl, onClose, stage }) => {
       </Popper>
 
       {/* Stage Summary Dialog */}
-      <CssVarsProvider>
-        <StageSummaryDialogJoy
-          open={summaryOpen}
-          onClose={() => setSummaryOpen(false)}
-          stageSummaries={selectedSummary}
-        />
-      </CssVarsProvider>
+      <StageSummaryDialogJoy
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        stageSummaries={selectedSummary}
+        stage={stage}
+      />
     </>
   );
 };

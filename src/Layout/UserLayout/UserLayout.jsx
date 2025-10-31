@@ -13,6 +13,7 @@ import {
   BottomNavigationAction,
   Avatar,
   IconButton,
+  CssBaseline,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -23,6 +24,7 @@ import {
   Logout as LogoutIcon,
   Dashboard as DashboardIcon,
   Refresh as RefreshIcon,
+  Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/Icons/logo.png";
@@ -35,6 +37,8 @@ import { useAuth } from "../../Pages/Auth/AuthContext";
 import HeartsPopup from "../../Component/HeartsPopup";
 import { logoutUser } from "../../Pages/Auth/AuthApi";
 import StreakPopup from "../../Component/StreakPopup";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { useDarkMode } from "../../Context/DarkModeContext";
 
 const drawerWidth = 229;
 
@@ -62,6 +66,75 @@ const UserLayout = () => {
   const { language, isRTL, toggleLanguage, t } = useLanguage();
   const [bottomNav, setBottomNav] = useState(0);
   const role = localStorage.getItem("userRole");
+
+  // ✅ Dark Mode State
+  const { isDarkMode, setIsDarkMode } = useDarkMode();
+
+  // ✅ Create Theme based on dark mode
+  const theme = createTheme({
+    direction: isRTL ? "rtl" : "ltr",
+    palette: {
+      mode: isDarkMode ? "dark" : "light",
+      primary: {
+        main: "#005DCA",
+      },
+      secondary: {
+        main: "#f50057",
+      },
+      background: {
+        default: isDarkMode ? "#10171A" : "#EEF0F4",
+        paper: isDarkMode ? "#10171A" : "#FFFFFF",
+      },
+    },
+    typography: {
+      fontFamily: "Tajawal, Arial, sans-serif",
+    },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: isDarkMode ? "#10171A" : "#EEF0F4",
+          },
+        },
+      },
+      MuiDrawer: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: isDarkMode ? "#10171A" : "#FFFFFF",
+            color: isDarkMode ? "#FFFFFF" : "#000000",
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            "&.Mui-selected": {
+              backgroundColor: isDarkMode ? "#333333" : "#F2F2F2",
+              "&:hover": {
+                backgroundColor: isDarkMode ? "#333333" : "#F2F2F2",
+              },
+            },
+            "&:hover": {
+              backgroundColor: isDarkMode ? "#333333" : "#F2F2F2",
+            },
+          },
+        },
+      },
+      MuiBottomNavigation: {
+        styleOverrides: {
+          root: {
+            backgroundColor: isDarkMode ? "#10171A" : "#FFFFFF",
+            borderTop: isDarkMode ? "1px solid #333" : "1px solid #ddd",
+          },
+        },
+      },
+    },
+  });
+
+  // ✅ Save dark mode preference to localStorage
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   // ✅ Lightweight polling - only updates stats, not entire profile
   useEffect(() => {
@@ -124,6 +197,8 @@ const UserLayout = () => {
           alignItems: "center",
           height: "100vh",
           fontSize: "18px",
+          backgroundColor: isDarkMode ? "#10171A" : "#EEF0F4",
+          color: isDarkMode ? "#FFFFFF" : "#000000",
         }}
       >
         {t("loadingAuth")}
@@ -156,24 +231,6 @@ const UserLayout = () => {
     }
   };
 
-  // ✅ Lightweight manual refresh - only updates stats
-
-  // ✅ Function to test immediate updates (for demonstration)
-  const testImmediateUpdate = () => {
-    if (profile) {
-      const newHearts = Math.min(5, (profile.hearts || 0) + 1);
-      const newCoins = (profile.coins || 0) + 10;
-      const newStreak = (profile.streak || 0) + 1;
-
-      updateSpecificStats({
-        hearts: newHearts,
-        coins: newCoins,
-        streak: newStreak,
-      });
-      console.log("🔄 UserLayout - Test update applied");
-    }
-  };
-
   const drawer = (
     <div>
       <Box
@@ -199,21 +256,9 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "#005DCA",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <HomeIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_home")} />
@@ -226,21 +271,9 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "#005DCA",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <MenuBookIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_subjects")} />
@@ -253,21 +286,9 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "#005DCA",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <EmojiEventsIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_competitions")} />
@@ -280,27 +301,15 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "#005DCA",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <SportsKabaddiIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_challenges")} />
         </ListItemButton>
 
-        <Divider />
+        <Divider sx={{ borderColor: isDarkMode ? "#333" : "#e0e0e0" }} />
 
         <ListItemButton
           selected={
@@ -312,25 +321,31 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "#005DCA",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_profile")} />
         </ListItemButton>
+
+        {/* <ListItemButton
+          selected={
+            activeNavItem === "/settings" ||
+            activeNavItem.startsWith("/user-settings/")
+          }
+          onClick={() => navigate("/settings")}
+          sx={{
+            borderRadius: "10px",
+            width: "90%",
+            mx: "auto",
+          }}
+        >
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
+            <SettingsIcon />
+          </ListItemIcon>
+          <ListItemText primary={t("nav_settings")} />
+        </ListItemButton> */}
 
         {role === "admin" && (
           <ListItemButton
@@ -341,21 +356,9 @@ const UserLayout = () => {
               borderRadius: "10px",
               width: "90%",
               mx: "auto",
-              "&.Mui-selected": {
-                backgroundColor: "#F2F2F2",
-                "& .MuiListItemIcon-root": {
-                  color: "#005DCA",
-                },
-                "&:hover": {
-                  backgroundColor: "#F2F2F2",
-                },
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
             }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary={t("nav_admin")} />
@@ -368,21 +371,9 @@ const UserLayout = () => {
             borderRadius: "10px",
             width: "90%",
             mx: "auto",
-            "&.Mui-selected": {
-              backgroundColor: "#F2F2F2",
-              "& .MuiListItemIcon-root": {
-                color: "white",
-              },
-              "&:hover": {
-                backgroundColor: "#F2F2F2",
-              },
-            },
-            "&:hover": {
-              backgroundColor: "#F2F2F2",
-            },
           }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: isDarkMode ? "#FFFFFF" : "inherit" }}>
             <LogoutIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_logout")} />
@@ -392,367 +383,396 @@ const UserLayout = () => {
   );
 
   return (
-    <Box className="flex" dir="rtl">
-      <Box component="nav" className="flex-shrink-0">
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", md: "block" },
-            "& .MuiDrawer-paper": { width: drawerWidth },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-
-      <Box
-        component="main"
-        sx={{
-          flex: 1,
-          bgcolor: "#EEF0F4",
-          minHeight: "100vh",
-          ml: { md: `${drawerWidth}px`, xs: 0 },
-        }}
-      >
-        {/* Topbar */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            py: 2,
-            px: 1,
-            color: "#343F4E",
-          }}
-        >
-          <Typography
-            fontSize="32px"
-            fontWeight="bold"
-            sx={{ display: { xs: "none", md: "block", marginLeft: "20px" } }}
-          >
-            {pageTitle}
-          </Typography>
-
-          <Box
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box className="flex" dir={isRTL ? "rtl" : "ltr"}>
+        <Box component="nav" className="flex-shrink-0">
+          <Drawer
+            variant="permanent"
             sx={{
-              display: { xs: "flex", md: "none" },
-              alignItems: "center",
-              gap: 1,
+              display: { xs: "none", md: "block" },
+              "& .MuiDrawer-paper": {
+                width: drawerWidth,
+                backgroundColor: isDarkMode ? "#10171A" : "#FFFFFF",
+                color: isDarkMode ? "#FFFFFF" : "#000000",
+              },
             }}
+            open
           >
-            <Box
-              sx={{
-                display: { xs: "flex", md: "none" },
-                alignItems: "center",
-                gap: { xs: 0.5, sm: 1 },
-              }}
-            >
-              <img
-                src={Logo}
-                alt="Logo"
-                style={{
-                  height: "auto",
-                  maxHeight: "32px",
-                }}
-              />
-              <Typography
-                fontWeight="bold"
-                sx={{
-                  fontSize: { xs: "16px", sm: "24px", md: "24px" },
-                }}
-              >
-                {t("appName")}
-              </Typography>
-            </Box>
-          </Box>
-
-          {profileLoading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 1,
-                alignItems: "center",
-                color: "#666",
-              }}
-            >
-              {/* Loading state */}
-            </Box>
-          ) : profile && profile.hearts !== undefined ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 1,
-                alignItems: "center",
-              }}
-            >
-              {/* Coins Section */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  height: { xs: "35px", sm: "46px" },
-                  bgcolor: "white",
-                  borderRadius: "50px",
-                  px: { xs: "10px", sm: "20px" },
-                  py: "5px",
-                }}
-              >
-                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.coins || 0}
-                </Typography>
-                <Box
-                  component="img"
-                  src={Coin}
-                  alt="coin"
-                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
-                />
-              </Box>
-
-              {/* Streak Section */}
-              <Box
-                ref={streakAnchorRef}
-                onClick={handleStreakClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  height: { xs: "35px", sm: "46px" },
-                  bgcolor: "white",
-                  borderRadius: "50px",
-                  px: { xs: "10px", sm: "20px" },
-                  py: "5px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "#F8F8F8",
-                    transform: "scale(1.02)",
-                  },
-                  "&:active": {
-                    transform: "scale(0.98)",
-                  },
-                }}
-              >
-                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.streak || 0}
-                </Typography>
-                <Box
-                  component="img"
-                  src={Fire}
-                  alt="fire"
-                  sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
-                />
-              </Box>
-
-              {/* Hearts Section */}
-              <Box
-                ref={heartsAnchorRef}
-                onClick={handleHeartsClick}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  height: { xs: "35px", sm: "46px" },
-                  bgcolor: "white",
-                  borderRadius: "50px",
-                  px: { xs: "10px", sm: "20px" },
-                  py: "5px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "#F8F8F8",
-                    transform: "scale(1.02)",
-                  },
-                  "&:active": {
-                    transform: "scale(0.98)",
-                  },
-                }}
-              >
-                <Typography fontSize={{ xs: "12px", sm: "14px" }}>
-                  {profile.hearts || 0}
-                </Typography>
-                <Box
-                  component="img"
-                  src={Heart}
-                  alt="heart"
-                  sx={{
-                    width: { xs: 14, sm: 18, md: 22 },
-                    height: "auto",
-                    transition: "transform 0.2s ease",
-                  }}
-                />
-              </Box>
-
-              {/* Avatar */}
-              <Box
-                onClick={() => navigate("/profile")}
-                sx={{ cursor: "pointer" }}
-              >
-                {profile.avatar ? (
-                  <Box
-                    component="img"
-                    src={profile.avatar}
-                    alt="avatar"
-                    sx={{
-                      width: { xs: 35, sm: 45, md: 60 },
-                      height: { xs: 35, sm: 45, md: 60 },
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                    }}
-                  />
-                ) : (
-                  <Avatar
-                    sx={{
-                      width: { xs: 35, sm: 45, md: 60 },
-                      height: { xs: 35, sm: 45, md: 60 },
-                      bgcolor: "#1976d2",
-                      fontSize: { xs: "12px", sm: "14px" },
-                    }}
-                  >
-                    {profile.first_name
-                      ? profile.first_name.charAt(0).toUpperCase()
-                      : "U"}
-                  </Avatar>
-                )}
-              </Box>
-            </Box>
-          ) : null}
+            {drawer}
+          </Drawer>
         </Box>
 
-        <Divider />
         <Box
           component="main"
           sx={{
             flex: 1,
-            pb: { xs: "80px", md: "40px" },
+            bgcolor: "background.default",
+            minHeight: "100vh",
+            ml: { md: `${drawerWidth}px`, xs: 0 },
           }}
         >
-          <Outlet context={{ setPageTitle }} />
+          {/* Topbar */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              py: 2,
+              px: 1,
+              color: isDarkMode ? "#FFFFFF" : "#343F4E",
+            }}
+          >
+            <Typography
+              fontSize="32px"
+              fontWeight="bold"
+              sx={{ display: { xs: "none", md: "block", marginLeft: "20px" } }}
+            >
+              {pageTitle}
+            </Typography>
+
+            <Box
+              sx={{
+                display: { xs: "flex", md: "none" },
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  display: { xs: "flex", md: "none" },
+                  alignItems: "center",
+                  gap: { xs: 0.5, sm: 1 },
+                }}
+              >
+                <img
+                  src={Logo}
+                  alt="Logo"
+                  style={{
+                    height: "auto",
+                    maxHeight: "32px",
+                  }}
+                />
+                <Typography
+                  fontWeight="bold"
+                  sx={{
+                    fontSize: { xs: "16px", sm: "24px", md: "24px" },
+                  }}
+                >
+                  {t("appName")}
+                </Typography>
+              </Box>
+            </Box>
+
+            {profileLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1,
+                  alignItems: "center",
+                  color: isDarkMode ? "#CCCCCC" : "#666",
+                }}
+              >
+                {/* Loading state */}
+              </Box>
+            ) : profile && profile.hearts !== undefined ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1,
+                  alignItems: "center",
+                }}
+              >
+                {/* Coins Section */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    height: { xs: "35px", sm: "46px" },
+                    bgcolor: isDarkMode ? "#343F4E" : "white",
+                    borderRadius: "50px",
+                    px: { xs: "10px", sm: "20px" },
+                    py: "5px",
+                    color: isDarkMode ? "#FFFFFF" : "inherit",
+                  }}
+                >
+                  <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                    {profile.coins || 0}
+                  </Typography>
+                  <Box
+                    component="img"
+                    src={Coin}
+                    alt="coin"
+                    sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                  />
+                </Box>
+
+                {/* Streak Section */}
+                <Box
+                  ref={streakAnchorRef}
+                  onClick={handleStreakClick}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    height: { xs: "35px", sm: "46px" },
+                    bgcolor: isDarkMode ? "#343F4E" : "white",
+                    borderRadius: "50px",
+                    px: { xs: "10px", sm: "20px" },
+                    py: "5px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    color: isDarkMode ? "#FFFFFF" : "inherit",
+                    "&:hover": {
+                      backgroundColor: isDarkMode ? "#444" : "#F8F8F8",
+                      transform: "scale(1.02)",
+                    },
+                    "&:active": {
+                      transform: "scale(0.98)",
+                    },
+                  }}
+                >
+                  <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                    {profile.streak || 0}
+                  </Typography>
+                  <Box
+                    component="img"
+                    src={Fire}
+                    alt="fire"
+                    sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                  />
+                </Box>
+
+                {/* Hearts Section */}
+                <Box
+                  ref={heartsAnchorRef}
+                  onClick={handleHeartsClick}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    height: { xs: "35px", sm: "46px" },
+                    bgcolor: isDarkMode ? "#343F4E" : "white",
+                    borderRadius: "50px",
+                    px: { xs: "10px", sm: "20px" },
+                    py: "5px",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    color: isDarkMode ? "#FFFFFF" : "inherit",
+                    "&:hover": {
+                      backgroundColor: isDarkMode ? "#444" : "#F8F8F8",
+                      transform: "scale(1.02)",
+                    },
+                    "&:active": {
+                      transform: "scale(0.98)",
+                    },
+                  }}
+                >
+                  <Typography fontSize={{ xs: "12px", sm: "14px" }}>
+                    {profile.hearts || 0}
+                  </Typography>
+                  <Box
+                    component="img"
+                    src={Heart}
+                    alt="heart"
+                    sx={{
+                      width: { xs: 14, sm: 18, md: 22 },
+                      height: "auto",
+                      transition: "transform 0.2s ease",
+                    }}
+                  />
+                </Box>
+
+                {/* Avatar */}
+                <Box
+                  onClick={() => navigate("/profile")}
+                  sx={{ cursor: "pointer" }}
+                >
+                  {profile.avatar ? (
+                    <Box
+                      component="img"
+                      src={profile.avatar}
+                      alt="avatar"
+                      sx={{
+                        width: { xs: 35, sm: 45, md: 60 },
+                        height: { xs: 35, sm: 45, md: 60 },
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        width: { xs: 35, sm: 45, md: 60 },
+                        height: { xs: 35, sm: 45, md: 60 },
+                        bgcolor: "#1976d2",
+                        fontSize: { xs: "12px", sm: "14px" },
+                      }}
+                    >
+                      {profile.first_name
+                        ? profile.first_name.charAt(0).toUpperCase()
+                        : "U"}
+                    </Avatar>
+                  )}
+                </Box>
+              </Box>
+            ) : null}
+          </Box>
+
+          <Divider sx={{ borderColor: isDarkMode ? "#333" : "#e0e0e0" }} />
+          <Box
+            component="main"
+            sx={{
+              flex: 1,
+              pb: { xs: "80px", md: "40px" },
+            }}
+          >
+            <Outlet context={{ setPageTitle, isDarkMode, setIsDarkMode }} />
+          </Box>
         </Box>
-      </Box>
 
-      {/* Bottom Navigation for Mobile / iPad */}
-      <Box
-        sx={{
-          display: { xs: "block", sm: "block", md: "none" },
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          bgcolor: "white",
-          zIndex: 1000,
-          borderTop: "1px solid #ddd",
-        }}
-      >
-        <BottomNavigation
-          showLabels
-          value={bottomNav}
-          onChange={(event, newValue) => {
-            setBottomNav(newValue);
-            switch (newValue) {
-              case 0:
-                navigate("/home");
-                break;
-              case 1:
-                navigate("/subjects");
-                break;
-              case 2:
-                navigate("/competitions");
-                break;
-              case 3:
-                navigate("/achievements");
-                break;
-              case 4:
-                navigate("/profile");
-                break;
-              default:
-                break;
-            }
-          }}
+        {/* Bottom Navigation for Mobile / iPad */}
+        <Box
           sx={{
-            height: { xs: 56, sm: 64, md: 72 },
+            display: { xs: "block", sm: "block", md: "none" },
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            bgcolor: isDarkMode ? "#10171A" : "white",
+            zIndex: 1000,
+            borderTop: isDarkMode ? "1px solid #333" : "1px solid #ddd",
           }}
         >
-          <BottomNavigationAction
-            label="الرئيسية"
-            icon={<HomeIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
-            sx={{
-              "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" },
-              },
-              minWidth: { xs: 50, sm: 70 },
+          <BottomNavigation
+            showLabels
+            value={bottomNav}
+            onChange={(event, newValue) => {
+              setBottomNav(newValue);
+              switch (newValue) {
+                case 0:
+                  navigate("/home");
+                  break;
+                case 1:
+                  navigate("/subjects");
+                  break;
+                case 2:
+                  navigate("/competitions");
+                  break;
+                case 3:
+                  navigate("/achievements");
+                  break;
+                case 4:
+                  navigate("/profile");
+                  break;
+                default:
+                  break;
+              }
             }}
-          />
-          <BottomNavigationAction
-            label="المواد"
-            icon={
-              <MenuBookIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
-            }
             sx={{
+              height: { xs: 56, sm: 64, md: 72 },
+              backgroundColor: isDarkMode ? "#10171A" : "#FFFFFF",
               "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
               },
-              minWidth: { xs: 50, sm: 70 },
-            }}
-          />
-          <BottomNavigationAction
-            label="المسابقات"
-            icon={
-              <EmojiEventsIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
-            }
-            sx={{
-              "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" },
+              "& .Mui-selected": {
+                color: isDarkMode ? "#90caf9" : "#005DCA",
               },
-              minWidth: { xs: 50, sm: 70 },
             }}
-          />
-          <BottomNavigationAction
-            label="التحديات"
-            icon={
-              <SportsKabaddiIcon
-                sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
-              />
-            }
-            sx={{
-              "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" },
-              },
-              minWidth: { xs: 50, sm: 70 },
-            }}
-          />
-          <BottomNavigationAction
-            label="الملف"
-            icon={<PersonIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
-            sx={{
-              "& .MuiBottomNavigationAction-label": {
-                fontSize: { xs: "10px", sm: "12px", md: "14px" },
-              },
-              minWidth: { xs: 50, sm: 70 },
-            }}
-          />
-        </BottomNavigation>
-      </Box>
+          >
+            <BottomNavigationAction
+              label="الرئيسية"
+              icon={<HomeIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
+              sx={{
+                "& .MuiBottomNavigationAction-label": {
+                  fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                },
+                minWidth: { xs: 50, sm: 70 },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
+              }}
+            />
+            <BottomNavigationAction
+              label="المواد"
+              icon={
+                <MenuBookIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
+              }
+              sx={{
+                "& .MuiBottomNavigationAction-label": {
+                  fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                },
+                minWidth: { xs: 50, sm: 70 },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
+              }}
+            />
+            <BottomNavigationAction
+              label="المسابقات"
+              icon={
+                <EmojiEventsIcon
+                  sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
+                />
+              }
+              sx={{
+                "& .MuiBottomNavigationAction-label": {
+                  fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                },
+                minWidth: { xs: 50, sm: 70 },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
+              }}
+            />
+            <BottomNavigationAction
+              label="التحديات"
+              icon={
+                <SportsKabaddiIcon
+                  sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
+                />
+              }
+              sx={{
+                "& .MuiBottomNavigationAction-label": {
+                  fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                },
+                minWidth: { xs: 50, sm: 70 },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
+              }}
+            />
+            <BottomNavigationAction
+              label="الملف"
+              icon={
+                <PersonIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
+              }
+              sx={{
+                "& .MuiBottomNavigationAction-label": {
+                  fontSize: { xs: "10px", sm: "12px", md: "14px" },
+                },
+                minWidth: { xs: 50, sm: 70 },
+                color: isDarkMode ? "#FFFFFF" : "inherit",
+              }}
+            />
+          </BottomNavigation>
+        </Box>
 
-      <HeartsPopup
-        open={heartsPopupOpen}
-        onClose={() => setHeartsPopupOpen(false)}
-        currentHearts={profile?.hearts}
-        maxHearts={5}
-        refillInterval={profile?.refill_interval}
-        lastHeartUpdate={profile?.last_heart_update}
-        anchorEl={heartsAnchorRef.current}
-      />
-      <StreakPopup
-        open={streakPopupOpen}
-        onClose={() => setStreakPopupOpen(false)}
-        currentStreak={profile?.streak}
-        anchorEl={streakAnchorRef.current}
-      />
-    </Box>
+        <HeartsPopup
+          open={heartsPopupOpen}
+          onClose={() => setHeartsPopupOpen(false)}
+          currentHearts={profile?.hearts}
+          maxHearts={9}
+          refillInterval={profile?.refill_interval}
+          lastHeartUpdate={profile?.last_heart_update}
+          anchorEl={heartsAnchorRef.current}
+          isDarkMode={isDarkMode}
+          onHeartsUpdate={fetchStatsOnly} // Add this line
+        />
+        <StreakPopup
+          open={streakPopupOpen}
+          onClose={() => setStreakPopupOpen(false)}
+          currentStreak={profile?.streak}
+          anchorEl={streakAnchorRef.current}
+          isDarkMode={isDarkMode}
+        />
+      </Box>
+    </ThemeProvider>
   );
 };
 

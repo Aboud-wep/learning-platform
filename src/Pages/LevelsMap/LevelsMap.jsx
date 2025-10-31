@@ -17,7 +17,7 @@ const LevelsMap = () => {
   const { profile } = useHome();
   const { subjects, loadingg, userProgress } = useSubjects();
   const { subjectId } = useParams();
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const [selectedStage, setSelectedStage] = useState(null);
   const navigate = useNavigate();
 
@@ -41,13 +41,15 @@ const LevelsMap = () => {
     }
   }, [mySubjects, subjectId, navigate, loadingg]);
 
-  if (loading) return <LevelsMapSkeletonReall />;
+  if (loading) return <LevelsMapSkeletonReall isDarkMode={isDarkMode} />;
 
   if (!levelsData) {
     return (
-      <Typography color="error" textAlign="center" mt={4}>
-        هذه المادة ليست من موادك
-      </Typography>
+      <Box sx={{ bgcolor: isDarkMode ? 'background.default' : 'transparent', minHeight: '100vh', p: 2 }}>
+        <Typography color="error" textAlign="center" mt={4}>
+          هذه المادة ليست من موادك
+        </Typography>
+      </Box>
     );
   }
 
@@ -58,6 +60,10 @@ const LevelsMap = () => {
       justifyContent="center"
       gap={4}
       p={2}
+      sx={{
+        bgcolor: isDarkMode ? 'background.default' : 'transparent',
+        minHeight: '100vh',
+      }}
     >
       {/* Levels Content */}
       <Box
@@ -66,19 +72,24 @@ const LevelsMap = () => {
         maxWidth={{ md: "800px" }}
         mx="auto"
       >
-        <Typography variant="h5" fontWeight="bold" mb={2} textAlign="center">
+        <Typography 
+          variant="h5" 
+          fontWeight="bold" 
+          mb={2} 
+          textAlign="center"
+          color={isDarkMode ? 'text.primary' : 'inherit'}
+        >
           {levelsData.name}
         </Typography>
         <Typography
           variant="body1"
-          color="text.secondary"
+          color={isDarkMode ? 'text.secondary' : "text.secondary"}
           mb={4}
           textAlign="center"
         >
           {levelsData.description}
         </Typography>
 
-        {/* ✅ Stages Zig-Zag with alternating side characters */}
         {/* ✅ Stages Zig-Zag with alternating side characters */}
         <Box
           sx={{
@@ -138,6 +149,7 @@ const LevelsMap = () => {
                         width: { xs: "124px", sm: "auto" },
                         height: { xs: "133px", sm: "auto" },
                         userSelect: "none",
+                        filter: isDarkMode ? 'brightness(0.8)' : 'none',
                       }}
                     />
                   </Box>
@@ -145,13 +157,13 @@ const LevelsMap = () => {
 
                 {/* Stage Button */}
                 {items.length === 0 ? (
-                  <HexLockButton label={stage.name} />
+                  <HexLockButton label={stage.name} isDarkMode={isDarkMode} />
                 ) : isDone ? (
-                  <HexCheckButton label={stage.name} />
+                  <HexCheckButton label={stage.name} isDarkMode={isDarkMode} />
                 ) : isPlayable ? (
-                  <HexPlayButton stage={stage} />
+                  <HexPlayButton stage={stage} isDarkMode={isDarkMode} />
                 ) : (
-                  <HexLockButton label={stage.name} />
+                  <HexLockButton label={stage.name} isDarkMode={isDarkMode} />
                 )}
               </Box>
             );
@@ -169,7 +181,11 @@ const LevelsMap = () => {
           display: { xs: "none", lg: "block" },
         }}
       >
-        <ProfileStatsCard profile={profile} mySubjects={mySubjects} />
+        <ProfileStatsCard 
+          profile={profile} 
+          mySubjects={mySubjects} 
+          isDarkMode={isDarkMode}
+        />
       </Box>
     </Box>
   );

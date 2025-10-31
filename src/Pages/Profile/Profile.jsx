@@ -35,6 +35,7 @@ import {
   EmojiEventsOutlined,
   Visibility,
   VisibilityOff,
+  Settings as SettingsIcon,
 } from "@mui/icons-material";
 
 import {
@@ -69,7 +70,7 @@ const Profile = () => {
   const [lastName, setLastName] = useState(profile?.last_name || "");
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(profile?.avatar || "");
-  const { setPageTitle } = useOutletContext();
+  const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
   const handleOpenDialog = () => setOpenDialog(true);
   const handleCloseDialog = () => setOpenDialog(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
@@ -336,6 +337,7 @@ const Profile = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "50vh",
+          bgcolor: isDarkMode ? 'background.default' : 'transparent',
         }}
       >
         <CircularProgress />
@@ -352,6 +354,8 @@ const Profile = () => {
         gap: { xs: 3, md: 2 },
         px: { xs: 2, sm: 3, md: 4 },
         mx: "auto",
+        bgcolor: isDarkMode ? 'background.default' : 'transparent',
+        minHeight: '100vh',
       }}
     >
       {/* Main Content */}
@@ -371,6 +375,7 @@ const Profile = () => {
               height: { xs: "270px", sm: "300px" },
               mx: "auto",
               mb: "10px",
+              border: isDarkMode ? '2px solid #333' : 'none',
             }}
           >
             {!avatarPreview && (
@@ -403,7 +408,11 @@ const Profile = () => {
               <Typography
                 variant="h5"
                 fontWeight="bold"
-                sx={{ fontSize: "48px", mb: 2 }}
+                sx={{ 
+                  fontSize: "48px", 
+                  mb: 2,
+                  color: isDarkMode ? 'text.primary' : 'inherit',
+                }}
               >
                 {profile.first_name} {profile.last_name}
               </Typography>
@@ -431,12 +440,22 @@ const Profile = () => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                  }
+                }}
               />
               <TextField
                 label="الاسم الأخير"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                  }
+                }}
               />
 
               {/* --- Toggle Password Change --- */}
@@ -491,6 +510,11 @@ const Profile = () => {
                         </InputAdornment>
                       ),
                     }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                      }
+                    }}
                   />
 
                   <TextField
@@ -521,6 +545,11 @@ const Profile = () => {
                           </IconButton>
                         </InputAdornment>
                       ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                      }
                     }}
                   />
 
@@ -554,6 +583,11 @@ const Profile = () => {
                           </IconButton>
                         </InputAdornment>
                       ),
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                      }
                     }}
                   />
 
@@ -606,7 +640,10 @@ const Profile = () => {
             </Box>
           )}
 
-          <Typography color="textSecondary" sx={{ fontSize: "24px" }}>
+          <Typography 
+            color={isDarkMode ? 'text.secondary' : "textSecondary"} 
+            sx={{ fontSize: "24px" }}
+          >
             {profile.title || "بدون لقب"}
           </Typography>
           <Box
@@ -616,16 +653,20 @@ const Profile = () => {
             gap={1}
             mt={1}
           >
-            <CalendarTodayIcon fontSize="small" color="action" />
+            <CalendarTodayIcon fontSize="small" color={isDarkMode ? 'disabled' : "action"} />
             <Typography
-              color="textSecondary"
+              color={isDarkMode ? 'text.secondary' : "textSecondary"}
               sx={{ fontSize: { xs: "16px", sm: "18px" } }}
             >
               تم الإنضمام في: {formattedDate}
             </Typography>
           </Box>
         </Box>
-        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+        <Divider sx={{ 
+          my: 4, 
+          display: { xs: "block", md: "none" },
+          borderColor: isDarkMode ? '#333' : '#e0e0e0'
+        }} />
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item xs={12} sm={6} md={3}>
             <Box
@@ -639,6 +680,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
               }}
             >
               <Typography
@@ -671,6 +713,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
               }}
             >
               <Typography
@@ -703,6 +746,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
               }}
             >
               <Typography
@@ -735,6 +779,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
+                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
               }}
             >
               <Typography
@@ -755,7 +800,11 @@ const Profile = () => {
             </Box>
           </Grid>
         </Grid>
-        <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+        <Divider sx={{ 
+          my: 4, 
+          display: { xs: "block", md: "none" },
+          borderColor: isDarkMode ? '#333' : '#e0e0e0'
+        }} />
         {/* Achievements Section */}
         {!achievementsLoading && achievements.length === 0 ? null : (
           <Box>
@@ -772,7 +821,7 @@ const Profile = () => {
                 fontWeight="bold"
                 sx={{
                   fontSize: { xs: "18px", sm: "20px", md: "24px" },
-                  color: "#2D2D2D",
+                  color: isDarkMode ? 'text.primary' : "#2D2D2D",
                 }}
               >
                 التحديات
@@ -801,7 +850,7 @@ const Profile = () => {
               }}
             >
               {achievementsLoading ? (
-                <ListSkeleton count={isMobile ? 2 : 4} height={120} />
+                <ListSkeleton count={isMobile ? 2 : 4} height={120} isDarkMode={isDarkMode} />
               ) : (
                 achievements
                   .slice(0, isMobile ? 2 : achievements.length)
@@ -812,9 +861,11 @@ const Profile = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: 2,
-                          backgroundColor: "#fff",
+                          backgroundColor: isDarkMode ? 'background.paper' : "#fff",
                           borderRadius: "20px",
                           p: { xs: 0, md: 2.5 },
+                          border: isDarkMode ? '1px solid #333' : 'none',
+                          boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                         }}
                       >
                         <Avatar
@@ -823,7 +874,7 @@ const Profile = () => {
                           sx={{
                             width: { xs: 93, md: "auto" },
                             height: { xs: 138, md: 93 },
-                            backgroundColor: "#F0F7FF",
+                            backgroundColor: isDarkMode ? '#2A2A2A' : "#F0F7FF",
                             borderRadius: "12px",
                             m: 1,
                           }}
@@ -848,7 +899,7 @@ const Profile = () => {
                                 sx={{
                                   fontWeight: 500,
                                   fontSize: "16px",
-                                  color: "#2D2D2D",
+                                  color: isDarkMode ? 'text.primary' : "#2D2D2D",
                                   mb: 0.5,
                                 }}
                               >
@@ -860,7 +911,7 @@ const Profile = () => {
                                 sx={{
                                   fontWeight: 500,
                                   fontSize: "16px",
-                                  color: "#2D2D2D",
+                                  color: isDarkMode ? 'text.secondary' : "#2D2D2D",
                                   mb: 0.5,
                                 }}
                               >
@@ -876,6 +927,9 @@ const Profile = () => {
                                   borderRadius: "1000px",
                                   py: 1,
                                   backgroundColor: "#205DC7",
+                                  '&:hover': {
+                                    backgroundColor: '#1648A8',
+                                  }
                                 }}
                                 onClick={() => claimReward(item.achievement.id)}
                                 disabled={loadingId === item.achievement.id}
@@ -896,7 +950,7 @@ const Profile = () => {
                               sx={{
                                 height: { xs: 14, sm: 24 },
                                 borderRadius: "8px",
-                                backgroundColor: "#F0F0F0",
+                                backgroundColor: isDarkMode ? '#333' : "#F0F0F0",
                                 "& .MuiLinearProgress-bar": {
                                   borderRadius: "8px",
                                   backgroundColor: "#81AB00",
@@ -911,10 +965,10 @@ const Profile = () => {
                                 top: "50%",
                                 left: "50%",
                                 transform: "translate(-50%, -50%)",
-                                color: "black",
+                                color: isDarkMode ? '#FFFFFF' : "black",
                                 fontWeight: "bold",
                                 fontSize: "16px",
-                                textShadow: "0 0 2px rgba(0,0,0,0.3)",
+                                textShadow: isDarkMode ? "0 0 2px rgba(255,255,255,0.3)" : "0 0 2px rgba(0,0,0,0.3)",
                               }}
                             >
                               {animatedValues[index] === 100
@@ -932,7 +986,11 @@ const Profile = () => {
         )}
       </Box>
       {/* sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
-      <Divider sx={{ my: 4, display: { xs: "block", md: "none" } }} />
+      <Divider sx={{ 
+        my: 4, 
+        display: { xs: "block", md: "none" },
+        borderColor: isDarkMode ? '#333' : '#e0e0e0'
+      }} />
       {/* Sidebar - Friends Section */}
       <Box
         sx={{
@@ -943,11 +1001,20 @@ const Profile = () => {
       >
         <Paper
           elevation={2}
-          sx={{ p: { xs: 2, md: "30px" }, borderRadius: "20px", mb: 3 }}
+          sx={{ 
+            p: { xs: 2, md: "30px" }, 
+            borderRadius: "20px", 
+            mb: 3,
+            backgroundColor: isDarkMode ? 'background.paper' : 'white',
+            border: isDarkMode ? '1px solid #333' : 'none',
+          }}
         >
           <Typography
             fontWeight="bold"
-            sx={{ fontSize: { xs: "20px", md: "24px" } }}
+            sx={{ 
+              fontSize: { xs: "20px", md: "24px" },
+              color: isDarkMode ? 'text.primary' : 'inherit',
+            }}
             mb={2}
           >
             أصدقائي
@@ -976,12 +1043,17 @@ const Profile = () => {
                     src={friendAvatar || ""}
                     sx={{ width: 40, height: 40 }}
                   />
-                  <Typography sx={{ fontSize: { xs: "14px", md: "16px" } }}>
+                  <Typography 
+                    sx={{ 
+                      fontSize: { xs: "14px", md: "16px" },
+                      color: isDarkMode ? 'text.primary' : 'inherit',
+                    }}
+                  >
                     {friendFirstName} {friendLastName}
                   </Typography>
                 </Box>
                 <Typography
-                  color="gray"
+                  color={isDarkMode ? 'text.secondary' : "gray"}
                   sx={{ fontSize: { xs: "14px", md: "16px" } }}
                 >
                   {friendXp} XP
@@ -1008,12 +1080,17 @@ const Profile = () => {
             p: { xs: 2, md: "30px" },
             borderRadius: "20px",
             cursor: "pointer",
+            backgroundColor: isDarkMode ? 'background.paper' : 'white',
+            border: isDarkMode ? '1px solid #333' : 'none',
           }}
           onClick={handleOpenDialog}
         >
           <Typography
             fontWeight="bold"
-            sx={{ fontSize: { xs: "20px", md: "24px" } }}
+            sx={{ 
+              fontSize: { xs: "20px", md: "24px" },
+              color: isDarkMode ? 'text.primary' : 'inherit',
+            }}
             mb={2}
           >
             الأصدقاء المقترحون
@@ -1032,13 +1109,16 @@ const Profile = () => {
               <Box>
                 <Typography
                   fontWeight="bold"
-                  sx={{ fontSize: { xs: "14px", md: "16px" } }}
+                  sx={{ 
+                    fontSize: { xs: "14px", md: "16px" },
+                    color: isDarkMode ? 'text.primary' : 'inherit',
+                  }}
                 >
                   {user.first_name} {user.last_name}
                 </Typography>
                 <Typography
                   variant="caption"
-                  color="text.secondary"
+                  color={isDarkMode ? 'text.secondary' : "text.secondary"}
                   sx={{ fontSize: { xs: "12px", md: "14px" } }}
                 >
                   @{user.username}
@@ -1058,7 +1138,10 @@ const Profile = () => {
                 "& input": {
                   cursor: "pointer",
                   fontSize: { xs: "14px", md: "16px" },
+                  backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                  color: isDarkMode ? 'text.primary' : 'inherit',
                 },
+                backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
               },
             }}
             sx={{
@@ -1077,9 +1160,13 @@ const Profile = () => {
           open={openDialog}
           onClose={handleCloseDialog}
           recommended={recommended}
+          isDarkMode={isDarkMode}
         />
       </Box>
-      <Divider sx={{ display: { xs: "flex", md: "none" } }} />
+      <Divider sx={{ 
+        display: { xs: "flex", md: "none" },
+        borderColor: isDarkMode ? '#333' : '#e0e0e0'
+      }} />
       <Box
         sx={{
           alignItems: "center",
@@ -1088,6 +1175,7 @@ const Profile = () => {
           justifyContent: "center",
           gap: 1,
           width: "100%",
+          mt: 2,
         }}
       >
         {/* لوحة التحكم */}
@@ -1111,6 +1199,22 @@ const Profile = () => {
           </Button>
         )}
 
+        {/* الإعدادات */}
+        {/* <Button
+          variant="contained"
+          startIcon={<SettingsIcon />}
+          onClick={() => navigate("/settings")}
+          sx={{
+            flex: 1,
+            borderRadius: "20px",
+            backgroundColor: "#205DC7",
+            "&:hover": { backgroundColor: "#174ea6" },
+            order: { xs: 2, sm: 3 },
+          }}
+        >
+          الإعدادات
+        </Button> */}
+
         {/* تسجيل الخروج */}
         <Button
           onClick={handleLogout}
@@ -1128,7 +1232,7 @@ const Profile = () => {
             ":hover": {
               backgroundColor: "#d32f2f",
             },
-            order: { xs: 2, sm: 1 },
+            order: { xs: 3, sm: 1 },
           }}
         >
           تسجيل الخروج
@@ -1140,166 +1244,16 @@ const Profile = () => {
         open={openXPDialog}
         onClose={() => setOpenXPDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
       <AchievementRewardFreezeDialog
         open={openFreezeDialog}
         onClose={() => setOpenFreezeDialog(false)}
         rewards={dialogRewards}
+        isDarkMode={isDarkMode}
       />
     </Box>
   );
 };
 
 export default Profile;
-
-// import React, { useState } from "react";
-// import {
-//   Box,
-//   Avatar,
-//   Typography,
-//   Button,
-//   TextField,
-//   CircularProgress,
-// } from "@mui/material";
-// import PersonIcon from "@mui/icons-material/Person";
-// import { useProfile } from "../../Context/ProfileContext";
-
-// const ProfileHeader = ({ profile }) => {
-//   const {
-//     updateUserProfile,
-//     updateLoading,
-//     updateSuccess,
-//     error,
-//     setUpdateSuccess,
-//   } = useProfile();
-
-//   const [editMode, setEditMode] = useState(false);
-//   const [firstName, setFirstName] = useState(profile.first_name || "");
-//   const [lastName, setLastName] = useState(profile.last_name || "");
-//   const [avatar, setAvatar] = useState(null);
-//   const [avatarPreview, setAvatarPreview] = useState(profile.avatar || "");
-
-//   const handleAvatarChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       setAvatar(file);
-//       setAvatarPreview(URL.createObjectURL(file));
-//     }
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const formData = new FormData();
-//     formData.append("first_name", firstName);
-//     formData.append("last_name", lastName);
-//     if (avatar) formData.append("avatar", avatar);
-
-//     await updateUserProfile(formData);
-//     setEditMode(false);
-//   };
-
-//   return (
-//     <Box textAlign="center" mb={4}>
-//       <Box position="relative" display="inline-block">
-//         <Avatar
-//           src={avatarPreview || ""}
-//           sx={{
-//             width: { xs: "270px", sm: "300px" },
-//             height: { xs: "270px", sm: "300px" },
-//             mx: "auto",
-//             mb: "10px",
-//           }}
-//         >
-//           {!avatarPreview && (
-//             <PersonIcon sx={{ fontSize: { xs: 40, md: 60 } }} />
-//           )}
-//         </Avatar>
-
-//         {editMode && (
-//           <Button
-//             component="label"
-//             variant="contained"
-//             color="primary"
-//             size="small"
-//             sx={{
-//               position: "absolute",
-//               bottom: 15,
-//               right: 15,
-//               borderRadius: "50px",
-//               fontSize: "12px",
-//             }}
-//           >
-//             تغيير الصورة
-//             <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
-//           </Button>
-//         )}
-//       </Box>
-
-//       {!editMode ? (
-//         <>
-//           <Typography
-//             variant="h5"
-//             fontWeight="bold"
-//             sx={{ fontSize: "48px", mb: 2 }}
-//           >
-//             {profile.first_name} {profile.last_name}
-//           </Typography>
-
-//           <Button
-//             variant="outlined"
-//             color="primary"
-//             onClick={() => {
-//               setEditMode(true);
-//               setUpdateSuccess(false);
-//             }}
-//           >
-//             تعديل الملف الشخصي
-//           </Button>
-//         </>
-//       ) : (
-//         <Box
-//           component="form"
-//           onSubmit={handleSubmit}
-//           sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
-//         >
-//           <TextField
-//             label="الاسم الأول"
-//             value={firstName}
-//             onChange={(e) => setFirstName(e.target.value)}
-//             fullWidth
-//           />
-//           <TextField
-//             label="الاسم الأخير"
-//             value={lastName}
-//             onChange={(e) => setLastName(e.target.value)}
-//             fullWidth
-//           />
-
-//           <Box display="flex" justifyContent="center" gap={2}>
-//             <Button
-//               variant="contained"
-//               type="submit"
-//               disabled={updateLoading}
-//             >
-//               {updateLoading ? <CircularProgress size={24} /> : "حفظ التغييرات"}
-//             </Button>
-//             <Button
-//               variant="outlined"
-//               color="secondary"
-//               onClick={() => setEditMode(false)}
-//             >
-//               إلغاء
-//             </Button>
-//           </Box>
-
-//           {updateSuccess && (
-//             <Typography color="success.main">✅ تم التحديث بنجاح</Typography>
-//           )}
-//           {error && <Typography color="error.main">❌ {error}</Typography>}
-//         </Box>
-//       )}
-//     </Box>
-//   );
-// };
-
-// export default ProfileHeader;
