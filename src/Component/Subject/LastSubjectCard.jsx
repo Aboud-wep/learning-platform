@@ -3,6 +3,7 @@ import { Box, Typography, LinearProgress, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { useQuestion } from "../../Pages/Questions/Context/QuestionContext";
+import Image from "../../assets/Images/Image.png";
 
 const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
   const allItems =
@@ -63,7 +64,7 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
       {/* Responsive Image */}
       <Box
         component="img"
-        src={subject?.image}
+        src={subject?.image || Image}
         alt={subject?.name}
         sx={{
           width: { xs: "100%", md: "294px" },

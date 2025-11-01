@@ -119,7 +119,7 @@ export default function SingleChoiceQuestion({
         style={{
           fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",
           fontWeight: "bold",
-          marginBottom: isMobile ? "80px" : "24px",
+          marginBottom: isMobile ? "20px" : "24px",
           padding: isMobile ? "0 8px" : "0",
         }}
       >

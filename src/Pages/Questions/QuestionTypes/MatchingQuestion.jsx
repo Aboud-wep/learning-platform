@@ -210,7 +210,7 @@ const MatchingQuestion = ({ question, handleSubmit, setIsCorrect }) => {
         </div>
       </Box>
       <Box
-        className="flex justify-center flex-wrap my-[75px]"
+        className="flex justify-center flex-wrap "
         sx={{ gap: { xs: "10px", sm: "40px" } }}
       >
         {/* Left column */}

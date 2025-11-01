@@ -24,6 +24,169 @@ import axios from "axios";
 import axiosInstance from "../../lip/axios";
 import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
 import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
+import { useDarkMode } from "../../Context/DarkModeContext";
+
+// Create a separate component for individual achievement items
+const AchievementItem = ({ item, claimReward, loadingId }) => {
+  const finalProgress = item.completion_percentage || 0;
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+  const isDarkMode = useDarkMode();
+  useEffect(() => {
+    let start = 0;
+    const target = finalProgress;
+    const duration = 800; // ms
+    const stepTime = 16;
+    const steps = duration / stepTime;
+    const increment = target / steps;
+
+    const interval = setInterval(() => {
+      start += increment;
+      if (start >= target) {
+        start = target;
+        clearInterval(interval);
+      }
+      setAnimatedProgress(start);
+    }, stepTime);
+
+    return () => clearInterval(interval);
+  }, [finalProgress]);
+
+  return (
+    <Box key={item.achievement.id}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          backgroundColor: isDarkMode ? "background.paper" : "#fff",
+          borderRadius: "20px",
+          p: { xs: 0, md: 2.5 },
+          border: isDarkMode ? "1px solid #333" : "none",
+          boxShadow: isDarkMode
+            ? "0 2px 8px rgba(0,0,0,0.3)"
+            : "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <Avatar
+          src={item.achievement.image || achievementImg}
+          alt="Achievement"
+          sx={{
+            width: { xs: 93, md: "auto" },
+            height: { xs: 138, md: 93 },
+            backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
+            borderRadius: "12px",
+            m: 1,
+          }}
+        />
+
+        <Box
+          sx={{
+            flex: 1,
+            py: { xs: 2.5, md: 0 },
+            pr: { xs: 2.5, md: 0 },
+          }}
+        >
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 500,
+                  fontSize: "16px",
+                  color: isDarkMode ? "text.primary" : "#2D2D2D",
+                  mb: 0.5,
+                }}
+              >
+                {item.achievement.name}
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: 500,
+                  fontSize: "16px",
+                  color: isDarkMode ? "text.secondary" : "#2D2D2D",
+                  mb: 0.5,
+                }}
+              >
+                {item.achievement.description}
+              </Typography>
+            </Box>
+
+            {item.completion_percentage === 100 && (
+              <Button
+                variant="contained"
+                sx={{
+                  mt: 2,
+                  borderRadius: "1000px",
+                  py: 1,
+                  backgroundColor: "#205DC7",
+                  "&:hover": {
+                    backgroundColor: "#1648A8",
+                  },
+                  "&:disabled": {
+                    backgroundColor: isDarkMode ? "#555" : "#ccc",
+                  },
+                }}
+                onClick={() => claimReward(item.achievement.id)}
+                disabled={loadingId === item.achievement.id}
+              >
+                {loadingId === item.achievement.id ? (
+                  <Skeleton
+                    variant="text"
+                    width={100}
+                    height={20}
+                    sx={{
+                      bgcolor: isDarkMode ? "#444" : "#f5f5f5",
+                    }}
+                  />
+                ) : (
+                  "احصل على جائزتك"
+                )}
+              </Button>
+            )}
+          </Box>
+
+          {/* 🌀 Animated LinearProgress */}
+          <Box sx={{ position: "relative", mt: 2 }}>
+            <LinearProgress
+              variant="determinate"
+              value={animatedProgress}
+              sx={{
+                height: { xs: 14, sm: 24 },
+                borderRadius: "8px",
+                backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: "8px",
+                  backgroundColor: "#81AB00",
+                  transition: "transform 0.6s ease-out",
+                },
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                color: isDarkMode ? "#FFFFFF" : "black",
+                fontWeight: "bold",
+                fontSize: "16px",
+                textShadow: isDarkMode
+                  ? "0 0 2px rgba(255,255,255,0.3)"
+                  : "0 0 2px rgba(0,0,0,0.3)",
+              }}
+            >
+              {animatedProgress === 100
+                ? "مكتمل"
+                : `${Math.round(animatedProgress)}%`}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
 
 const AchievementsPage = () => {
   const { updateProfileStats } = useHome();
@@ -39,7 +202,8 @@ const AchievementsPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
-  const { setPageTitle, isDarkMode } = useOutletContext();
+  const { setPageTitle } = useOutletContext();
+  const isDarkMode = useDarkMode();
   const [openXPDialog, setOpenXPDialog] = React.useState(false);
   const [loadingId, setLoadingId] = useState(null);
   const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);
@@ -170,168 +334,15 @@ const AchievementsPage = () => {
             borderRadius: "20px",
           }}
         >
-          {achievements.map((item) => {
-            const finalProgress = item.completion_percentage || 0;
-            const [animatedProgress, setAnimatedProgress] = useState(0);
-
-            useEffect(() => {
-              let start = 0;
-              const target = finalProgress;
-              const duration = 800; // ms
-              const stepTime = 16;
-              const steps = duration / stepTime;
-              const increment = target / steps;
-
-              const interval = setInterval(() => {
-                start += increment;
-                if (start >= target) {
-                  start = target;
-                  clearInterval(interval);
-                }
-                setAnimatedProgress(start);
-              }, stepTime);
-
-              return () => clearInterval(interval);
-            }, [finalProgress]);
-
-            return (
-              <Box key={item.achievement.id}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    backgroundColor: isDarkMode ? "background.paper" : "#fff",
-                    borderRadius: "20px",
-                    p: { xs: 0, md: 2.5 },
-                    border: isDarkMode ? "1px solid #333" : "none",
-                    boxShadow: isDarkMode
-                      ? "0 2px 8px rgba(0,0,0,0.3)"
-                      : "0 2px 8px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <Avatar
-                    src={item.achievement.image || achievementImg}
-                    alt="Achievement"
-                    sx={{
-                      width: { xs: 93, md: "auto" },
-                      height: { xs: 138, md: 93 },
-                      backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
-                      borderRadius: "12px",
-                      m: 1,
-                    }}
-                  />
-
-                  <Box
-                    sx={{
-                      flex: 1,
-                      py: { xs: 2.5, md: 0 },
-                      pr: { xs: 2.5, md: 0 },
-                    }}
-                  >
-                    <Box
-                      sx={{ display: "flex", justifyContent: "space-between" }}
-                    >
-                      <Box>
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "16px",
-                            color: isDarkMode ? "text.primary" : "#2D2D2D",
-                            mb: 0.5,
-                          }}
-                        >
-                          {item.achievement.name}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            fontWeight: 500,
-                            fontSize: "16px",
-                            color: isDarkMode ? "text.secondary" : "#2D2D2D",
-                            mb: 0.5,
-                          }}
-                        >
-                          {item.achievement.description}
-                        </Typography>
-                      </Box>
-
-                      {item.completion_percentage === 100 && (
-                        <Button
-                          variant="contained"
-                          sx={{
-                            mt: 2,
-                            borderRadius: "1000px",
-                            py: 1,
-                            backgroundColor: "#205DC7",
-                            "&:hover": {
-                              backgroundColor: "#1648A8",
-                            },
-                            "&:disabled": {
-                              backgroundColor: isDarkMode ? "#555" : "#ccc",
-                            },
-                          }}
-                          onClick={() => claimReward(item.achievement.id)}
-                          disabled={loadingId === item.achievement.id}
-                        >
-                          {loadingId === item.achievement.id ? (
-                            <Skeleton
-                              variant="text"
-                              width={100}
-                              height={20}
-                              sx={{
-                                bgcolor: isDarkMode ? "#444" : "#f5f5f5",
-                              }}
-                            />
-                          ) : (
-                            "احصل على جائزتك"
-                          )}
-                        </Button>
-                      )}
-                    </Box>
-
-                    {/* 🌀 Animated LinearProgress */}
-                    <Box sx={{ position: "relative", mt: 2 }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={animatedProgress}
-                        sx={{
-                          height: { xs: 14, sm: 24 },
-                          borderRadius: "8px",
-                          backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
-                          "& .MuiLinearProgress-bar": {
-                            borderRadius: "8px",
-                            backgroundColor: "#81AB00",
-                            transition: "transform 0.6s ease-out",
-                          },
-                        }}
-                      />
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          position: "absolute",
-                          top: "50%",
-                          left: "50%",
-                          transform: "translate(-50%, -50%)",
-                          color: isDarkMode ? "#FFFFFF" : "black",
-                          fontWeight: "bold",
-                          fontSize: "16px",
-                          textShadow: isDarkMode
-                            ? "0 0 2px rgba(255,255,255,0.3)"
-                            : "0 0 2px rgba(0,0,0,0.3)",
-                        }}
-                      >
-                        {animatedProgress === 100
-                          ? "مكتمل"
-                          : `${Math.round(animatedProgress)}%`}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-            );
-          })}
+          {achievements.map((item) => (
+            <AchievementItem
+              key={item.achievement.id}
+              item={item}
+              isDarkMode={isDarkMode}
+              claimReward={claimReward}
+              loadingId={loadingId}
+            />
+          ))}
         </Box>
       </Box>
 
