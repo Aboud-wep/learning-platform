@@ -16,7 +16,16 @@ const Settings = () => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box
+      sx={{
+        p: 2,
+        direction: "rtl",
+        display: "flex",
+        justifyContent: "flex-end", // align to the right
+        alignItems: "center",
+        height: "100%", // optional if you want vertical centering
+      }}
+    >
       <FormControlLabel
         control={
           <Switch
@@ -26,6 +35,15 @@ const Settings = () => {
           />
         }
         label={isDarkMode ? "الوضع الداكن" : "الوضع الفاتح"}
+        sx={{
+          ml: 0,
+          mr: 2,
+          gap:23,
+          "& .MuiFormControlLabel-label": {
+            fontSize: "20px", // 👈 change this value as you like (e.g., 0.9rem, 18px)
+            fontWeight: 400, // optional
+          },
+        }}
       />
     </Box>
   );

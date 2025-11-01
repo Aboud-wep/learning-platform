@@ -1,16 +1,51 @@
 import React, { useEffect, useState } from "react";
 import { Button, useTheme, useMediaQuery } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDarkMode } from "../../../Context/DarkModeContext";
 
 const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const { isDarkMode } = useDarkMode();
 
   const blanks = answer || [];
   const setBlanks = onChange;
 
   const selectedOptions = blanks.filter((b) => b !== "");
+
+  // Get colors based on dark mode
+  const getTextColor = () => {
+    return isDarkMode ? "#FFFFFF" : "#000000";
+  };
+
+  const getBackgroundColor = () => {
+    return isDarkMode ? "#1a1a1a" : "#FFFFFF";
+  };
+
+  const getBorderColor = () => {
+    return isDarkMode ? "#555555" : "#BFBFBF";
+  };
+
+  const getButtonBackground = () => {
+    return isDarkMode ? "#343F4E" : "#FFFFFF";
+  };
+
+  const getButtonHoverBackground = () => {
+    return isDarkMode ? "#444444" : "#f9f9f9";
+  };
+
+  const getDisabledButtonBackground = () => {
+    return isDarkMode ? "#2a2a2a" : "#f3f3f3";
+  };
+
+  const getDisabledButtonColor = () => {
+    return isDarkMode ? "#777777" : "#aaaaaa";
+  };
+
+  const getBlankLineColor = () => {
+    return isDarkMode ? "#FFFFFF" : "#000000";
+  };
 
   // Count the number of <u> blanks
   const countBlanks = () => {
@@ -107,8 +142,8 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
               style={{
                 userSelect: "none",
                 pointerEvents: "none",
-                color: "#000",
-                borderBottom: "2px solid #000",
+                color: getBlankLineColor(),
+                borderBottom: `2px solid ${getBlankLineColor()}`,
                 width: "100%",
                 display: "inline-block",
                 position: "absolute",
@@ -145,12 +180,14 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
                   <Button
                     variant="outlined"
                     sx={{
-                      color: "black",
-                      border: "1px solid #BFBFBF",
-                      boxShadow: "0px 2px 0px 0px #BFBFBF",
+                      color: isDarkMode ? "#FFFFFF" : "black",
+                      border: `1px solid ${getBorderColor()}`,
+                      boxShadow: isDarkMode 
+                        ? "0px 2px 0px 0px #444444" 
+                        : "0px 2px 0px 0px #BFBFBF",
                       borderRadius: "20px",
                       fontSize: isMobile ? "14px" : "18px",
-                      backgroundColor: "white",
+                      backgroundColor: getButtonBackground(),
                       minWidth: "auto",
                       padding: isMobile ? "2px 8px" : "4px 12px",
                       whiteSpace: "nowrap",
@@ -158,6 +195,9 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       display: "block",
+                      "&:hover": {
+                        backgroundColor: getButtonHoverBackground(),
+                      },
                     }}
                   >
                     {blanks[idx]}
@@ -166,6 +206,21 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
               )}
             </AnimatePresence>
           </span>
+        );
+      }
+
+      // Handle regular text nodes with dark mode color
+      if (node.nodeType === 1) {
+        return React.createElement(
+          node.tagName.toLowerCase(),
+          { 
+            key: Math.random(),
+            style: { 
+              color: getTextColor(),
+              direction: 'rtl'
+            }
+          },
+          ...Array.from(node.childNodes).map(traverse)
         );
       }
 
@@ -193,6 +248,7 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
           fontSize: isMobile ? 16 : 20,
           fontWeight: "bold",
           lineHeight: isMobile ? 1.6 : 2,
+          color: getTextColor(),
         }}
       >
         {renderHTML(question.text)}
@@ -202,7 +258,6 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
         className="flex flex-wrap gap-3 justify-center"
         style={{
           marginTop: isMobile ? 30 : 78,
-          marginBottom: isMobile ? 60 : 120,
         }}
       >
         {question.options.map((opt) => {
@@ -222,21 +277,26 @@ const FillBlankQuestion = ({ question, answer, onChange, showResult }) => {
                 disabled={isDisabled}
                 onClick={() => handleOptionClick(opt.text)}
                 sx={{
-                  color: "black",
-                  border: "1px solid #BFBFBF",
-                  boxShadow: "0px 2px 0px 0px #BFBFBF",
+                  color: isDarkMode ? "#FFFFFF" : "black",
+                  border: `1px solid ${getBorderColor()}`,
+                  boxShadow: isDarkMode 
+                    ? "0px 2px 0px 0px #444444" 
+                    : "0px 2px 0px 0px #BFBFBF",
                   borderRadius: "20px",
                   fontSize: isMobile ? "14px" : "20px",
-                  backgroundColor: "white",
+                  backgroundColor: getButtonBackground(),
                   pointerEvents: isDisabled ? "none" : "auto",
                   padding: isMobile ? "4px 12px" : "8px 16px",
                   minWidth: "auto",
                   whiteSpace: "nowrap",
                   transition: "all 0.15s ease",
+                  "&:hover": {
+                    backgroundColor: getButtonHoverBackground(),
+                  },
                   "&.Mui-disabled": {
-                    backgroundColor: "#f3f3f3",
-                    color: "#aaa",
-                    borderColor: "#ddd",
+                    backgroundColor: getDisabledButtonBackground(),
+                    color: getDisabledButtonColor(),
+                    borderColor: isDarkMode ? "#444444" : "#ddd",
                     boxShadow: "none",
                     opacity: 0.6,
                   },

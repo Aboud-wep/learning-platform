@@ -217,8 +217,11 @@ const HeartsPopup = ({
             background: isDarkMode
               ? "linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)"
               : "linear-gradient(135deg, #FFF 0%, #F8F8F8 100%)",
-            boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
+            boxShadow: isDarkMode
+              ? "0px 10px 30px rgba(0, 0, 0, 0.3)"
+              : "0px 10px 30px rgba(0, 0, 0, 0.1)",
             color: isDarkMode ? "#FFFFFF" : "#000000",
+            border: isDarkMode ? "1px solid #333" : "none",
           },
         }}
       >
@@ -254,7 +257,9 @@ const HeartsPopup = ({
               sx={{
                 color: isDarkMode ? "#FFFFFF" : "#555",
                 backgroundColor: isDarkMode ? "#333" : "#F5F5F5",
-                "&:hover": { backgroundColor: isDarkMode ? "#444" : "#E0E0E0" },
+                "&:hover": {
+                  backgroundColor: isDarkMode ? "#444" : "#E0E0E0",
+                },
               }}
             >
               <CloseIcon />
@@ -290,12 +295,15 @@ const HeartsPopup = ({
         width: `${POPUP_WIDTH}px`,
         backgroundColor: isDarkMode ? "#1E1E1E" : "white",
         borderRadius: "20px",
-        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
+        boxShadow: isDarkMode
+          ? "0 8px 30px rgba(0, 0, 0, 0.4)"
+          : "0 8px 30px rgba(0, 0, 0, 0.15)",
         zIndex: 2000,
         padding: "20px 24px",
         textAlign: "center",
         direction: "rtl",
         color: isDarkMode ? "#FFFFFF" : "#000000",
+        border: isDarkMode ? "1px solid #333" : "none",
       }}
     >
       <div
@@ -345,6 +353,9 @@ const HeartsContent = ({
   isDarkMode = false,
 }) => {
   const textColor = isDarkMode ? "#FFFFFF" : isDesktop ? "black" : "#444";
+  const buttonBackground = isDarkMode ? "#333" : "#F2F2F2";
+  const buttonBorder = isDarkMode ? "#555" : "#CDCCCC";
+  const buttonHoverBackground = isDarkMode ? "#444" : "#E8E8E8";
 
   // Split hearts into two rows: 5 in first row, 4 in second row
   const firstRowHearts = 5;
@@ -364,7 +375,12 @@ const HeartsContent = ({
               style={{
                 width: 32,
                 height: 32,
-                filter: i < hearts ? "none" : "grayscale(100%) opacity(0.3)",
+                filter:
+                  i < hearts
+                    ? isDarkMode
+                      ? "brightness(1.2)"
+                      : "none"
+                    : "grayscale(100%) opacity(0.3)",
                 transition: "all 0.3s ease",
               }}
             />
@@ -383,7 +399,9 @@ const HeartsContent = ({
                 height: 32,
                 filter:
                   i + firstRowHearts < hearts
-                    ? "none"
+                    ? isDarkMode
+                      ? "brightness(1.2)"
+                      : "none"
                     : "grayscale(100%) opacity(0.3)",
                 transition: "all 0.3s ease",
               }}
@@ -394,7 +412,13 @@ const HeartsContent = ({
 
       {hearts < maxHearts && timeLeft && (
         <Box
-          sx={{ color: textColor, fontWeight: 500, fontSize: "16px", mb: 1 }}
+          sx={{
+            color: textColor,
+            fontWeight: 500,
+            fontSize: "16px",
+            mb: 1,
+            direction: "rtl",
+          }}
         >
           ستحصل على قلب جديد خلال:
           <Typography
@@ -427,16 +451,26 @@ const HeartsContent = ({
               alignItems: "center",
               justifyContent: "center",
               position: "relative",
-              backgroundColor: isDarkMode ? "#333" : "#F2F2F2",
+              backgroundColor: buttonBackground,
               color: isDarkMode ? "#FFFFFF" : "#000",
               padding: "8px 10px",
               borderRadius: "12px",
               fontWeight: "bold",
               cursor: "pointer",
-              border: isDarkMode ? "1px solid #555" : "1px solid #CDCCCC",
+              border: `1px solid ${buttonBorder}`,
               minWidth: "238px",
               width: "100%",
               maxWidth: "238px",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: buttonHoverBackground,
+              },
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = buttonHoverBackground;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = buttonBackground;
             }}
           >
             {/* Coin + Number on the left */}
@@ -449,12 +483,23 @@ const HeartsContent = ({
                 gap: "4px",
               }}
             >
-              <Typography sx={{ fontWeight: "bold" }}>10</Typography>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  color: isDarkMode ? "#FFFFFF" : "#000",
+                }}
+              >
+                10
+              </Typography>
               <Box
                 component="img"
                 src={Coin}
                 alt="coin"
-                sx={{ width: { xs: 14, sm: 18, md: 22 }, height: "auto" }}
+                sx={{
+                  width: { xs: 14, sm: 18, md: 22 },
+                  height: "auto",
+                  filter: isDarkMode ? "brightness(0.9)" : "none",
+                }}
               />
             </Box>
             {/* Centered Text */}
@@ -464,7 +509,13 @@ const HeartsContent = ({
       )}
 
       {hearts >= maxHearts && (
-        <Typography sx={{ color: textColor, fontWeight: 500 }}>
+        <Typography
+          sx={{
+            color: textColor,
+            fontWeight: 500,
+            direction: "rtl",
+          }}
+        >
           جميع القلوب ممتلئة ❤️
         </Typography>
       )}

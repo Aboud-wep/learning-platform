@@ -8,6 +8,7 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
+  Skeleton,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -17,7 +18,13 @@ import {
 import FireIcon from "../assets/Icons/FreezesRewards.png";
 import axiosInstance from "../lip/axios";
 
-const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
+const StreakPopup = ({
+  open,
+  onClose,
+  currentStreak,
+  anchorEl,
+  isDarkMode = false,
+}) => {
   const popupRef = useRef(null);
   const [position, setPosition] = useState(null);
   const [dailyLogs, setDailyLogs] = useState([]);
@@ -101,10 +108,10 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
     "ديسمبر",
   ];
 
-  // Arabic day names
-  const arabicDays = ["ح", "ن", "ث", "ر", "خ", "ج", "س"];
+  // Arabic day names - Week starts from Saturday
+  const arabicDays = ["س", "ح", "ن", "ث", "ر", "خ", "ج"]; // Saturday to Friday
 
-  // Generate calendar for current month
+  // Generate calendar for current month with week starting from Saturday
   const generateCalendar = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -113,12 +120,14 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
 
-    const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    const startingDay = firstDay.getDay();
 
     const calendar = [];
     let day = 1;
 
-    // Adjust for Arabic (week starts on Saturday)
+    // Adjust for Arabic week (week starts on Saturday = 6)
+    // We need to map: Saturday=0, Sunday=1, Monday=2, Tuesday=3, Wednesday=4, Thursday=5, Friday=6
     const adjustedStartingDay = (startingDay + 1) % 7;
 
     for (let i = 0; i < 6; i++) {
@@ -171,7 +180,7 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
       return "linear-gradient(to right, #D8553A, #E89528)"; // Orange gradient for completed/freeze
     }
     if (day.isToday) return "#2196F3"; // Blue for today
-    return "#F5F5F5"; // Light gray for incomplete
+    return isDarkMode ? "#444" : "#F5F5F5"; // Dark gray for dark mode, light gray for light mode
   };
 
   const getDayTooltip = (day) => {
@@ -194,9 +203,14 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
           sx: {
             borderRadius: "20px",
             padding: "24px 16px 16px 16px",
-            background: "white",
-            boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.1)",
-            position: "relative", // ensure absolute children (like icon) stay inside
+            background: isDarkMode
+              ? "linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)"
+              : "white",
+            boxShadow: isDarkMode
+              ? "0px 10px 30px rgba(0, 0, 0, 0.4)"
+              : "0px 10px 30px rgba(0, 0, 0, 0.1)",
+            position: "relative",
+            border: isDarkMode ? "1px solid #333" : "none",
           },
         }}
       >
@@ -207,9 +221,11 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
             position: "absolute",
             top: 12,
             left: 12,
-            color: "#555",
-            backgroundColor: "#F5F5F5",
-            "&:hover": { backgroundColor: "#E0E0E0" },
+            color: isDarkMode ? "#FFFFFF" : "#555",
+            backgroundColor: isDarkMode ? "#333" : "#F5F5F5",
+            "&:hover": {
+              backgroundColor: isDarkMode ? "#444" : "#E0E0E0",
+            },
             zIndex: 1,
           }}
         >
@@ -228,6 +244,7 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
             navigateMonth={navigateMonth}
             getDayColor={getDayColor}
             getDayTooltip={getDayTooltip}
+            isDarkMode={isDarkMode}
           />
         </DialogContent>
       </Dialog>
@@ -246,13 +263,17 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
         left: position.left,
         transform: "translateX(-50%)",
         width: "380px",
-        backgroundColor: "white",
+        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
         borderRadius: "20px",
-        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
+        boxShadow: isDarkMode
+          ? "0 8px 30px rgba(0, 0, 0, 0.4)"
+          : "0 8px 30px rgba(0, 0, 0, 0.15)",
         zIndex: 2000,
         padding: "20px 24px",
         direction: "rtl",
         textAlign: "right",
+        border: isDarkMode ? "1px solid #333" : "none",
+        color: isDarkMode ? "#FFFFFF" : "inherit",
       }}
     >
       {/* Arrow */}
@@ -266,8 +287,7 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
           height: 0,
           borderLeft: "10px solid transparent",
           borderRight: "10px solid transparent",
-          borderBottom: "10px solid white",
-          filter: "drop-shadow(0px -1px 2px rgba(0,0,0,0.08))",
+          borderBottom: `10px solid ${isDarkMode ? "#1E1E1E" : "white"}`,
         }}
       />
 
@@ -283,6 +303,7 @@ const StreakPopup = ({ open, onClose, currentStreak, anchorEl }) => {
         getDayColor={getDayColor}
         getDayTooltip={getDayTooltip}
         isDesktop={true}
+        isDarkMode={isDarkMode}
       />
     </div>
   );
@@ -301,19 +322,132 @@ const StreakContent = ({
   getDayColor,
   getDayTooltip,
   isDesktop = false,
+  isDarkMode = false,
 }) => {
-  const textColor = "#343F4E"; // Unified text color
-  const infoBgColor = "#F8F9FA"; // Light gray for info boxes
+  const textColor = isDarkMode ? "#FFFFFF" : "#343F4E";
+  const calendarBgColor = isDarkMode ? "#2D2D2D" : "white";
+  const calendarBorderColor = isDarkMode ? "#444" : "#E0E0E0";
+  const buttonHoverBg = isDarkMode ? "#444" : "#F5F5F5";
 
   // Calculate stats
   const completedDays = dailyLogs.filter((log) => log.completed).length;
   const freezeDaysUsed = dailyLogs.filter((log) => log.used_freeze).length;
   const calendar = generateCalendar();
 
+  // Skeleton loading state
   if (loading) {
     return (
       <Box sx={{ textAlign: "center", py: 2 }}>
-        <Typography color={textColor}>جاري تحميل البيانات...</Typography>
+        {/* Streak Skeleton */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 3,
+            mb: 2,
+          }}
+        >
+          <Skeleton
+            variant="circular"
+            width={100}
+            height={100}
+            sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+          />
+          <Skeleton
+            variant="rectangular"
+            width={73}
+            height={92}
+            sx={{
+              borderRadius: "8px",
+              bgcolor: isDarkMode ? "#333" : "#f0f0f0",
+            }}
+          />
+        </Box>
+
+        {/* Title Skeleton */}
+        <Skeleton
+          variant="text"
+          width={120}
+          height={40}
+          sx={{
+            mx: "auto",
+            mb: 2,
+            bgcolor: isDarkMode ? "#333" : "#f0f0f0",
+          }}
+        />
+
+        {/* Calendar Skeleton */}
+        <Box
+          sx={{
+            p: 2,
+            backgroundColor: calendarBgColor,
+            borderRadius: "12px",
+            border: `1px solid ${calendarBorderColor}`,
+          }}
+        >
+          {/* Calendar Header Skeleton */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Skeleton
+              variant="circular"
+              width={32}
+              height={32}
+              sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+            />
+            <Skeleton
+              variant="text"
+              width={100}
+              height={30}
+              sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+            />
+            <Skeleton
+              variant="circular"
+              width={32}
+              height={32}
+              sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+            />
+          </Box>
+
+          {/* Day Headers Skeleton */}
+          <Box sx={{ display: "flex", justifyContent: "space-around", mb: 1 }}>
+            {[...Array(7)].map((_, index) => (
+              <Skeleton
+                key={index}
+                variant="circular"
+                width={32}
+                height={32}
+                sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+              />
+            ))}
+          </Box>
+
+          {/* Calendar Days Skeleton */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {[...Array(6)].map((_, weekIndex) => (
+              <Box
+                key={weekIndex}
+                sx={{ display: "flex", justifyContent: "space-around" }}
+              >
+                {[...Array(7)].map((_, dayIndex) => (
+                  <Skeleton
+                    key={dayIndex}
+                    variant="circular"
+                    width={32}
+                    height={32}
+                    sx={{ bgcolor: isDarkMode ? "#333" : "#f0f0f0" }}
+                  />
+                ))}
+              </Box>
+            ))}
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -346,7 +480,11 @@ const StreakContent = ({
           component="img"
           src={FireIcon}
           alt="streak"
-          sx={{ width: 73, height: 92 }}
+          sx={{
+            width: 73,
+            height: 92,
+            filter: isDarkMode ? "brightness(0.9)" : "none",
+          }}
         />
       </Box>
 
@@ -369,10 +507,12 @@ const StreakContent = ({
       <Box
         sx={{
           p: 2,
-          backgroundColor: "white",
+          backgroundColor: calendarBgColor,
           borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          border: "1px solid #E0E0E0",
+          boxShadow: isDarkMode
+            ? "0 4px 12px rgba(0, 0, 0, 0.3)"
+            : "0 4px 12px rgba(0, 0, 0, 0.1)",
+          border: `1px solid ${calendarBorderColor}`,
         }}
       >
         {/* Calendar Header */}
@@ -389,14 +529,18 @@ const StreakContent = ({
             size="small"
             sx={{
               color: textColor,
-              "&:hover": { backgroundColor: "#F5F5F5" },
+              "&:hover": { backgroundColor: buttonHoverBg },
             }}
           >
             <ChevronRight />
           </IconButton>
 
           <Typography
-            sx={{ color: textColor, fontWeight: "bold", fontSize: "16px" }}
+            sx={{
+              color: textColor,
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
           >
             {arabicMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Typography>
@@ -406,14 +550,14 @@ const StreakContent = ({
             size="small"
             sx={{
               color: textColor,
-              "&:hover": { backgroundColor: "#F5F5F5" },
+              "&:hover": { backgroundColor: buttonHoverBg },
             }}
           >
             <ChevronLeft />
           </IconButton>
         </Box>
 
-        {/* Day Headers */}
+        {/* Day Headers - Saturday to Friday */}
         <Box sx={{ display: "flex", justifyContent: "space-around", mb: 1 }}>
           {arabicDays.map((day, index) => (
             <Box

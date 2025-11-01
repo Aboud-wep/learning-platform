@@ -329,7 +329,7 @@ const UserLayout = () => {
           <ListItemText primary={t("nav_profile")} />
         </ListItemButton>
 
-        {/* <ListItemButton
+        <ListItemButton
           selected={
             activeNavItem === "/settings" ||
             activeNavItem.startsWith("/user-settings/")
@@ -345,7 +345,7 @@ const UserLayout = () => {
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary={t("nav_settings")} />
-        </ListItemButton> */}
+        </ListItemButton>
 
         {role === "admin" && (
           <ListItemButton

@@ -753,6 +753,7 @@ const QuestionPage = ({ type }) => {
           backgroundPosition: "center",
           px: 1,
           paddingBottom: { xs: "83px", md: "0px" },
+          paddingY:{ xs: "0px", md: "50px" },
         }}
       >
         <Box

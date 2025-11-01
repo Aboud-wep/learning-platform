@@ -9,6 +9,7 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { useDarkMode } from "../Context/DarkModeContext";
 
 export default function NoHeartsPage() {
   const navigate = useNavigate();
@@ -16,6 +17,36 @@ export default function NoHeartsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  const {isDarkMode} = useDarkMode();
+
+  const getBackgroundColor = () => {
+    return isDarkMode ? "#1a1a1a" : "white";
+  };
+
+  const getTextColor = () => {
+    return isDarkMode ? "#FFFFFF" : "inherit";
+  };
+
+  const getButtonStyles = () => {
+    return {
+      px: 4,
+      py: 1.5,
+      width: { xs: "100%", md: "auto" },
+      backgroundColor: isDarkMode ? "#90caf9" : "#205DC7",
+      color: isDarkMode ? "#121212" : "white",
+      borderRadius: "1000px",
+      fontSize: { xs: "14px", md: "16px" },
+      fontWeight: "bold",
+      minWidth: { xs: "120px", md: "auto" },
+      "&:hover": {
+        backgroundColor: isDarkMode ? "#64b5f6" : "#1a4aa0",
+      },
+    };
+  };
+
+  const getImageFilter = () => {
+    return isDarkMode ? "brightness(0.9)" : "none";
+  };
 
   return (
     <Box
@@ -25,14 +56,15 @@ export default function NoHeartsPage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "white",
+        backgroundColor: getBackgroundColor(),
         px: { xs: 2, sm: 4, md: 6, lg: "249px" },
         py: { xs: 4, md: 0 },
         textAlign: "center",
+        color: getTextColor(),
+        transition: "background-color 0.3s ease",
       }}
     >
       {/* Main content container */}
-
       <Box
         sx={{
           width: "100%",
@@ -46,6 +78,7 @@ export default function NoHeartsPage() {
             mb: { xs: 4, sm: 5, md: 6.2 },
             fontWeight: "medium",
             lineHeight: 1.5,
+            color: getTextColor(),
           }}
         >
           لا تيأس، لقد استنفذت جميع محاولاتك، عُد في وقتٍ لاحق
@@ -63,6 +96,7 @@ export default function NoHeartsPage() {
             width: { xs: "70%", sm: "60%", md: "50%", lg: "40%" },
             maxWidth: "300px",
             height: "auto",
+            filter: getImageFilter(),
           }}
         />
 
@@ -70,7 +104,9 @@ export default function NoHeartsPage() {
           sx={{
             fontSize: { xs: "28px", sm: "32px", md: "36px", lg: "40px" },
             mb: { xs: 3, sm: 4 },
-            background: "linear-gradient(to left, #205CC7, #31A9D6)",
+            background: isDarkMode
+              ? "linear-gradient(to left, #90caf9, #64b5f6)"
+              : "linear-gradient(to left, #205CC7, #31A9D6)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
@@ -82,34 +118,29 @@ export default function NoHeartsPage() {
           استنفذت محاولاتك!
         </Typography>
       </Box>
+
       <Box
         sx={{
           width: "100%",
           display: "flex",
           justifyContent: { xs: "center", md: "flex-end" },
           px: { xs: 2, md: 0 },
-          position: { xs: "fixed", md: "static" }, // fixed at bottom on xs
-          // position:"static",
+          position: { xs: "fixed", md: "static" },
           bottom: { xs: 0, md: "auto" },
           py: { xs: 2, md: "40px" },
+          backgroundColor: {
+            xs: isDarkMode ? "#1a1a1a" : "white",
+            md: "transparent",
+          },
+          borderTop: {
+            xs: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+            md: "none",
+          },
         }}
       >
         <Button
-          onClick={() => navigate("/home")}
-          sx={{
-            px: 4,
-            py: 1.5,
-            width: { xs: "100%", md: "auto" },
-            backgroundColor: "#205DC7",
-            color: "white",
-            borderRadius: "1000px",
-            fontSize: { xs: "14px", md: "16px" },
-            fontWeight: "bold",
-            minWidth: { xs: "120px", md: "auto" },
-            "&:hover": {
-              backgroundColor: "#1a4aa0",
-            },
-          }}
+          onClick={() => navigate("/home", { state: { isDarkMode } })}
+          sx={getButtonStyles()}
         >
           أكمل
         </Button>

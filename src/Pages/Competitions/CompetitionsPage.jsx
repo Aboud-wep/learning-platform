@@ -263,18 +263,18 @@ const CompetitionsPage = () => {
         justifyContent: "center",
         alignItems: "flex-start",
         my: { xs: 2, md: 4 },
-        gap: { xs: 3, md: 4 },
+        gap: { xs: 3, md: 2 },
         width: "100%",
         mx: "auto",
         bgcolor: isDarkMode ? "background.default" : "transparent",
         minHeight: "100vh",
-        px: { xs: 2, md: 3 },
+        px: 1,
       }}
     >
       {/* Main Content */}
       <Box
         sx={{
-          width: { xs: "100%", md: "70%" },
+          width: { xs: "100%", lg: "65%" },
         }}
       >
         {currentLevel && (

@@ -230,7 +230,7 @@ const SubjectsList = () => {
             </Button>
           </Box>
         )}
-        <Grid container spacing={2} mb={4}>
+        <Grid container spacing={2} mb={4} justifyContent="center">
           {filteredOtherSubjects.length > 0 &&
             filteredOtherSubjects.map((subject) => (
               <Grid item key={subject.id} xs={12} sm={6} md={4}>

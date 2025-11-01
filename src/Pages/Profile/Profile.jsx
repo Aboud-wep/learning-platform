@@ -219,7 +219,7 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Handle password change first (same logic as before)
+    // ✅ Handle password change first
     if (
       showPasswordFields &&
       (passwordData.old_password ||
@@ -238,20 +238,33 @@ const Profile = () => {
     }
 
     try {
-      // ✅ Use FormData to send text + image in one request
       const formData = new FormData();
       formData.append("first_name", firstName);
       formData.append("last_name", lastName);
 
       if (avatar instanceof File) {
-        formData.append("avatar", avatar); // just send the raw file
+        formData.append("avatar", avatar);
       }
 
-      await updateUserProfile(formData, true); // pass true if your updateUserProfile handles multipart
+      await updateUserProfile(formData, true);
+
+      // ✅ Force refresh profile data by calling the home context update
+      // This assumes your useHome context has a way to refresh profile data
+      if (updateProfileStats) {
+        // You might need to implement a profile refresh function in your context
+        // Or manually update the profile state
+        await updateProfileStats(); // Refresh the profile data
+      }
 
       setEditMode(false);
+      setUpdateSuccess(true);
+
+      setTimeout(() => {
+        setUpdateSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error("Profile update failed:", error);
+      setUpdateSuccess(false);
     }
   };
 
@@ -337,7 +350,7 @@ const Profile = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "50vh",
-          bgcolor: isDarkMode ? 'background.default' : 'transparent',
+          bgcolor: isDarkMode ? "background.default" : "transparent",
         }}
       >
         <CircularProgress />
@@ -354,8 +367,8 @@ const Profile = () => {
         gap: { xs: 3, md: 2 },
         px: { xs: 2, sm: 3, md: 4 },
         mx: "auto",
-        bgcolor: isDarkMode ? 'background.default' : 'transparent',
-        minHeight: '100vh',
+        bgcolor: isDarkMode ? "background.default" : "transparent",
+        minHeight: "100vh",
       }}
     >
       {/* Main Content */}
@@ -375,7 +388,7 @@ const Profile = () => {
               height: { xs: "270px", sm: "300px" },
               mx: "auto",
               mb: "10px",
-              border: isDarkMode ? '2px solid #333' : 'none',
+              border: isDarkMode ? "2px solid #333" : "none",
             }}
           >
             {!avatarPreview && (
@@ -408,10 +421,10 @@ const Profile = () => {
               <Typography
                 variant="h5"
                 fontWeight="bold"
-                sx={{ 
-                  fontSize: "48px", 
+                sx={{
+                  fontSize: "48px",
                   mb: 2,
-                  color: isDarkMode ? 'text.primary' : 'inherit',
+                  color: isDarkMode ? "text.primary" : "inherit",
                 }}
               >
                 {profile.first_name} {profile.last_name}
@@ -441,9 +454,9 @@ const Profile = () => {
                 onChange={(e) => setFirstName(e.target.value)}
                 fullWidth
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                  }
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                  },
                 }}
               />
               <TextField
@@ -452,9 +465,9 @@ const Profile = () => {
                 onChange={(e) => setLastName(e.target.value)}
                 fullWidth
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                  }
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                  },
                 }}
               />
 
@@ -511,9 +524,9 @@ const Profile = () => {
                       ),
                     }}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                      }
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                      },
                     }}
                   />
 
@@ -547,9 +560,9 @@ const Profile = () => {
                       ),
                     }}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                      }
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                      },
                     }}
                   />
 
@@ -585,9 +598,9 @@ const Profile = () => {
                       ),
                     }}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                      }
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                      },
                     }}
                   />
 
@@ -640,8 +653,8 @@ const Profile = () => {
             </Box>
           )}
 
-          <Typography 
-            color={isDarkMode ? 'text.secondary' : "textSecondary"} 
+          <Typography
+            color={isDarkMode ? "text.secondary" : "textSecondary"}
             sx={{ fontSize: "24px" }}
           >
             {profile.title || "بدون لقب"}
@@ -653,20 +666,25 @@ const Profile = () => {
             gap={1}
             mt={1}
           >
-            <CalendarTodayIcon fontSize="small" color={isDarkMode ? 'disabled' : "action"} />
+            <CalendarTodayIcon
+              fontSize="small"
+              color={isDarkMode ? "disabled" : "action"}
+            />
             <Typography
-              color={isDarkMode ? 'text.secondary' : "textSecondary"}
+              color={isDarkMode ? "text.secondary" : "textSecondary"}
               sx={{ fontSize: { xs: "16px", sm: "18px" } }}
             >
               تم الإنضمام في: {formattedDate}
             </Typography>
           </Box>
         </Box>
-        <Divider sx={{ 
-          my: 4, 
-          display: { xs: "block", md: "none" },
-          borderColor: isDarkMode ? '#333' : '#e0e0e0'
-        }} />
+        <Divider
+          sx={{
+            my: 4,
+            display: { xs: "block", md: "none" },
+            borderColor: isDarkMode ? "#333" : "#e0e0e0",
+          }}
+        />
         <Grid container spacing={2} justifyContent="center" mb={4}>
           <Grid item xs={12} sm={6} md={3}>
             <Box
@@ -680,7 +698,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
-                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -713,7 +731,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
-                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -746,7 +764,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
-                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -779,7 +797,7 @@ const Profile = () => {
                 justifyContent: "center",
                 paddingLeft: "20px",
                 color: "#fff",
-                boxShadow: isDarkMode ? '0 4px 12px rgba(0,0,0,0.3)' : 'none',
+                boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               <Typography
@@ -800,11 +818,13 @@ const Profile = () => {
             </Box>
           </Grid>
         </Grid>
-        <Divider sx={{ 
-          my: 4, 
-          display: { xs: "block", md: "none" },
-          borderColor: isDarkMode ? '#333' : '#e0e0e0'
-        }} />
+        <Divider
+          sx={{
+            my: 4,
+            display: { xs: "block", md: "none" },
+            borderColor: isDarkMode ? "#333" : "#e0e0e0",
+          }}
+        />
         {/* Achievements Section */}
         {!achievementsLoading && achievements.length === 0 ? null : (
           <Box>
@@ -821,7 +841,7 @@ const Profile = () => {
                 fontWeight="bold"
                 sx={{
                   fontSize: { xs: "18px", sm: "20px", md: "24px" },
-                  color: isDarkMode ? 'text.primary' : "#2D2D2D",
+                  color: isDarkMode ? "text.primary" : "#2D2D2D",
                 }}
               >
                 التحديات
@@ -850,7 +870,11 @@ const Profile = () => {
               }}
             >
               {achievementsLoading ? (
-                <ListSkeleton count={isMobile ? 2 : 4} height={120} isDarkMode={isDarkMode} />
+                <ListSkeleton
+                  count={isMobile ? 2 : 4}
+                  height={120}
+                  isDarkMode={isDarkMode}
+                />
               ) : (
                 achievements
                   .slice(0, isMobile ? 2 : achievements.length)
@@ -861,11 +885,15 @@ const Profile = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: 2,
-                          backgroundColor: isDarkMode ? 'background.paper' : "#fff",
+                          backgroundColor: isDarkMode
+                            ? "background.paper"
+                            : "#fff",
                           borderRadius: "20px",
                           p: { xs: 0, md: 2.5 },
-                          border: isDarkMode ? '1px solid #333' : 'none',
-                          boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+                          border: isDarkMode ? "1px solid #333" : "none",
+                          boxShadow: isDarkMode
+                            ? "0 2px 8px rgba(0,0,0,0.3)"
+                            : "0 2px 8px rgba(0,0,0,0.1)",
                         }}
                       >
                         <Avatar
@@ -874,7 +902,7 @@ const Profile = () => {
                           sx={{
                             width: { xs: 93, md: "auto" },
                             height: { xs: 138, md: 93 },
-                            backgroundColor: isDarkMode ? '#2A2A2A' : "#F0F7FF",
+                            backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
                             borderRadius: "12px",
                             m: 1,
                           }}
@@ -899,7 +927,9 @@ const Profile = () => {
                                 sx={{
                                   fontWeight: 500,
                                   fontSize: "16px",
-                                  color: isDarkMode ? 'text.primary' : "#2D2D2D",
+                                  color: isDarkMode
+                                    ? "text.primary"
+                                    : "#2D2D2D",
                                   mb: 0.5,
                                 }}
                               >
@@ -911,7 +941,9 @@ const Profile = () => {
                                 sx={{
                                   fontWeight: 500,
                                   fontSize: "16px",
-                                  color: isDarkMode ? 'text.secondary' : "#2D2D2D",
+                                  color: isDarkMode
+                                    ? "text.secondary"
+                                    : "#2D2D2D",
                                   mb: 0.5,
                                 }}
                               >
@@ -927,9 +959,9 @@ const Profile = () => {
                                   borderRadius: "1000px",
                                   py: 1,
                                   backgroundColor: "#205DC7",
-                                  '&:hover': {
-                                    backgroundColor: '#1648A8',
-                                  }
+                                  "&:hover": {
+                                    backgroundColor: "#1648A8",
+                                  },
                                 }}
                                 onClick={() => claimReward(item.achievement.id)}
                                 disabled={loadingId === item.achievement.id}
@@ -950,7 +982,9 @@ const Profile = () => {
                               sx={{
                                 height: { xs: 14, sm: 24 },
                                 borderRadius: "8px",
-                                backgroundColor: isDarkMode ? '#333' : "#F0F0F0",
+                                backgroundColor: isDarkMode
+                                  ? "#333"
+                                  : "#F0F0F0",
                                 "& .MuiLinearProgress-bar": {
                                   borderRadius: "8px",
                                   backgroundColor: "#81AB00",
@@ -965,10 +999,12 @@ const Profile = () => {
                                 top: "50%",
                                 left: "50%",
                                 transform: "translate(-50%, -50%)",
-                                color: isDarkMode ? '#FFFFFF' : "black",
+                                color: isDarkMode ? "#FFFFFF" : "black",
                                 fontWeight: "bold",
                                 fontSize: "16px",
-                                textShadow: isDarkMode ? "0 0 2px rgba(255,255,255,0.3)" : "0 0 2px rgba(0,0,0,0.3)",
+                                textShadow: isDarkMode
+                                  ? "0 0 2px rgba(255,255,255,0.3)"
+                                  : "0 0 2px rgba(0,0,0,0.3)",
                               }}
                             >
                               {animatedValues[index] === 100
@@ -986,11 +1022,13 @@ const Profile = () => {
         )}
       </Box>
       {/* sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss */}
-      <Divider sx={{ 
-        my: 4, 
-        display: { xs: "block", md: "none" },
-        borderColor: isDarkMode ? '#333' : '#e0e0e0'
-      }} />
+      <Divider
+        sx={{
+          my: 4,
+          display: { xs: "block", md: "none" },
+          borderColor: isDarkMode ? "#333" : "#e0e0e0",
+        }}
+      />
       {/* Sidebar - Friends Section */}
       <Box
         sx={{
@@ -1001,19 +1039,19 @@ const Profile = () => {
       >
         <Paper
           elevation={2}
-          sx={{ 
-            p: { xs: 2, md: "30px" }, 
-            borderRadius: "20px", 
+          sx={{
+            p: { xs: 2, md: "30px" },
+            borderRadius: "20px",
             mb: 3,
-            backgroundColor: isDarkMode ? 'background.paper' : 'white',
-            border: isDarkMode ? '1px solid #333' : 'none',
+            backgroundColor: isDarkMode ? "background.paper" : "white",
+            border: isDarkMode ? "1px solid #333" : "none",
           }}
         >
           <Typography
             fontWeight="bold"
-            sx={{ 
+            sx={{
               fontSize: { xs: "20px", md: "24px" },
-              color: isDarkMode ? 'text.primary' : 'inherit',
+              color: isDarkMode ? "text.primary" : "inherit",
             }}
             mb={2}
           >
@@ -1043,17 +1081,17 @@ const Profile = () => {
                     src={friendAvatar || ""}
                     sx={{ width: 40, height: 40 }}
                   />
-                  <Typography 
-                    sx={{ 
+                  <Typography
+                    sx={{
                       fontSize: { xs: "14px", md: "16px" },
-                      color: isDarkMode ? 'text.primary' : 'inherit',
+                      color: isDarkMode ? "text.primary" : "inherit",
                     }}
                   >
                     {friendFirstName} {friendLastName}
                   </Typography>
                 </Box>
                 <Typography
-                  color={isDarkMode ? 'text.secondary' : "gray"}
+                  color={isDarkMode ? "text.secondary" : "gray"}
                   sx={{ fontSize: { xs: "14px", md: "16px" } }}
                 >
                   {friendXp} XP
@@ -1080,16 +1118,16 @@ const Profile = () => {
             p: { xs: 2, md: "30px" },
             borderRadius: "20px",
             cursor: "pointer",
-            backgroundColor: isDarkMode ? 'background.paper' : 'white',
-            border: isDarkMode ? '1px solid #333' : 'none',
+            backgroundColor: isDarkMode ? "background.paper" : "white",
+            border: isDarkMode ? "1px solid #333" : "none",
           }}
           onClick={handleOpenDialog}
         >
           <Typography
             fontWeight="bold"
-            sx={{ 
+            sx={{
               fontSize: { xs: "20px", md: "24px" },
-              color: isDarkMode ? 'text.primary' : 'inherit',
+              color: isDarkMode ? "text.primary" : "inherit",
             }}
             mb={2}
           >
@@ -1109,16 +1147,16 @@ const Profile = () => {
               <Box>
                 <Typography
                   fontWeight="bold"
-                  sx={{ 
+                  sx={{
                     fontSize: { xs: "14px", md: "16px" },
-                    color: isDarkMode ? 'text.primary' : 'inherit',
+                    color: isDarkMode ? "text.primary" : "inherit",
                   }}
                 >
                   {user.first_name} {user.last_name}
                 </Typography>
                 <Typography
                   variant="caption"
-                  color={isDarkMode ? 'text.secondary' : "text.secondary"}
+                  color={isDarkMode ? "text.secondary" : "text.secondary"}
                   sx={{ fontSize: { xs: "12px", md: "14px" } }}
                 >
                   @{user.username}
@@ -1138,10 +1176,10 @@ const Profile = () => {
                 "& input": {
                   cursor: "pointer",
                   fontSize: { xs: "14px", md: "16px" },
-                  backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
-                  color: isDarkMode ? 'text.primary' : 'inherit',
+                  backgroundColor: isDarkMode ? "#1E1E1E" : "white",
+                  color: isDarkMode ? "text.primary" : "inherit",
                 },
-                backgroundColor: isDarkMode ? '#1E1E1E' : 'white',
+                backgroundColor: isDarkMode ? "#1E1E1E" : "white",
               },
             }}
             sx={{
@@ -1163,10 +1201,12 @@ const Profile = () => {
           isDarkMode={isDarkMode}
         />
       </Box>
-      <Divider sx={{ 
-        display: { xs: "flex", md: "none" },
-        borderColor: isDarkMode ? '#333' : '#e0e0e0'
-      }} />
+      <Divider
+        sx={{
+          display: { xs: "flex", md: "none" },
+          borderColor: isDarkMode ? "#333" : "#e0e0e0",
+        }}
+      />
       <Box
         sx={{
           alignItems: "center",
@@ -1200,7 +1240,7 @@ const Profile = () => {
         )}
 
         {/* الإعدادات */}
-        {/* <Button
+        <Button
           variant="contained"
           startIcon={<SettingsIcon />}
           onClick={() => navigate("/settings")}
@@ -1213,7 +1253,7 @@ const Profile = () => {
           }}
         >
           الإعدادات
-        </Button> */}
+        </Button>
 
         {/* تسجيل الخروج */}
         <Button
