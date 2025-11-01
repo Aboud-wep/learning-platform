@@ -759,7 +759,8 @@ const QuestionPage = ({ type }) => {
         <Box
           className={`w-full max-w-[1010px]  ${
             isDarkMode ? "opacity-100" : "opacity-90"
-          } my-5`}
+          }`}
+          sx={{marginTop:"10px",marginBottom:{xs:"100px",md:"0px"},}}
         >
           <Box
             sx={{
@@ -770,7 +771,6 @@ const QuestionPage = ({ type }) => {
               top: 0,
               left: 0,
               right: 0,
-              backgroundColor: isDarkMode ? "#10171A" : "white",
               padding: "8px 16px",
               zIndex: 9999,
               height: "56px",
