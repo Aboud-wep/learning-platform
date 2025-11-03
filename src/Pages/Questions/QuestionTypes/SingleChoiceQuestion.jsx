@@ -17,7 +17,7 @@ export default function SingleChoiceQuestion({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-  const isDarkMode = useDarkMode();
+  const { isDarkMode } = useDarkMode();
   const [lockedSelection, setLockedSelection] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
   console.log("heyyyyyyyyyy", question.text);
@@ -114,7 +114,7 @@ export default function SingleChoiceQuestion({
         className={`text-right ${getQuestionTextColor()}`}
         sx={{
           textAlign: { xs: "center", md: "left" },
-          color:"#205DC7",
+          color: "#205DC7",
         }}
         style={{
           fontSize: isMobile ? "18px" : isTablet ? "20px" : "24px",

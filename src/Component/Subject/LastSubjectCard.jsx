@@ -92,7 +92,7 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
           fontSize={{ xs: "20px", sm: "24px" }}
           fontWeight="bold"
           mb={0.5}
-          color={isDarkMode ? '#90caf9' : "#205DC7"}
+          color="#205DC7"
           sx={{ wordBreak: "break-word" }}
         >
           {subject?.name}
@@ -167,8 +167,8 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
             borderRadius: "100px",
             width: { xs: "100%", sm: "auto" },
             minWidth: { xs: "auto", sm: "140px" },
-            backgroundColor: isDarkMode ? '#90caf9' : "#205DC7",
-            color: isDarkMode ? '#121212' : 'white',
+            backgroundColor: "#205DC7",
+            color: "white",
             '&:hover': {
               backgroundColor: isDarkMode ? '#64b5f6' : '#1648A8',
             },

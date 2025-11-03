@@ -747,20 +747,20 @@ const QuestionPage = ({ type }) => {
             xs: "none",
             md: isDarkMode
               ? `url(${bgImage}),linear-gradient(to bottom, #10171A, #10171A)`
-              : `linear-gradient(to bottom, #31A9D6, #205CC7), url(${bgImage})`,
+              : `url(${bgImage}),linear-gradient(to bottom, #31A9D6, #205CC7)`,
           },
           backgroundSize: "cover",
           backgroundPosition: "center",
           px: 1,
           paddingBottom: { xs: "83px", md: "0px" },
-          paddingY:{ xs: "0px", md: "50px" },
+          paddingY: { xs: "0px", md: "50px" },
         }}
       >
         <Box
           className={`w-full max-w-[1010px]  ${
             isDarkMode ? "opacity-100" : "opacity-90"
           }`}
-          sx={{marginTop:"10px",marginBottom:{xs:"100px",md:"0px"},}}
+          sx={{ marginTop: "10px", marginBottom: { xs: "100px", md: "0px" } }}
         >
           <Box
             sx={{

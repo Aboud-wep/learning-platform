@@ -30,7 +30,7 @@ import { useDarkMode } from "../../Context/DarkModeContext";
 const AchievementItem = ({ item, claimReward, loadingId }) => {
   const finalProgress = item.completion_percentage || 0;
   const [animatedProgress, setAnimatedProgress] = useState(0);
-  const isDarkMode = useDarkMode();
+  const {isDarkMode} = useDarkMode();
   useEffect(() => {
     let start = 0;
     const target = finalProgress;
@@ -203,7 +203,7 @@ const AchievementsPage = () => {
   const location = useLocation();
   const hideAchievements = location.pathname === "/achievements";
   const { setPageTitle } = useOutletContext();
-  const isDarkMode = useDarkMode();
+  const {isDarkMode} = useDarkMode();
   const [openXPDialog, setOpenXPDialog] = React.useState(false);
   const [loadingId, setLoadingId] = useState(null);
   const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);

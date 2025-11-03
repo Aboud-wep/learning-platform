@@ -31,7 +31,7 @@ const TrueFalseQuestion = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-  const isDarkMode = useDarkMode();
+  const { isDarkMode } = useDarkMode();
   if (!options?.length) return null;
 
   const [lockedSelection, setLockedSelection] = useState(null);
@@ -86,11 +86,7 @@ const TrueFalseQuestion = ({
   const getTextColor = (option) => {
     const isSelected = (lockedSelection ?? selectedOption) === option.id;
     if (isCorrect === null || isCorrect === undefined) {
-      return isSelected
-        ? "#205DC7"
-        : isDarkMode
-        ? "#ffffff"
-        : "#000000";
+      return isSelected ? "#205DC7" : isDarkMode ? "#ffffff" : "#000000";
     }
     if (isSelected && isCorrect) return "#4CAF50"; // green
     if (isSelected && !isCorrect) return "#F44336"; // red

@@ -21,7 +21,7 @@ export default function MultipleChoiceQuestion({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const { t, isRTL } = useLanguage();
-  const isDarkMode = useDarkMode();
+  const { isDarkMode } = useDarkMode();
   const [lockedSelection, setLockedSelection] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
 
