@@ -48,7 +48,7 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
   return (
     <Box
       sx={{
-        backgroundColor: isDarkMode ? '#161F23' : "#fff",
+        backgroundColor: isDarkMode ? "#161F23" : "#fff",
         borderRadius: "20px",
         p: "20px",
         display: "flex",
@@ -57,8 +57,10 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
         gap: "30px",
         width: "100%",
         my: "30px",
-        border: isDarkMode ? '1px solid #333' : 'none',
-        boxShadow: isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+        border: isDarkMode ? "1px solid #333" : "none",
+        boxShadow: isDarkMode
+          ? "0 2px 8px rgba(0,0,0,0.3)"
+          : "0 2px 8px rgba(0,0,0,0.1)",
       }}
     >
       {/* Responsive Image */}
@@ -72,7 +74,7 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
           maxHeight: { xs: 200, sm: 191 },
           borderRadius: { xs: "10px", sm: "20px" },
           objectFit: "cover",
-          filter: isDarkMode ? 'brightness(0.9)' : 'none',
+          filter: isDarkMode ? "brightness(0.9)" : "none",
         }}
       />
 
@@ -108,7 +110,9 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
             fontSize: "14px",
             my: "15px",
             textAlign: "center",
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'transparent',
+            backgroundColor: isDarkMode
+              ? "rgba(255,255,255,0.1)"
+              : "transparent",
           }}
           gutterBottom
         >
@@ -129,11 +133,11 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
             sx={{
               height: 24,
               borderRadius: "12px",
-              backgroundColor: isDarkMode ? '#333' : "#eee",
+              backgroundColor: isDarkMode ? "#333" : "#eee",
               transition: "all 0.6s ease-out",
               "& .MuiLinearProgress-bar": {
                 transition: "transform 0.6s ease-out",
-                backgroundColor: isDarkMode ? '#90caf9' : "#205DC7",
+                backgroundColor: "#205DC7",
               },
             }}
           />
@@ -150,8 +154,8 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
               justifyContent: "center",
               fontSize: "14px",
               fontWeight: "bold",
-              color: isDarkMode ? '#FFFFFF' : "black",
-              textShadow: isDarkMode ? '0 0 2px rgba(0,0,0,0.5)' : 'none',
+              color: isDarkMode ? "#FFFFFF" : "black",
+              textShadow: isDarkMode ? "0 0 2px rgba(0,0,0,0.5)" : "none",
             }}
           >
             {Math.round(animatedProgress)}%
@@ -169,13 +173,13 @@ const LastSubjectCard = ({ subject, progress, isDarkMode = false }) => {
             minWidth: { xs: "auto", sm: "140px" },
             backgroundColor: "#205DC7",
             color: "white",
-            '&:hover': {
-              backgroundColor: isDarkMode ? '#64b5f6' : '#1648A8',
+            "&:hover": {
+              backgroundColor: isDarkMode ? "#64b5f6" : "#1648A8",
             },
-            '&:disabled': {
-              backgroundColor: isDarkMode ? '#555' : '#ccc',
-              color: isDarkMode ? '#888' : '#666',
-            }
+            "&:disabled": {
+              backgroundColor: isDarkMode ? "#555" : "#ccc",
+              color: isDarkMode ? "#888" : "#666",
+            },
           }}
           variant="contained"
           size="small"

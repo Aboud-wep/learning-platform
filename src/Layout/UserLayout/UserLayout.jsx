@@ -385,7 +385,7 @@ const UserLayout = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="flex" dir={isRTL ? "rtl" : "ltr"}>
+      <Box className="flex" dir="rtl  ">
         <Box component="nav" className="flex-shrink-0">
           <Drawer
             variant="permanent"

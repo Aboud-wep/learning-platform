@@ -19,6 +19,7 @@ import { SubjectsProvider } from "./Pages/Subjects/Context/SubjectsContext";
 import { WeeklyCompetitionProvider } from "./Pages/Competitions/Context/WeeklyCompetitionContext";
 import { FriendsProvider } from "./Pages/Profile/Context/FriendsContext";
 import { DarkModeProvider } from "./Context/DarkModeContext";
+import { SoundProvider } from "./Context/SoundContext";
 
 // Wrapper component to register achievement refresh callback
 const QuestionAchievementBridge = ({ children }) => {
@@ -39,31 +40,33 @@ const App = () => {
 
   return (
     <Router>
-      <DarkModeProvider>
-      <AuthProvider>
-        <HomeProvider>
-          <QuestionProvider>
-            <WeeklyCompetitionProvider>
-              <StageSummaryProvider>
-                <AchievementProvider>
-                  <QuestionAchievementBridge>
-                    <StageStartProvider>
-                      <ProfileProvider>
-                        <FriendsProvider>
-                          <SubjectsProvider>
-                            <MainRoutes />
-                          </SubjectsProvider>
-                        </FriendsProvider>
-                      </ProfileProvider>
-                    </StageStartProvider>
-                  </QuestionAchievementBridge>
-                </AchievementProvider>
-              </StageSummaryProvider>
-            </WeeklyCompetitionProvider>
-          </QuestionProvider>
-        </HomeProvider>
-      </AuthProvider>
-      </DarkModeProvider>
+      <SoundProvider>
+        <DarkModeProvider>
+          <AuthProvider>
+            <HomeProvider>
+              <QuestionProvider>
+                <WeeklyCompetitionProvider>
+                  <StageSummaryProvider>
+                    <AchievementProvider>
+                      <QuestionAchievementBridge>
+                        <StageStartProvider>
+                          <ProfileProvider>
+                            <FriendsProvider>
+                              <SubjectsProvider>
+                                <MainRoutes />
+                              </SubjectsProvider>
+                            </FriendsProvider>
+                          </ProfileProvider>
+                        </StageStartProvider>
+                      </QuestionAchievementBridge>
+                    </AchievementProvider>
+                  </StageSummaryProvider>
+                </WeeklyCompetitionProvider>
+              </QuestionProvider>
+            </HomeProvider>
+          </AuthProvider>
+        </DarkModeProvider>
+      </SoundProvider>
     </Router>
   );
 };

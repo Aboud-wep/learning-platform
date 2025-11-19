@@ -1,31 +1,44 @@
-import React, { useEffect } from "react";
+
+import { useLanguage } from "../../Context/LanguageContext";
 import { useOutletContext } from "react-router-dom";
-import { Switch, FormControlLabel, Box } from "@mui/material";
+import { Box, Switch, FormControlLabel } from "@mui/material";
+import React, { useEffect } from "react";
+import { useSound } from "../../Context/SoundContext";
 
 const Settings = () => {
   const { setPageTitle, isDarkMode, setIsDarkMode } = useOutletContext();
+  const { language, toggleLanguage, t } = useLanguage();
+  const { soundEnabled, setSoundEnabled } = useSound();
 
   useEffect(() => {
-    setPageTitle("الإعدادات");
-  }, [setPageTitle]);
+    setPageTitle(t("nav_settings"));
+  }, [setPageTitle, t]);
 
   const handleToggleDarkMode = (event) => {
     const newMode = event.target.checked;
     setIsDarkMode(newMode);
-    localStorage.setItem("darkMode", newMode); // persist user preference
+    localStorage.setItem("darkMode", newMode);
+  };
+
+  const handleToggleLanguage = () => {
+    toggleLanguage();
+  };
+
+  const handleToggleSound = () => {
+    setSoundEnabled((prev) => !prev);
   };
 
   return (
     <Box
       sx={{
         p: 2,
-        direction: "rtl",
         display: "flex",
-        justifyContent: "flex-end", // align to the right
-        alignItems: "center",
-        height: "100%", // optional if you want vertical centering
+        flexDirection: "column",
+        gap: 3,
+        height: "100%",
       }}
     >
+      {/* Dark Mode */}
       <FormControlLabel
         control={
           <Switch
@@ -34,15 +47,39 @@ const Settings = () => {
             color="primary"
           />
         }
-        label={isDarkMode ? "الوضع الداكن" : "الوضع الفاتح"}
+        label={isDarkMode ? t("dark_mode") : t("light_mode")}
         sx={{
-          ml: 0,
-          mr: 2,
-          gap:23,
-          "& .MuiFormControlLabel-label": {
-            fontSize: "20px", // 👈 change this value as you like (e.g., 0.9rem, 18px)
-            fontWeight: 400, // optional
-          },
+          "& .MuiFormControlLabel-label": { fontSize: "20px", fontWeight: 400 },
+        }}
+      />
+
+      {/* Language */}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={language === "en"}
+            onChange={handleToggleLanguage}
+            color="primary"
+          />
+        }
+        label={language === "en" ? t("lang_ar") : t("lang_en")}
+        sx={{
+          "& .MuiFormControlLabel-label": { fontSize: "20px", fontWeight: 400 },
+        }}
+      />
+
+      {/* 🔊 Sound Toggle */}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={soundEnabled}
+            onChange={handleToggleSound}
+            color="primary"
+          />
+        }
+        label={soundEnabled ? t("sound_on") : t("sound_off")}
+        sx={{
+          "& .MuiFormControlLabel-label": { fontSize: "20px", fontWeight: 400 },
         }}
       />
     </Box>

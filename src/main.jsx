@@ -26,6 +26,8 @@ const theme = createTheme({
   },
 });
 
+// ✅ Force RTL globally
+document.documentElement.setAttribute("dir", "rtl");
 document.body.setAttribute("dir", "rtl");
 
 const clientId =

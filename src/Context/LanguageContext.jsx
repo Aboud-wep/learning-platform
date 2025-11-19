@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import axiosInstance from "../lip/axios";
 
 const STORAGE_KEY = "appLanguage"; // "ar" | "en"
 
@@ -207,25 +206,30 @@ export const LanguageProvider = ({ children }) => {
     () => localStorage.getItem(STORAGE_KEY) || "ar"
   );
 
+  // ✅ Save language to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language);
-    const isRTL = language === "ar";
-    // document.body.setAttribute("dir", isRTL ? "rtl" : "ltr");
-    // Ensure all subsequent requests use the updated language immediately
-    axiosInstance.defaults.headers.common["Accept-Language"] =
-      language === "en" ? "en" : "ar";
+  }, [language]);
+
+  // ✅ Apply correct document direction
+  useEffect(() => {
+    document.documentElement.setAttribute("dir", "rtl");
+    document.body.setAttribute("dir", "rtl");
   }, [language]);
 
   const value = useMemo(() => {
     const isRTL = language === "ar";
+
     const t = (key) => {
       const translation = TRANSLATIONS[language]?.[key];
       return typeof translation === "function"
         ? translation()
         : translation ?? key;
     };
+
     const toggleLanguage = () =>
       setLanguage((prev) => (prev === "ar" ? "en" : "ar"));
+
     return { language, isRTL, setLanguage, toggleLanguage, t };
   }, [language]);
 
