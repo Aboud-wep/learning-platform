@@ -22,6 +22,7 @@ import {
 } from "../../Component/ui/SkeletonLoader";
 import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
 import { useQuestion } from "../Questions/Context/QuestionContext";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const OtherSubjects = () => {
   const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
@@ -30,13 +31,14 @@ const OtherSubjects = () => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const { hearts } = useQuestion();
-
+const { t } = useLanguage();
   // 🔎 Search state
   const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
-    setPageTitle("المواد/مواد أخرى");
-  }, [setPageTitle]);
+  setPageTitle(`${t("subjects_title")} / ${t("subjects_all_subjects")}`);
+}, [setPageTitle, t]);
+
 
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;

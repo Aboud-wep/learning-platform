@@ -17,6 +17,7 @@ import {
 } from "@mui/icons-material";
 import FireIcon from "../assets/Icons/FreezesRewards.png";
 import axiosInstance from "../lip/axios";
+import { useLanguage } from "../Context/LanguageContext";
 
 const StreakPopup = ({
   open,
@@ -25,6 +26,7 @@ const StreakPopup = ({
   anchorEl,
   isDarkMode = false,
 }) => {
+  const { t } = useLanguage();
   const popupRef = useRef(null);
   const [position, setPosition] = useState(null);
   const [dailyLogs, setDailyLogs] = useState([]);
@@ -108,8 +110,27 @@ const StreakPopup = ({
     "ديسمبر",
   ];
 
+  // English month names
+  const englishMonths = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   // Arabic day names - Week starts from Saturday
   const arabicDays = ["س", "ح", "ن", "ث", "ر", "خ", "ج"]; // Saturday to Friday
+
+  // English day abbreviations
+  const englishDays = ["S", "M", "T", "W", "T", "F", "S"];
 
   // Generate calendar for current month with week starting from Saturday
   const generateCalendar = () => {
@@ -185,10 +206,10 @@ const StreakPopup = ({
 
   const getDayTooltip = (day) => {
     if (!day) return "";
-    if (day.completed) return `${day.dateString}: مكتمل`;
-    if (day.usedFreeze) return `${day.dateString}: تم استخدام التجميد`;
-    if (day.isToday) return `${day.dateString}: اليوم`;
-    return `${day.dateString}: غير مكتمل`;
+    if (day.completed) return `${day.dateString}: ${t("streak_completed")}`;
+    if (day.usedFreeze) return `${day.dateString}: ${t("streak_used_freeze")}`;
+    if (day.isToday) return `${day.dateString}: ${t("streak_today")}`;
+    return `${day.dateString}: ${t("streak_not_completed")}`;
   };
 
   // Mobile/Tablet Dialog Version
@@ -239,12 +260,15 @@ const StreakPopup = ({
             loading={loading}
             currentMonth={currentMonth}
             arabicMonths={arabicMonths}
+            englishMonths={englishMonths}
             arabicDays={arabicDays}
+            englishDays={englishDays}
             generateCalendar={generateCalendar}
             navigateMonth={navigateMonth}
             getDayColor={getDayColor}
             getDayTooltip={getDayTooltip}
             isDarkMode={isDarkMode}
+            t={t}
           />
         </DialogContent>
       </Dialog>
@@ -297,13 +321,16 @@ const StreakPopup = ({
         loading={loading}
         currentMonth={currentMonth}
         arabicMonths={arabicMonths}
+        englishMonths={englishMonths}
         arabicDays={arabicDays}
+        englishDays={englishDays}
         generateCalendar={generateCalendar}
         navigateMonth={navigateMonth}
         getDayColor={getDayColor}
         getDayTooltip={getDayTooltip}
         isDesktop={true}
         isDarkMode={isDarkMode}
+        t={t}
       />
     </div>
   );
@@ -316,13 +343,16 @@ const StreakContent = ({
   loading,
   currentMonth,
   arabicMonths,
+  englishMonths,
   arabicDays,
+  englishDays,
   generateCalendar,
   navigateMonth,
   getDayColor,
   getDayTooltip,
   isDesktop = false,
   isDarkMode = false,
+  t,
 }) => {
   const textColor = isDarkMode ? "#FFFFFF" : "#343F4E";
   const calendarBgColor = isDarkMode ? "#2D2D2D" : "white";
@@ -333,6 +363,11 @@ const StreakContent = ({
   const completedDays = dailyLogs.filter((log) => log.completed).length;
   const freezeDaysUsed = dailyLogs.filter((log) => log.used_freeze).length;
   const calendar = generateCalendar();
+
+  // Get current language
+  const currentLanguage = t("lang_code") || "ar";
+  const months = currentLanguage === "ar" ? arabicMonths : englishMonths;
+  const days = currentLanguage === "ar" ? arabicDays : englishDays;
 
   // Skeleton loading state
   if (loading) {
@@ -500,7 +535,7 @@ const StreakContent = ({
           my: 1,
         }}
       >
-        يوماً حماسة
+        {t("streak_days")}
       </Typography>
 
       {/* Custom Calendar */}
@@ -542,7 +577,7 @@ const StreakContent = ({
               fontSize: "16px",
             }}
           >
-            {arabicMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </Typography>
 
           <IconButton
@@ -559,7 +594,7 @@ const StreakContent = ({
 
         {/* Day Headers - Saturday to Friday */}
         <Box sx={{ display: "flex", justifyContent: "space-around", mb: 1 }}>
-          {arabicDays.map((day, index) => (
+          {days.map((day, index) => (
             <Box
               key={index}
               sx={{

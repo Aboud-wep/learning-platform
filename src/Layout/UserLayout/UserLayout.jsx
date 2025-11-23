@@ -684,7 +684,7 @@ const UserLayout = () => {
             }}
           >
             <BottomNavigationAction
-              label="الرئيسية"
+              label={t("nav_home")}
               icon={<HomeIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />}
               sx={{
                 "& .MuiBottomNavigationAction-label": {
@@ -695,7 +695,7 @@ const UserLayout = () => {
               }}
             />
             <BottomNavigationAction
-              label="المواد"
+              label={t("nav_subjects")}
               icon={
                 <MenuBookIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
               }
@@ -708,7 +708,7 @@ const UserLayout = () => {
               }}
             />
             <BottomNavigationAction
-              label="المسابقات"
+              label={t("nav_competitions")}
               icon={
                 <EmojiEventsIcon
                   sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
@@ -723,7 +723,7 @@ const UserLayout = () => {
               }}
             />
             <BottomNavigationAction
-              label="التحديات"
+              label={t("nav_challenges")}
               icon={
                 <SportsKabaddiIcon
                   sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }}
@@ -738,7 +738,7 @@ const UserLayout = () => {
               }}
             />
             <BottomNavigationAction
-              label="الملف"
+              label={t("nav_profile")}
               icon={
                 <PersonIcon sx={{ fontSize: { xs: 15, sm: 24, md: 28 } }} />
               }
@@ -762,7 +762,7 @@ const UserLayout = () => {
           lastHeartUpdate={profile?.last_heart_update}
           anchorEl={heartsAnchorRef.current}
           isDarkMode={isDarkMode}
-          onHeartsUpdate={fetchStatsOnly} // Add this line
+          onHeartsUpdate={fetchStatsOnly}
         />
         <StreakPopup
           open={streakPopupOpen}

@@ -51,6 +51,7 @@ import axiosInstance from "../../lip/axios";
 import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
 import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
 import { useAuth } from "../Auth/AuthContext";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const Profile = () => {
   const { profile, updateProfileStats } = useHome();
@@ -64,6 +65,7 @@ const Profile = () => {
     error,
     setUpdateSuccess,
   } = useProfile();
+  const { language, t } = useLanguage();
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [firstName, setFirstName] = useState(profile?.first_name || "");
@@ -127,8 +129,12 @@ const Profile = () => {
     }
   };
   const formattedDate = profile?.created_at
-    ? dayjs(profile.created_at).locale("ar").format("DD MMMM YYYY")
-    : "بدون تاريخ";
+    ? new Date(profile.created_at).toLocaleDateString(
+        language === "en" ? "en-US" : "ar-EG",
+        { year: "numeric", month: "long", day: "numeric" }
+      )
+    : "";
+
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setPasswordLoading(true);
@@ -329,7 +335,7 @@ const Profile = () => {
   }, [achievements, achievementsLoading]);
 
   useEffect(() => {
-    setPageTitle("الرئيسية");
+    setPageTitle(t("home_title"));
   }, [setPageTitle]);
 
   // Update form fields when profile loads
@@ -407,7 +413,7 @@ const Profile = () => {
                 fontSize: "12px",
               }}
             >
-              تغيير الصورة
+              {t("profile_change_avatar")}
               <input
                 type="file"
                 hidden
@@ -438,7 +444,7 @@ const Profile = () => {
                   setUpdateSuccess(false);
                 }}
               >
-                تعديل الملف الشخصي
+                {t("profile_edit")}
               </Button>
             </>
           ) : (
@@ -479,8 +485,8 @@ const Profile = () => {
                 sx={{ alignSelf: "flex-start", mt: 1 }}
               >
                 {showPasswordFields
-                  ? "إخفاء تغيير كلمة المرور"
-                  : "تغيير كلمة المرور"}
+                  ? t("profile_hide_password_change")
+                  : t("profile_change_password")}
               </Button>
 
               {/* --- Password Fields (collapsible) --- */}
@@ -495,7 +501,7 @@ const Profile = () => {
                   }}
                 >
                   <TextField
-                    label="كلمة المرور القديمة"
+                    label={t("profile_old_password")}
                     type={showOldPassword ? "text" : "password"}
                     fullWidth
                     value={passwordData.old_password}
@@ -531,7 +537,7 @@ const Profile = () => {
                   />
 
                   <TextField
-                    label="كلمة المرور الجديدة"
+                    label={t("profile_new_password")}
                     type={showNewPassword ? "text" : "password"}
                     fullWidth
                     value={passwordData.new_password}
@@ -567,7 +573,7 @@ const Profile = () => {
                   />
 
                   <TextField
-                    label="تأكيد كلمة المرور الجديدة"
+                    label={t("profile_confirm_password")}
                     type={showConfirmPassword ? "text" : "password"}
                     fullWidth
                     value={passwordData.confirm_new_password}
@@ -622,7 +628,7 @@ const Profile = () => {
                   {updateLoading || passwordLoading ? (
                     <CircularProgress size={24} />
                   ) : (
-                    "حفظ التغييرات"
+                    t("profile_save_changes")
                   )}
                 </Button>
                 <Button
@@ -630,19 +636,19 @@ const Profile = () => {
                   color="secondary"
                   onClick={() => setEditMode(false)}
                 >
-                  إلغاء
+                  {t("profile_cancel")}
                 </Button>
               </Box>
 
               {/* --- Messages --- */}
               {updateSuccess && (
                 <Typography color="success.main">
-                  ✅ تم التحديث بنجاح
+                  ✅ {t("profile_update_success")}
                 </Typography>
               )}
               {passwordSuccess && (
                 <Typography color="success.main" mt={1}>
-                  ✅ تم تغيير كلمة المرور بنجاح
+                  ✅ {t("profile_password_success")}
                 </Typography>
               )}
               {(error || passwordErrors.general) && (
@@ -657,26 +663,33 @@ const Profile = () => {
             color={isDarkMode ? "text.secondary" : "textSecondary"}
             sx={{ fontSize: "24px" }}
           >
-            {profile.title || "بدون لقب"}
+            {profile.title || t("profile_no_title")}
           </Typography>
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            gap={1}
-            mt={1}
-          >
-            <CalendarTodayIcon
-              fontSize="small"
-              color={isDarkMode ? "disabled" : "action"}
-            />
-            <Typography
-              color={isDarkMode ? "text.secondary" : "textSecondary"}
-              sx={{ fontSize: { xs: "16px", sm: "18px" } }}
+          {profile?.created_at && (
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap={1}
+              mt={1}
             >
-              تم الإنضمام في: {formattedDate}
-            </Typography>
-          </Box>
+              <CalendarTodayIcon
+                fontSize="small"
+                color={isDarkMode ? "disabled" : "action"}
+              />
+
+              <Typography
+                color={isDarkMode ? "text.secondary" : "textSecondary"}
+                sx={{ fontSize: { xs: "16px", sm: "18px" } }}
+              >
+                {t("profile_joined_on")}:{" "}
+                {new Date(profile.created_at).toLocaleDateString(
+                  language === "en" ? "en-US" : "ar-EG",
+                  { year: "numeric", month: "long", day: "numeric" }
+                )}
+              </Typography>
+            </Box>
+          )}
         </Box>
         <Divider
           sx={{
@@ -714,7 +727,7 @@ const Profile = () => {
                 {profile.my_subjects_count || 0}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                عدد المواد التي أدرسها
+                {t("profile_my_subjects_count")}
               </Typography>
             </Box>
           </Grid>
@@ -747,7 +760,7 @@ const Profile = () => {
                 {profile.xp || 0}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                إجمالي نقاط XP
+                {t("profile_total_xp")}
               </Typography>
             </Box>
           </Grid>
@@ -780,7 +793,7 @@ const Profile = () => {
                 {profile.streak || 0}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                أيام الحماسة
+                {t("profile_enthusiasm_days")}
               </Typography>
             </Box>
           </Grid>
@@ -813,7 +826,7 @@ const Profile = () => {
                 {profile?.highest_competition_level?.name || "الذهبي"}
               </Typography>
               <Typography sx={{ fontSize: { xs: "12px", md: "15px" } }}>
-                المستوى الذي وصلت له
+                {t("profile_highest_level")}
               </Typography>
             </Box>
           </Grid>
@@ -844,7 +857,7 @@ const Profile = () => {
                   color: isDarkMode ? "text.primary" : "#2D2D2D",
                 }}
               >
-                التحديات
+                {t("profile_achievements")}
               </Typography>
               <Button
                 onClick={() => navigate("/achievements")}
@@ -856,7 +869,7 @@ const Profile = () => {
                   gap: "6px",
                 }}
               >
-                عرض المزيد
+                {t("profile_view_more")}
                 <ArrowBackIcon fontSize="small" />
               </Button>
             </Box>
@@ -969,7 +982,7 @@ const Profile = () => {
                                 {loadingId === item.achievement.id ? (
                                   <CircularProgress size={20} />
                                 ) : (
-                                  "احصل على جائزتك"
+                                  t("profile_claim_reward")
                                 )}
                               </Button>
                             )}
@@ -1008,7 +1021,7 @@ const Profile = () => {
                               }}
                             >
                               {animatedValues[index] === 100
-                                ? "مكتمل"
+                                ? t("profile_completed")
                                 : `${Math.round(animatedValues[index] || 0)}%`}
                             </Typography>
                           </Box>
@@ -1055,7 +1068,7 @@ const Profile = () => {
             }}
             mb={2}
           >
-            أصدقائي
+            {t("profile_my_friends")}
           </Typography>
 
           {followers.slice(0, 5).map((item, index) => {
@@ -1099,17 +1112,6 @@ const Profile = () => {
               </Box>
             );
           })}
-
-          <Typography
-            variant="body2"
-            sx={{ fontSize: { xs: "16px", md: "18px" } }}
-            mt="20px"
-            color="primary"
-            onClick={() => navigate("/friends")}
-            style={{ cursor: "pointer" }}
-          >
-            عرض المزيد ←
-          </Typography>
         </Paper>
 
         <Paper
@@ -1131,7 +1133,7 @@ const Profile = () => {
             }}
             mb={2}
           >
-            الأصدقاء المقترحون
+            {t("profile_suggested_friends")}
           </Typography>
 
           {recommended.slice(0, 3).map((user, index) => (
@@ -1166,7 +1168,7 @@ const Profile = () => {
           ))}
           <TextField
             fullWidth
-            placeholder="ابحث عن أصدقاء"
+            placeholder={t("profile_search_friends")}
             variant="outlined"
             onClick={handleOpenDialog}
             InputProps={{
@@ -1235,7 +1237,7 @@ const Profile = () => {
               order: { xs: 1, sm: 2 },
             }}
           >
-            لوحة التحكم
+            {t("profile_admin_panel")}
           </Button>
         )}
 
@@ -1252,7 +1254,7 @@ const Profile = () => {
             order: { xs: 2, sm: 3 },
           }}
         >
-          الإعدادات
+          {t("profile_settings")}
         </Button>
 
         {/* تسجيل الخروج */}
@@ -1275,7 +1277,7 @@ const Profile = () => {
             order: { xs: 3, sm: 1 },
           }}
         >
-          تسجيل الخروج
+          {t("profile_logout")}
         </Button>
       </Box>
 

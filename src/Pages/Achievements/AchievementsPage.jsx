@@ -25,6 +25,7 @@ import axiosInstance from "../../lip/axios";
 import AchievementRewardXPDialog from "../../Component/Popups/AchievementRewardXPDialog";
 import AchievementRewardFreezeDialog from "../../Component/Popups/AchievementRewardFreezeDialog";
 import { useDarkMode } from "../../Context/DarkModeContext";
+import { useLanguage } from "../../Context/LanguageContext";
 
 // Create a separate component for individual achievement items
 const AchievementItem = ({ item, claimReward, loadingId }) => {
@@ -206,6 +207,7 @@ const AchievementsPage = () => {
   const {isDarkMode} = useDarkMode();
   const [openXPDialog, setOpenXPDialog] = React.useState(false);
   const [loadingId, setLoadingId] = useState(null);
+  const { t } = useLanguage();
   const [openFreezeDialog, setOpenFreezeDialog] = React.useState(false);
   const userProgressMap = userProgress.reduce((acc, item) => {
     acc[item.subject.id] = item;
@@ -214,7 +216,7 @@ const AchievementsPage = () => {
   const [dialogRewards, setDialogRewards] = React.useState(null);
 
   useEffect(() => {
-    setPageTitle("الرئيسية");
+    setPageTitle(t("home_title"));
   }, [setPageTitle]);
 
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);

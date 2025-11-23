@@ -18,16 +18,18 @@ import axiosInstance from "../../lip/axios";
 import AchievementRewardXPDialog from "../Popups/AchievementRewardXPDialog";
 import AchievementRewardFreezeDialog from "../Popups/AchievementRewardFreezeDialog";
 import { useHome } from "../../Pages/Home/Context/HomeContext";
+import { useLanguage } from "../../Context/LanguageContext"; // Add this import
 
 const ProfileStatsCard = ({
   profile,
   mySubjects,
   showAchievements,
   showWeeklyCompetition,
-  isDarkMode = false, // Add isDarkMode prop with default value
+  isDarkMode = false,
 }) => {
   const { achievements, refreshAchievements } = useAchievements();
   const { updateProfileStats } = useHome();
+  const { t } = useLanguage(); // Add this hook
   const navigate = useNavigate();
   const [loadingId, setLoadingId] = React.useState(null);
   const [dialogRewards, setDialogRewards] = React.useState(null);
@@ -48,7 +50,6 @@ const ProfileStatsCard = ({
         if ((rewards.xp || 0) > 0 || (rewards.coins || 0) > 0)
           setOpenXPDialog(true);
         if ((rewards.motivation_freezes || 0) > 0) setOpenFreezeDialog(true);
-        // Refresh to remove completed achievements and update progress
         refreshAchievements();
       }
     } catch (e) {
@@ -61,7 +62,7 @@ const ProfileStatsCard = ({
   return (
     <Box
       sx={{
-        width: { xs: "100%", sm: "70%", lg: "auto" }, // responsive width
+        width: { xs: "100%", sm: "70%", lg: "auto" },
         mx: "auto",
       }}
     >
@@ -72,7 +73,7 @@ const ProfileStatsCard = ({
         sx={{
           mb: 3,
           color: "white",
-          display: { xs: "none", sm: "none", lg: "flex" }, // 👈 hide on xs + sm
+          display: { xs: "none", sm: "none", lg: "flex" },
         }}
         justifyContent="center"
       >
@@ -93,14 +94,16 @@ const ProfileStatsCard = ({
               boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
             }}
           >
-            <Typography fontSize={{ xs: "12px", sm: "15px" }}>موادي</Typography>
+            <Typography fontSize={{ xs: "12px", sm: "15px" }}>
+              {t("profile_my_subjects")}
+            </Typography>
             {mySubjects ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                 <Typography fontSize={{ sm: "24px", md: "40px" }}>
                   {mySubjects?.length || 0}
                 </Typography>
                 <Typography fontSize={{ xs: "10px", sm: "14px" }}>
-                  مادة
+                  {t("profile_subjects_count")}
                 </Typography>
               </Box>
             ) : (
@@ -132,7 +135,7 @@ const ProfileStatsCard = ({
             }}
           >
             <Typography fontSize={{ xs: "12px", sm: "15px" }}>
-              الحماسة
+              {t("profile_enthusiasm")}
             </Typography>
             {profile ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -140,7 +143,7 @@ const ProfileStatsCard = ({
                   {profile.streak}
                 </Typography>
                 <Typography fontSize={{ xs: "10px", sm: "14px" }}>
-                  يوم
+                  {t("profile_days")}
                 </Typography>
               </Box>
             ) : (
@@ -172,7 +175,7 @@ const ProfileStatsCard = ({
             }}
           >
             <Typography fontSize={{ xs: "12px", sm: "15px" }}>
-              نقاط الخبرة
+              {t("profile_xp_points")}
             </Typography>
             {profile ? (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -180,7 +183,7 @@ const ProfileStatsCard = ({
                   {profile.xp}
                 </Typography>
                 <Typography fontSize={{ xs: "10px", sm: "14px" }}>
-                  xp
+                  {t("profile_xp")}
                 </Typography>
               </Box>
             ) : (
@@ -220,7 +223,7 @@ const ProfileStatsCard = ({
               mb={2}
               color={isDarkMode ? "text.primary" : "inherit"}
             >
-              قائمة المتقدمين
+              {t("profile_leaderboard")}
             </Typography>
 
             {[
@@ -230,7 +233,7 @@ const ProfileStatsCard = ({
             ]
               .slice()
               .sort((a, b) => b.xp_per_week - a.xp_per_week)
-              .slice(0, 5) // ✅ only top 5
+              .slice(0, 5)
               .map((player, index) => (
                 <Box
                   key={player.id}
@@ -304,7 +307,7 @@ const ProfileStatsCard = ({
                 },
               }}
             >
-              عرض المزيد
+              {t("profile_view_more")}
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>
@@ -330,116 +333,114 @@ const ProfileStatsCard = ({
               mb={2}
               color={isDarkMode ? "text.primary" : "inherit"}
             >
-              التحديات
+              {t("profile_challenges")}
             </Typography>
 
-            {achievements
-              .slice(-3) // ✅ last 3 achievements
-              .map((item, index, arr) => {
-                const [animatedProgress, setAnimatedProgress] =
-                  React.useState(0);
+            {achievements.slice(-3).map((item, index, arr) => {
+              const [animatedProgress, setAnimatedProgress] = React.useState(0);
 
-                React.useEffect(() => {
-                  let start = 0;
-                  const target = item.completion_percentage || 0;
-                  const duration = 800; // ms
-                  const stepTime = 16;
-                  const steps = duration / stepTime;
-                  const increment = target / steps;
+              React.useEffect(() => {
+                let start = 0;
+                const target = item.completion_percentage || 0;
+                const duration = 800;
+                const stepTime = 16;
+                const steps = duration / stepTime;
+                const increment = target / steps;
 
-                  const interval = setInterval(() => {
-                    start += increment;
-                    if (start >= target) {
-                      start = target;
-                      clearInterval(interval);
-                    }
-                    setAnimatedProgress(start);
-                  }, stepTime);
+                const interval = setInterval(() => {
+                  start += increment;
+                  if (start >= target) {
+                    start = target;
+                    clearInterval(interval);
+                  }
+                  setAnimatedProgress(start);
+                }, stepTime);
 
-                  return () => clearInterval(interval);
-                }, [item.completion_percentage]);
+                return () => clearInterval(interval);
+              }, [item.completion_percentage]);
 
-                return (
-                  <Box key={item.achievement.id}>
-                    <Box
+              return (
+                <Box key={item.achievement.id}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 2,
+                      pb: 2,
+                    }}
+                  >
+                    <Avatar
+                      variant="rounded"
+                      src={item.achievement.image || achievementImg}
+                      alt="Achievement"
                       sx={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 2,
-                        pb: 2,
+                        width: { xs: 50, sm: 75 },
+                        height: { xs: 50, sm: 75 },
+                        backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
                       }}
-                    >
-                      <Avatar
-                        variant="rounded"
-                        src={item.achievement.image || achievementImg}
-                        alt="Achievement"
-                        sx={{
-                          width: { xs: 50, sm: 75 },
-                          height: { xs: 50, sm: 75 },
-                          backgroundColor: isDarkMode ? "#2A2A2A" : "#F0F7FF",
-                        }}
-                      />
-                      <Box flex={1}>
-                        <Typography
-                          fontSize={{ xs: "12px", sm: "14px" }}
-                          mb={1}
-                          textAlign="center"
-                          color={isDarkMode ? "text.primary" : "inherit"}
-                        >
-                          {item.achievement.description}
-                        </Typography>
+                    />
+                    <Box flex={1}>
+                      <Typography
+                        fontSize={{ xs: "12px", sm: "14px" }}
+                        mb={1}
+                        textAlign="center"
+                        color={isDarkMode ? "text.primary" : "inherit"}
+                      >
+                        {item.achievement.description}
+                      </Typography>
 
-                        {/* 🌀 Animated Linear Progress */}
-                        <Box sx={{ position: "relative" }}>
-                          <LinearProgress
-                            variant="determinate"
-                            value={animatedProgress}
-                            sx={{
-                              height: { xs: 14, sm: 24 },
-                              borderRadius: "12px",
-                              backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
-                              transition: "all 0.6s ease-out",
-                              "& .MuiLinearProgress-bar": {
-                                transition: "transform 0.6s ease-out",
-                                backgroundColor: "#205DC7",
-                              },
-                            }}
-                          />
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              position: "absolute",
-                              top: 0,
-                              left: "50%",
-                              transform: "translateX(-50%)",
-                              height: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontSize: { xs: "12px", sm: "16px" },
-                              color: isDarkMode ? "#FFFFFF" : "black",
-                              fontWeight: "bold",
-                              textShadow: isDarkMode
-                                ? "0 0 2px rgba(255,255,255,0.3)"
-                                : "0 0 2px rgba(0,0,0,0.3)",
-                            }}
-                          >
-                            {Math.round(animatedProgress)}%
-                          </Typography>
-                        </Box>
+                      <Box sx={{ position: "relative" }}>
+                        <LinearProgress
+                          variant="determinate"
+                          value={animatedProgress}
+                          sx={{
+                            height: { xs: 14, sm: 24 },
+                            borderRadius: "12px",
+                            backgroundColor: isDarkMode ? "#333" : "#F0F0F0",
+                            transition: "all 0.6s ease-out",
+                            "& .MuiLinearProgress-bar": {
+                              transition: "transform 0.6s ease-out",
+                              backgroundColor: "#205DC7",
+                            },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: { xs: "12px", sm: "16px" },
+                            color: isDarkMode ? "#FFFFFF" : "black",
+                            fontWeight: "bold",
+                            textShadow: isDarkMode
+                              ? "0 0 2px rgba(255,255,255,0.3)"
+                              : "0 0 2px rgba(0,0,0,0.3)",
+                          }}
+                        >
+                          {animatedProgress === 100
+                            ? t("profile_completed")
+                            : `${Math.round(animatedProgress)}%`}
+                        </Typography>
                       </Box>
                     </Box>
-                    {index < arr.length - 1 && (
-                      <Divider
-                        sx={{
-                          mb: 2,
-                          borderColor: isDarkMode ? "#444" : "#e0e0e0",
-                        }}
-                      />
-                    )}
                   </Box>
-                );
-              })}
+                  {index < arr.length - 1 && (
+                    <Divider
+                      sx={{
+                        mb: 2,
+                        borderColor: isDarkMode ? "#444" : "#e0e0e0",
+                      }}
+                    />
+                  )}
+                </Box>
+              );
+            })}
 
             <Button
               onClick={() => navigate("/achievements")}
@@ -456,7 +457,7 @@ const ProfileStatsCard = ({
                 },
               }}
             >
-              عرض المزيد
+              {t("profile_view_more")}
               <ArrowBackIcon fontSize="small" />
             </Button>
           </Box>

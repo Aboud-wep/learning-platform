@@ -32,6 +32,13 @@ const TRANSLATIONS = {
     lang_en: "EN",
     lang_ar: "AR",
 
+    // Settings
+    nav_settings: "الإعدادات",
+    dark_mode: "الوضع الداكن",
+    light_mode: "الوضع الفاتح",
+    sound_on: "الصوت مفعل",
+    sound_off: "الصوت معطل",
+
     // Home
     home_title: "الرئيسية",
     home_recent: "مؤخرا",
@@ -42,6 +49,21 @@ const TRANSLATIONS = {
     home_continue_learning: "أكمل التعلم",
     home_completed: "مكتمل",
     home_in_progress: "قيد التقدم",
+
+    // Hearts Popup
+    hearts_counter: "عداد القلوب",
+    hearts_next_refill: "ستحصل على قلب جديد خلال:",
+    hearts_buy_button: "اشتر قلب",
+    hearts_full: "جميع القلوب ممتلئة ❤️",
+    hearts_buy_failed: "فشل شراء القلب. تأكد من وجود عملات كافية.",
+
+    // Streak Popup
+    streak_days: "يوماً حماسة",
+    streak_completed: "مكتمل",
+    streak_used_freeze: "تم استخدام التجميد",
+    streak_today: "اليوم",
+    streak_not_completed: "غير مكتمل",
+    lang_code: "ar", // Add language code for conditional rendering
 
     // Login
     login_identifier_label: "اسم المستخدم أو البريد الإلكتروني",
@@ -111,6 +133,76 @@ const TRANSLATIONS = {
     stage_summary_title: "شرح المرحلة",
     stage_summary_no_title: "العنوان",
     stage_summary_no_desc: "لا يوجد وصف",
+
+    // Profile & Stats
+    profile_my_subjects: "موادي",
+    profile_subjects_count: "مادة",
+    profile_enthusiasm: "الحماسة",
+    profile_days: "يوم",
+    profile_xp_points: "نقاط الخبرة",
+    profile_xp: "xp",
+    profile_leaderboard: "قائمة المتقدمين",
+    profile_view_more: "عرض المزيد",
+    profile_challenges: "التحديات",
+    profile_completed: "مكتمل",
+
+    // Profile
+    profile_title: "الملف الشخصي",
+    profile_edit: "تعديل الملف الشخصي",
+    profile_save_changes: "حفظ التغييرات",
+    profile_cancel: "إلغاء",
+    profile_change_avatar: "تغيير الصورة",
+    profile_change_password: "تغيير كلمة المرور",
+    profile_hide_password_change: "إخفاء تغيير كلمة المرور",
+    profile_old_password: "كلمة المرور القديمة",
+    profile_new_password: "كلمة المرور الجديدة",
+    profile_confirm_password: "تأكيد كلمة المرور الجديدة",
+    profile_password_mismatch: "كلمة السر الجديدة غير مطابقة",
+    profile_update_success: "تم التحديث بنجاح",
+    profile_password_success: "تم تغيير كلمة المرور بنجاح",
+    profile_no_title: "بدون لقب",
+    profile_joined_on: "تم الإنضمام في",
+    profile_no_date: "بدون تاريخ",
+
+    // Profile Stats
+    profile_my_subjects_count: "عدد المواد التي أدرسها",
+    profile_total_xp: "إجمالي نقاط XP",
+    profile_enthusiasm_days: "أيام الحماسة",
+    profile_highest_level: "المستوى الذي وصلت له",
+
+    // Achievements
+    profile_achievements: "التحديات",
+    profile_view_more: "عرض المزيد",
+    profile_claim_reward: "احصل على جائزتك",
+    profile_completed: "مكتمل",
+
+    // Friends
+    profile_my_friends: "أصدقائي",
+    profile_suggested_friends: "الأصدقاء المقترحون",
+    profile_search_friends: "ابحث عن أصدقاء",
+    profile_view_all_friends: "عرض المزيد ←",
+
+    // Buttons
+    profile_admin_panel: "لوحة التحكم",
+    profile_settings: "الإعدادات",
+    profile_logout: "تسجيل الخروج",
+
+    // Common
+    common_loading: "جاري التحميل...",
+
+    // Achievements
+    achievements_title: "التحديات",
+    achievement_claim_reward: "احصل على جائزتك",
+    achievement_completed: "مكتمل",
+
+    // Competition
+    competition_leaderboard: "قائمة المتقدمين",
+    competition_weekly: "المسابقة الأسبوعية",
+
+    // Common
+    common_loading: "جاري التحميل...",
+    common_error: "حدث خطأ",
+    common_success: "تم بنجاح",
   },
   en: {
     appName: "Taallemna",
@@ -118,7 +210,7 @@ const TRANSLATIONS = {
     nav_home: "Home",
     nav_subjects: "Subjects",
     nav_competitions: "Competitions",
-    nav_challenges: "Challenges",
+    nav_challenges: "Achievements",
     nav_profile: "Profile",
     nav_settings: "Settings",
     nav_logout: "Logout",
@@ -126,6 +218,13 @@ const TRANSLATIONS = {
     no_question: "No question",
     lang_en: "EN",
     lang_ar: "AR",
+
+    // Settings
+    nav_settings: "Settings",
+    dark_mode: "Dark Mode",
+    light_mode: "Light Mode",
+    sound_on: "Sound On",
+    sound_off: "Sound Off",
 
     // Home
     home_title: "Home",
@@ -198,6 +297,91 @@ const TRANSLATIONS = {
     stage_summary_title: "Stage Summary",
     stage_summary_no_title: "Title",
     stage_summary_no_desc: "No description",
+
+    // Hearts Popup
+    hearts_counter: "Hearts Counter",
+    hearts_next_refill: "You'll get a new heart in:",
+    hearts_buy_button: "Buy Heart",
+    hearts_full: "All hearts are full ❤️",
+    hearts_buy_failed: "Failed to buy heart. Make sure you have enough coins.",
+
+    // Streak Popup
+    streak_days: "Day Streak",
+    streak_completed: "Completed",
+    streak_used_freeze: "Freeze Used",
+    streak_today: "Today",
+    streak_not_completed: "Not Completed",
+    lang_code: "en", // Add language code for conditional rendering
+
+    // Profile & Stats
+    profile_my_subjects: "My Subjects",
+    profile_subjects_count: "subject",
+    profile_enthusiasm: "Enthusiasm",
+    profile_days: "day",
+    profile_xp_points: "XP Points",
+    profile_xp: "xp",
+    profile_leaderboard: "Leaderboard",
+    profile_view_more: "View more",
+    profile_challenges: "Achievements",
+    profile_completed: "Completed",
+
+    // Profile
+    profile_title: "Profile",
+    profile_edit: "Edit Profile",
+    profile_save_changes: "Save Changes",
+    profile_cancel: "Cancel",
+    profile_change_avatar: "Change Avatar",
+    profile_change_password: "Change Password",
+    profile_hide_password_change: "Hide Password Change",
+    profile_old_password: "Old Password",
+    profile_new_password: "New Password",
+    profile_confirm_password: "Confirm New Password",
+    profile_password_mismatch: "New password doesn't match",
+    profile_update_success: "Updated successfully",
+    profile_password_success: "Password changed successfully",
+    profile_no_title: "No Title",
+    profile_joined_on: "Joined on",
+    profile_no_date: "No date",
+
+    // Profile Stats
+    profile_my_subjects_count: "My Subjects Count",
+    profile_total_xp: "Total XP Points",
+    profile_enthusiasm_days: "Enthusiasm Days",
+    profile_highest_level: "Highest Level Reached",
+
+    // Achievements
+    profile_achievements: "Achievements",
+    profile_view_more: "View More",
+    profile_claim_reward: "Claim Your Reward",
+    profile_completed: "Completed",
+
+    // Friends
+    profile_my_friends: "My Friends",
+    profile_suggested_friends: "Suggested Friends",
+    profile_search_friends: "Search for friends",
+    profile_view_all_friends: "View More ←",
+
+    // Buttons
+    profile_admin_panel: "Admin Panel",
+    profile_settings: "Settings",
+    profile_logout: "Logout",
+
+    // Common
+    common_loading: "Loading...",
+
+    // Achievements
+    achievements_title: "Achievements",
+    achievement_claim_reward: "Claim your reward",
+    achievement_completed: "Completed",
+
+    // Competition
+    competition_leaderboard: "Leaderboard",
+    competition_weekly: "Weekly Competition",
+
+    // Common
+    common_loading: "Loading...",
+    common_error: "Error occurred",
+    common_success: "Success",
   },
 };
 
@@ -206,19 +390,19 @@ export const LanguageProvider = ({ children }) => {
     () => localStorage.getItem(STORAGE_KEY) || "ar"
   );
 
-  // ✅ Save language to localStorage whenever it changes
+  // Save language
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language);
   }, [language]);
 
-  // ✅ Apply correct document direction
+  // Always force RTL
   useEffect(() => {
     document.documentElement.setAttribute("dir", "rtl");
     document.body.setAttribute("dir", "rtl");
   }, [language]);
 
   const value = useMemo(() => {
-    const isRTL = language === "ar";
+    const isRTL = true; // ALWAYS RTL
 
     const t = (key) => {
       const translation = TRANSLATIONS[language]?.[key];

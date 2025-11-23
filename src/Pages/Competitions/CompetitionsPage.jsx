@@ -39,7 +39,7 @@ const CompetitionsPage = () => {
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
 
   useEffect(() => {
-    setPageTitle("المسابقات");
+    setPageTitle(t("nav_competitions"));
     if (competitionId) {
       console.log(
         "🔄 CompetitionsPage - Fetching competition for ID:",

@@ -1,4 +1,3 @@
-
 import { useLanguage } from "../../Context/LanguageContext";
 import { useOutletContext } from "react-router-dom";
 import { Box, Switch, FormControlLabel } from "@mui/material";
@@ -22,6 +21,10 @@ const Settings = () => {
 
   const handleToggleLanguage = () => {
     toggleLanguage();
+    // Refresh the page after a short delay to apply language changes
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   };
 
   const handleToggleSound = () => {

@@ -12,6 +12,7 @@ import HeartIcon from "../assets/Icons/heart.png";
 import axiosInstance from "../lip/axios";
 import Coin from "../assets/Icons/coin.png";
 import CloseIcon from "@mui/icons-material/Close";
+import { useLanguage } from "../Context/LanguageContext";
 
 const HeartsPopup = ({
   open,
@@ -24,6 +25,7 @@ const HeartsPopup = ({
   isDarkMode = false,
   onHeartsUpdate, // Callback to refresh hearts from API
 }) => {
+  const { t } = useLanguage();
   const popupRef = useRef(null);
   const [position, setPosition] = useState(null);
   const [arrowOffset, setArrowOffset] = useState("50%");
@@ -198,7 +200,7 @@ const HeartsPopup = ({
       console.log("Updated coins:", newCoins);
     } catch (err) {
       console.error("Failed to buy heart:", err);
-      alert("فشل شراء القلب. تأكد من وجود عملات كافية.");
+      alert(t("hearts_buy_failed"));
     }
   };
 
@@ -240,7 +242,7 @@ const HeartsPopup = ({
             fontWeight="bold"
             color={isDarkMode ? "#FFFFFF" : "#000000"}
           >
-            عداد القلوب
+            {t("hearts_counter")}
           </Typography>
 
           {/* ✅ Close button (visible only on mobile) */}
@@ -275,6 +277,7 @@ const HeartsPopup = ({
             isDesktop={false}
             onBuyHeart={handleBuyHeart}
             isDarkMode={isDarkMode}
+            t={t}
           />
         </DialogContent>
       </Dialog>
@@ -328,7 +331,7 @@ const HeartsPopup = ({
           mb: 2,
         }}
       >
-        عداد القلوب
+        {t("hearts_counter")}
       </Typography>
 
       <HeartsContent
@@ -338,6 +341,7 @@ const HeartsPopup = ({
         isDesktop={true}
         onBuyHeart={handleBuyHeart}
         isDarkMode={isDarkMode}
+        t={t}
       />
     </div>
   );
@@ -351,6 +355,7 @@ const HeartsContent = ({
   isDesktop = false,
   onBuyHeart,
   isDarkMode = false,
+  t,
 }) => {
   const textColor = isDarkMode ? "#FFFFFF" : isDesktop ? "black" : "#444";
   const buttonBackground = isDarkMode ? "#333" : "#F2F2F2";
@@ -420,7 +425,7 @@ const HeartsContent = ({
             direction: "rtl",
           }}
         >
-          ستحصل على قلب جديد خلال:
+          {t("hearts_next_refill")}
           <Typography
             component="div"
             sx={{
@@ -462,9 +467,6 @@ const HeartsContent = ({
               width: "100%",
               maxWidth: "238px",
               transition: "all 0.2s ease",
-              "&:hover": {
-                backgroundColor: buttonHoverBackground,
-              },
             }}
             onMouseEnter={(e) => {
               e.target.style.backgroundColor = buttonHoverBackground;
@@ -503,7 +505,7 @@ const HeartsContent = ({
               />
             </Box>
             {/* Centered Text */}
-            اشتر قلب
+            {t("hearts_buy_button")}
           </button>
         </Box>
       )}
@@ -516,7 +518,7 @@ const HeartsContent = ({
             direction: "rtl",
           }}
         >
-          جميع القلوب ممتلئة ❤️
+          {t("hearts_full")}
         </Typography>
       )}
     </Box>

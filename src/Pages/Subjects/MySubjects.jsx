@@ -19,6 +19,7 @@ import {
 } from "../../Component/ui/SkeletonLoader";
 import SubjectsPageSkeleton from "./SubjectsPageSkeleton";
 import { useQuestion } from "../Questions/Context/QuestionContext";
+import { useLanguage } from "../../Context/LanguageContext";
 
 const MySubjects = () => {
   const { setPageTitle, isDarkMode } = useOutletContext(); // Added isDarkMode
@@ -27,10 +28,10 @@ const MySubjects = () => {
   const { subjects, userProgress, loadingg } = useSubjects();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-
+  const { t } = useLanguage();
   useEffect(() => {
-    setPageTitle("المواد/موادي");
-  }, [setPageTitle]);
+    setPageTitle(`${t("subjects_title")} / ${t("profile_my_subjects")}`);
+  }, [setPageTitle, t]);
 
   // Map user progress by subject ID for quick lookup
   const userProgressMap = userProgress.reduce((acc, item) => {
@@ -231,7 +232,7 @@ const MySubjects = () => {
                   borderRadius: "20px",
                   py: 1,
                   backgroundColor: "#205DC7",
-                  color:"white",
+                  color: "white",
                   "&:hover": {
                     backgroundColor: isDarkMode ? "#64b5f6" : "#1648A8",
                   },

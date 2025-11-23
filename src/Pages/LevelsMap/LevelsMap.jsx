@@ -28,7 +28,7 @@ const LevelsMap = () => {
   const mySubjects = subjects.filter((s) => userProgressMap[s.id]);
 
   useEffect(() => {
-    setPageTitle("الرئيسية");
+    setPageTitle(t("home_title"));
   }, [setPageTitle]);
 
   useEffect(() => {
